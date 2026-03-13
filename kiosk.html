@@ -811,7 +811,7 @@
       var links = document.querySelectorAll('.subnav-link');
       var subnav = document.getElementById('subnav');
       function onScroll(){
-        var offset = subnav.offsetTop + subnav.offsetHeight + 10;
+        var offset = subnav.getBoundingClientRect().bottom + 10;
         var active = sections[0];
         sections.forEach(function(id){
           var el = document.getElementById(id);
