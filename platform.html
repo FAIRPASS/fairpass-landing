@@ -103,8 +103,17 @@
     </div>
   </section>
 
+  <!-- ===================== SUBNAV ===================== -->
+  <nav class="subnav" id="subnav">
+    <div class="subnav-inner">
+      <a href="#features" class="subnav-link">핵심기능</a>
+      <a href="#preview" class="subnav-link">미리보기</a>
+      <a href="#renewal" class="subnav-link">업데이트 예정</a>
+    </div>
+  </nav>
+
   <!-- ===================== FEATURES ===================== -->
-  <section class="section">
+  <section class="section" id="features">
     <div class="container">
       <div class="section-label fade-up">CORE FEATURES</div>
       <h2 class="section-title fade-up">핵심 <span class="gradient-text">기능</span></h2>
@@ -176,7 +185,7 @@
   </section>
 
   <!-- ===================== SCREENSHOT ===================== -->
-  <section class="section section--alt">
+  <section class="section section--alt" id="preview">
     <div class="container">
       <div class="section-label fade-up">PRODUCT</div>
       <h2 class="section-title fade-up">플랫폼 <span class="gradient-text">미리보기</span></h2>
@@ -200,7 +209,7 @@
   </section>
 
   <!-- ===================== RENEWAL TEASER ===================== -->
-  <section class="section section--alt">
+  <section class="section section--alt" id="renewal">
     <div class="container">
       <div class="platform-renewal-wrap fade-up">
         <div class="platform-renewal-badge">2026 하반기 예정</div>
@@ -332,5 +341,25 @@
   </div>
 
   <script src="js/main.js"></script>
+  <script>
+    (function(){
+      var sections = ['features','preview','renewal'];
+      var links = document.querySelectorAll('.subnav-link');
+      var subnav = document.getElementById('subnav');
+      function onScroll(){
+        var offset = subnav.offsetTop + subnav.offsetHeight + 10;
+        var active = sections[0];
+        sections.forEach(function(id){
+          var el = document.getElementById(id);
+          if(el && el.getBoundingClientRect().top <= offset) active = id;
+        });
+        links.forEach(function(a){
+          a.classList.toggle('active', a.getAttribute('href') === '#'+active);
+        });
+      }
+      window.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+    })();
+  </script>
 </body>
 </html>

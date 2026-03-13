@@ -97,8 +97,19 @@
     </div>
   </section>
 
+  <!-- ===================== SUBNAV ===================== -->
+  <nav class="subnav" id="subnav">
+    <div class="subnav-inner">
+      <a href="#features" class="subnav-link">핵심강점</a>
+      <a href="#waterproof" class="subnav-link">방수</a>
+      <a href="#patents" class="subnav-link">특허</a>
+      <a href="#types" class="subnav-link">제품구성</a>
+      <a href="#gallery" class="subnav-link">포트폴리오</a>
+    </div>
+  </nav>
+
   <!-- ===================== FEATURES ===================== -->
-  <section class="section">
+  <section class="section" id="features">
     <div class="container">
       <div class="section-label fade-up">CORE FEATURES</div>
       <h2 class="section-title fade-up">핵심 <span class="gradient-text">강점</span></h2>
@@ -157,7 +168,7 @@
   </section>
 
   <!-- ===================== WATERPROOF ===================== -->
-  <section class="section section--alt">
+  <section class="section section--alt" id="waterproof">
     <div class="container">
       <div class="section-label fade-up">WATER RESISTANCE</div>
       <h2 class="section-title fade-up">생활방수 되는 <span class="gradient-text">종이명찰</span></h2>
@@ -202,7 +213,7 @@
   </section>
 
   <!-- ===================== PATENTS ===================== -->
-  <section class="section">
+  <section class="section" id="patents">
     <div class="container">
       <div class="section-label fade-up">CERTIFIED PATENTS</div>
       <h2 class="section-title fade-up">기술을 <span class="gradient-text">특허로 증명합니다</span></h2>
@@ -244,7 +255,7 @@
   </section>
 
   <!-- ===================== BADGE TYPES ===================== -->
-  <section class="section section--alt">
+  <section class="section section--alt" id="types">
     <div class="container">
       <div class="section-label fade-up">PAPER BADGE LINEUP</div>
       <h2 class="section-title fade-up">4가지 <span class="gradient-text">명찰 종류</span></h2>
@@ -378,7 +389,7 @@
   </section>
 
   <!-- ===================== GALLERY ===================== -->
-  <section class="section section--alt">
+  <section class="section section--alt" id="gallery">
     <div class="container">
       <div class="section-label fade-up">DESIGN SAMPLES</div>
       <h2 class="section-title fade-up">다채로운 <span class="gradient-text">디자인 사례</span></h2>
@@ -523,5 +534,25 @@
   </div>
 
   <script src="js/main.js"></script>
+  <script>
+    (function(){
+      var sections = ['features','waterproof','patents','types','gallery'];
+      var links = document.querySelectorAll('.subnav-link');
+      var subnav = document.getElementById('subnav');
+      function onScroll(){
+        var offset = subnav.offsetTop + subnav.offsetHeight + 10;
+        var active = sections[0];
+        sections.forEach(function(id){
+          var el = document.getElementById(id);
+          if(el && el.getBoundingClientRect().top <= offset) active = id;
+        });
+        links.forEach(function(a){
+          a.classList.toggle('active', a.getAttribute('href') === '#'+active);
+        });
+      }
+      window.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+    })();
+  </script>
 </body>
 </html>

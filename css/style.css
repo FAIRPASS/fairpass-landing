@@ -5130,3 +5130,45 @@ select.form-input option {
   transform: none;
   flex-shrink: 0;
 }
+
+/* ===== Sub Navigation Bar (세부 페이지 섹션 바로가기) ===== */
+.subnav {
+  position: sticky;
+  top: 60px;
+  z-index: 90;
+  background: rgba(10,10,20,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.subnav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.subnav-inner::-webkit-scrollbar { display: none; }
+.subnav-link {
+  flex-shrink: 0;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.subnav-link:hover {
+  color: rgba(255,255,255,0.85);
+}
+.subnav-link.active {
+  color: #fff;
+  border-bottom-color: #8b5cf6;
+}
+@media (max-width: 600px) {
+  .subnav-link { padding: 10px 14px; font-size: 12px; }
+}

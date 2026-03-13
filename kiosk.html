@@ -108,8 +108,19 @@
     </div>
   </section>
 
+  <!-- ===================== SUBNAV ===================== -->
+  <nav class="subnav" id="subnav">
+    <div class="subnav-inner">
+      <a href="#features" class="subnav-link">핵심기능</a>
+      <a href="#billing" class="subnav-link">정산방식</a>
+      <a href="#why" class="subnav-link">왜 FAIRPASS</a>
+      <a href="#gallery" class="subnav-link">현장사례</a>
+      <a href="#specs" class="subnav-link">스펙</a>
+    </div>
+  </nav>
+
   <!-- ===================== FEATURES ===================== -->
-  <section class="section">
+  <section class="section" id="features">
     <div class="container">
       <div class="section-label fade-up">CORE FEATURES</div>
       <h2 class="section-title fade-up">핵심 <span class="gradient-text">기능</span></h2>
@@ -148,7 +159,7 @@
   </section>
 
   <!-- ===================== SMART BILLING ===================== -->
-  <section class="section smart-billing-section">
+  <section class="section smart-billing-section" id="billing">
     <div class="container">
       <div class="section-label fade-up">SMART BILLING</div>
       <h2 class="section-title fade-up"><span class="gradient-text">알뜰 정산</span></h2>
@@ -196,7 +207,7 @@
   </section>
 
       <!-- ===================== WHY FAIRPASS KIOSK ===================== -->
-  <section class="section kiosk-why2-section">
+  <section class="section kiosk-why2-section" id="why">
     <div class="container">
       <div class="kiosk-why2-split">
 
@@ -255,7 +266,7 @@
 
 
     <!-- ===================== GALLERY ===================== -->
-  <section class="section">
+  <section class="section" id="gallery">
     <div class="container">
       <div class="section-label fade-up">IN ACTION</div>
       <h2 class="section-title fade-up">현장에서 <span class="gradient-text">검증된 솔루션</span></h2>
@@ -300,7 +311,7 @@
 
 
   <!-- ===================== SPECS ===================== -->
-  <section class="section">
+  <section class="section" id="specs">
     <div class="container">
       <div class="section-label fade-up">SPECIFICATIONS</div>
       <h2 class="section-title fade-up">상세 <span class="gradient-text">스펙</span></h2>
@@ -796,5 +807,25 @@
       </div>
     </div>
   </div>
+  <script>
+    (function(){
+      var sections = ['features','billing','why','gallery','specs'];
+      var links = document.querySelectorAll('.subnav-link');
+      var subnav = document.getElementById('subnav');
+      function onScroll(){
+        var offset = subnav.offsetTop + subnav.offsetHeight + 10;
+        var active = sections[0];
+        sections.forEach(function(id){
+          var el = document.getElementById(id);
+          if(el && el.getBoundingClientRect().top <= offset) active = id;
+        });
+        links.forEach(function(a){
+          a.classList.toggle('active', a.getAttribute('href') === '#'+active);
+        });
+      }
+      window.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+    })();
+  </script>
 </body>
 </html>
