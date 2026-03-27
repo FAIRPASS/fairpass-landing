@@ -1,1 +1,10 @@
 .vercel
+.env*.local
+node_modules/
+package-lock.json
+__MACOSX/
+images/PORTFOLIO_IMAGE/
+images/image.zip
+*.xlsx
+*.zip
+fairpass_brand_strategy_16x9_noembed.pdf

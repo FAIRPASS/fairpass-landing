@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAIRPASS Admin</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #060610; --sidebar-bg: #0a0a1c; --surface: rgba(255,255,255,0.05);
+      --surface2: rgba(255,255,255,0.08); --border: rgba(255,255,255,0.10);
+      --text: #fff; --muted: rgba(255,255,255,0.50);
+      --purple: #8b5cf6; --purple-light: #a855f7; --purple-bg: rgba(139,92,246,0.15);
+      --cyan: #06b6d4; --cyan-light: #22d3ee; --green: #10b981; --red: #ef4444;
+      --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+      --sidebar-w: 182px;
+    }
+    body { font-family: 'Pretendard', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+    input, select, textarea, button { font-family: inherit; }
+
+    /* ── Login ── */
+    #loginScreen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse at 30% 50%, rgba(139,92,246,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 50%, rgba(6,182,212,0.10) 0%, transparent 60%);
+    }
+    .login-card {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 48px 40px; width: 360px; text-align: center;
+    }
+    .login-logo { font-size: 22px; font-weight: 800; letter-spacing: 1px; margin-bottom: 6px; }
+    .login-logo span { background: linear-gradient(135deg, var(--purple-light), var(--cyan-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
+    .login-input {
+      width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border); border-radius: var(--radius-xs);
+      color: var(--text); font-size: 15px; margin-bottom: 14px; outline: none; transition: border-color 0.2s;
+    }
+    .login-input:focus { border-color: var(--purple-light); }
+    .login-btn {
+      width: 100%; padding: 13px; background: linear-gradient(135deg, var(--purple), var(--cyan));
+      border: none; border-radius: var(--radius-xs); color: #fff; font-size: 15px;
+      font-weight: 700; cursor: pointer; transition: opacity 0.2s;
+    }
+    .login-btn:hover { opacity: 0.88; }
+    .login-err { font-size: 13px; color: var(--red); margin-top: 10px; min-height: 20px; }
+
+    /* ── Layout ── */
+    #app { display: none; }
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 50;
+    }
+    .sidebar-logo {
+      padding: 22px 20px 18px; font-size: 18px; font-weight: 800; letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo span { background: linear-gradient(135deg, var(--purple-light), var(--cyan-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .sidebar-nav { flex: 1; padding: 10px 0; overflow-y: auto; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 11px 20px;
+      font-size: 14px; font-weight: 500; color: var(--muted); border: none;
+      background: none; width: 100%; text-align: left; cursor: pointer; transition: all 0.15s;
+    }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .nav-item.active { color: var(--purple-light); background: var(--purple-bg); font-weight: 700; }
+    .nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+    .sidebar-bottom { padding: 16px; border-top: 1px solid var(--border); }
+    .logout-btn {
+      width: 100%; padding: 9px; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); color: var(--muted); font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .logout-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+    /* ── Main ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px; min-height: 100vh; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .page-title { font-size: 22px; font-weight: 800; margin-bottom: 24px; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .page-header .page-title { margin-bottom: 0; }
+
+    /* ── Stat cards ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 20px 22px;
+    }
+    .stat-num { font-size: 28px; font-weight: 800; }
+    .stat-num--gradient { background: linear-gradient(135deg, var(--purple-light), var(--cyan-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .stat-sub { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+
+    /* ── GA 통계 ── */
+    .ga-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 40px; margin-bottom: 20px; text-align: center;
+    }
+    .ga-placeholder { color: var(--muted); font-size: 14px; line-height: 1.9; }
+    .ga-placeholder strong { color: var(--purple-light); display: block; margin-bottom: 4px; }
+    .ga-section { margin-bottom: 24px; }
+    .ga-section-title { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+    .ga-grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+    .ga-grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
+    .ga-stat { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 18px; }
+    .ga-stat-num { font-size: 26px; font-weight: 800; }
+    .ga-stat-label { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .ga-stat-sub { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 2px; }
+    .ga-list { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+    .ga-list-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+    .ga-list-row:last-child { border-bottom: none; }
+    .ga-list-label { color: var(--muted); }
+    .ga-list-val { font-weight: 700; color: var(--text); }
+    .ga-bar-wrap { flex: 1; margin: 0 12px; background: rgba(255,255,255,0.06); border-radius: 3px; height: 4px; overflow: hidden; }
+    .ga-bar { height: 4px; border-radius: 3px; background: linear-gradient(90deg, var(--purple), var(--cyan)); }
+    .ga-event-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .ga-event-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; }
+    .ga-event-num { font-size: 22px; font-weight: 800; color: var(--cyan-light); }
+    .ga-event-label { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .ga-loading { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+    .ga-error { text-align: center; padding: 24px; color: var(--red); font-size: 13px; }
+
+    /* ── Quick links ── */
+    .quick-links { display: flex; gap: 16px; flex-wrap: wrap; }
+    .quick-link-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 18px 22px; flex: 1; min-width: 180px;
+    }
+    .quick-link-card h4 { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; }
+    .quick-link-card a {
+      display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+      background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-xs);
+      font-size: 13px; font-weight: 600; color: var(--text); margin-right: 8px; margin-bottom: 8px;
+      text-decoration: none; transition: border-color 0.2s; cursor: pointer;
+    }
+    .quick-link-card a:hover { border-color: var(--purple-light); }
+
+    /* ── Buttons ── */
+    .btn { padding: 8px 16px; border-radius: var(--radius-xs); font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.82; }
+    .btn-primary { background: linear-gradient(135deg, var(--purple), var(--cyan)); color: #fff; }
+    .btn-ghost { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+    .btn-danger { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: var(--red); }
+    .btn-success { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: var(--green); }
+    .btn-sm { padding: 5px 11px; font-size: 12px; }
+
+    /* ── Action bar ── */
+    .action-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+    .search-input {
+      padding: 8px 14px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); color: var(--text); font-size: 13px; outline: none; width: 220px;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--purple-light); }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      text-align: left; font-size: 11px; font-weight: 700; color: var(--muted);
+      letter-spacing: 0.08em; padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.15s; }
+    tbody tr:hover { background: var(--surface); }
+    tbody td { padding: 10px 12px; font-size: 13px; vertical-align: middle; }
+    .td-thumb { width: 56px; height: 38px; object-fit: cover; border-radius: 5px; display: block; background: rgba(255,255,255,0.05); }
+    .td-thumb-placeholder { width: 56px; height: 38px; border-radius: 5px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .td-title { max-width: 240px; font-weight: 600; line-height: 1.35; }
+    .td-muted { color: var(--muted); }
+    .td-wrap { max-width: 280px; white-space: pre-wrap; word-break: break-word; }
+    .td-actions { display: flex; gap: 6px; }
+    .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 100px; font-weight: 600; }
+    .tag-kr { background: rgba(139,92,246,0.18); color: var(--purple-light); }
+    .tag-sg { background: rgba(6,182,212,0.18); color: var(--cyan-light); }
+    .tag-other { background: rgba(255,255,255,0.08); color: var(--muted); }
+
+    /* ── Empty state ── */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
+
+    /* ── Form ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-full { grid-column: 1 / -1; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0.05em; }
+    .form-input, .form-select, .form-textarea {
+      padding: 10px 13px; background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); color: var(--text); font-size: 14px; outline: none; transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--purple-light); }
+    .form-textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+    .form-select option { background: #1a1a2e; }
+    .form-hint { font-size: 11px; color: var(--muted); }
+    .form-section-title {
+      font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 0.1em;
+      text-transform: uppercase; margin: 20px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Image upload ── */
+    .img-upload-area {
+      border: 2px dashed var(--border); border-radius: var(--radius-sm);
+      padding: 24px; text-align: center; cursor: pointer; transition: border-color 0.2s; position: relative;
+    }
+    .img-upload-area:hover, .img-upload-area.drag-over { border-color: var(--purple-light); }
+    .img-upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .img-upload-text { font-size: 13px; color: var(--muted); }
+    .img-upload-text strong { color: var(--purple-light); }
+    .img-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: var(--radius-xs); margin-top: 12px; display: none; }
+    .img-preview.show { display: block; }
+    .img-remove-btn { margin-top: 8px; font-size: 12px; color: var(--red); cursor: pointer; background: none; border: none; display: none; }
+    .img-remove-btn.show { display: inline-block; }
+    .sub-imgs-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .sub-img-item { position: relative; width: 90px; height: 65px; }
+    .sub-img-item img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-xs); }
+    .sub-img-del { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; background: var(--red); border-radius: 50%; border: none; color: #fff; font-size: 12px; cursor: pointer; line-height: 20px; text-align: center; }
+    .sub-add-btn { width: 90px; height: 65px; border: 2px dashed var(--border); border-radius: var(--radius-xs); background: none; color: var(--muted); font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color 0.2s; position: relative; }
+    .sub-add-btn:hover { border-color: var(--purple-light); color: var(--purple-light); }
+    .sub-add-btn input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .uploading-badge { display: none; font-size: 11px; color: var(--cyan-light); background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.2); padding: 3px 10px; border-radius: 100px; margin-left: 8px; }
+    .uploading-badge.show { display: inline-block; }
+
+    /* ── Modal ── */
+    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; display: none; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 24px; }
+    .modal-bg.open { display: flex; }
+    .modal { background: #0e0e1a; border: 1px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 860px; padding: 32px; position: relative; margin: auto; }
+    .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 24px; }
+    .modal-close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; }
+    .modal-close-btn:hover { color: var(--text); }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 28px; }
+
+    /* ── Seed progress ── */
+    .seed-progress { display: none; position: fixed; bottom: 28px; right: 28px; z-index: 300; background: #0e0e1a; border: 1px solid var(--green); border-radius: var(--radius-sm); padding: 16px 22px; min-width: 240px; }
+    .seed-progress.show { display: block; }
+    .seed-progress-label { font-size: 13px; font-weight: 600; color: var(--green); margin-bottom: 8px; }
+    .seed-progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+    .seed-progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.3s; width: 0%; }
+
+    /* ── Toast ── */
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: var(--green); padding: 12px 22px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; z-index: 400; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+    .toast.err { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3); color: var(--red); }
+    .toast.show { opacity: 1; }
+
+    /* ── Settings ── */
+    .settings-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 24px; margin-bottom: 16px; max-width: 480px; }
+    .settings-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+
+    @media (max-width: 960px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .modal { padding: 20px; } .main { padding: 16px; } }
+
+    /* ── Drag & Drop ── */
+    .pg-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; transition: background 0.15s; }
+    .pg-btn:hover:not(:disabled) { background: var(--purple-bg); color: var(--purple-light); }
+    .pg-btn:disabled { opacity: 0.35; cursor: default; }
+    .pg-btn.pg-active { background: var(--purple-light); color: #fff; border-color: var(--purple-light); font-weight: 600; }
+    .drag-handle { cursor: grab; color: var(--muted); font-size: 18px; padding: 2px 8px; user-select: none; opacity: 0.5; transition: opacity 0.15s; }
+    tr:hover .drag-handle { opacity: 1; }
+    .drag-handle:active { cursor: grabbing; }
+    tr.drag-over td { border-top: 2px solid var(--purple-light); }
+    tr.dragging { opacity: 0.35; background: var(--purple-bg); }
+    .pin-badge { display: inline-block; font-size: 10px; background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); padding: 2px 7px; border-radius: 100px; font-weight: 700; margin-left: 6px; vertical-align: middle; }
+
+    /* ── Toggle Switch ── */
+    .toggle-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+    .toggle-label { font-size: 13px; color: var(--text); }
+    .toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track { position: absolute; inset: 0; background: rgba(255,255,255,0.12); border-radius: 100px; cursor: pointer; transition: background 0.2s; }
+    .toggle-switch input:checked + .toggle-track { background: var(--purple); }
+    .toggle-track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
+    .toggle-switch input:checked + .toggle-track::after { transform: translateX(18px); }
+
+    /* Country picker */
+    .country-picker { position: relative; }
+    .country-picker-input { width: 100%; box-sizing: border-box; padding: 9px 12px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; cursor: pointer; }
+    .country-picker-input:focus { border-color: var(--purple-light); }
+    .country-picker-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #1e1e2e; border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; max-height: 220px; overflow-y: auto; z-index: 999; }
+    .country-picker-dropdown.open { display: block; }
+    .country-search { width: 100%; box-sizing: border-box; padding: 8px 12px; background: rgba(255,255,255,0.05); border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; font-family: inherit; outline: none; }
+    .country-option { padding: 8px 12px; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+    .country-option:hover, .country-option.highlighted { background: rgba(139,92,246,0.15); }
+    .country-option .en-name { font-size: 11px; color: var(--muted); }
+    .country-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+    .country-en-preview { font-size: 11px; color: var(--muted); margin-top: 4px; height: 16px; }
+  </style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">FAIRPASS <span>Admin</span></div>
+    <div class="login-sub">관리자 페이지</div>
+    <input type="password" id="pwInput" class="login-input" placeholder="관리자 비밀번호" autocomplete="current-password">
+    <button class="login-btn" id="loginBtn">로그인</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">FAIR<span>PASS</span></div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-page="dashboard"><span class="nav-icon">📊</span>대시보드</button>
+        <button class="nav-item" data-page="portfolio"><span class="nav-icon">🖼️</span>포트폴리오</button>
+        <button class="nav-item" data-page="quote"><span class="nav-icon">📋</span>견적 문의</button>
+        <button class="nav-item" data-page="brochure"><span class="nav-icon">📄</span>소개서 요청</button>
+        <button class="nav-item" data-page="kiosk"><span class="nav-icon">🔑</span>키오스크 문의</button>
+        <button class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span>설정</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="logout-btn" id="logoutBtn">로그아웃</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+      <!-- ── 대시보드 ── -->
+      <div id="page-dashboard" class="page active">
+        <div class="page-title">대시보드</div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-num stat-num--gradient">—</div>
+            <div class="stat-label">이번 달 방문자</div>
+            <div class="stat-sub">GA 연동 예정</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="dashQuote">—</div>
+            <div class="stat-label">견적 문의</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="dashBrochure">—</div>
+            <div class="stat-label">소개서 요청</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="dashPortfolio">—</div>
+            <div class="stat-label">포트폴리오</div>
+          </div>
+        </div>
+        <!-- GA4 통계 대시보드 -->
+        <div id="gaStatsArea">
+          <div class="ga-loading" id="gaLoading">📊 GA4 데이터 불러오는 중...</div>
+          <div id="gaStats" style="display:none;">
+            <div class="ga-section">
+              <div class="ga-section-title">방문자 현황</div>
+              <div class="ga-grid-3">
+                <div class="ga-stat">
+                  <div class="ga-stat-num stat-num--gradient" id="gaToday">—</div>
+                  <div class="ga-stat-label">오늘 방문자</div>
+                  <div class="ga-stat-sub" id="gaTodaySessions"></div>
+                </div>
+                <div class="ga-stat">
+                  <div class="ga-stat-num" id="ga7days">—</div>
+                  <div class="ga-stat-label">7일 방문자</div>
+                  <div class="ga-stat-sub" id="ga7daysSessions"></div>
+                </div>
+                <div class="ga-stat">
+                  <div class="ga-stat-num" id="ga30days">—</div>
+                  <div class="ga-stat-label">30일 방문자</div>
+                  <div class="ga-stat-sub" id="ga30daysSessions"></div>
+                </div>
+              </div>
+            </div>
+            <div class="ga-section">
+              <div class="ga-section-title">전환 이벤트 (30일)</div>
+              <div class="ga-event-grid">
+                <div class="ga-event-card">
+                  <div class="ga-event-num" id="evQuoteStart">—</div>
+                  <div class="ga-event-label">모의견적 입력 시작</div>
+                </div>
+                <div class="ga-event-card">
+                  <div class="ga-event-num" id="evQuoteClick">—</div>
+                  <div class="ga-event-label">견적서 이메일 클릭</div>
+                </div>
+                <div class="ga-event-card">
+                  <div class="ga-event-num" id="evQuoteSubmit">—</div>
+                  <div class="ga-event-label">견적서 발송 성공</div>
+                </div>
+                <div class="ga-event-card">
+                  <div class="ga-event-num" id="evBrochureOpen">—</div>
+                  <div class="ga-event-label">소개서 모달 열기</div>
+                </div>
+                <div class="ga-event-card">
+                  <div class="ga-event-num" id="evBrochureSubmit">—</div>
+                  <div class="ga-event-label">소개서 발송 성공</div>
+                </div>
+                <div class="ga-event-card">
+                  <div class="ga-event-num" id="evSignup">—</div>
+                  <div class="ga-event-label">회원가입 클릭</div>
+                </div>
+              </div>
+            </div>
+            <div class="ga-grid-2">
+              <div class="ga-section">
+                <div class="ga-section-title">유입 경로 TOP5 (30일)</div>
+                <div class="ga-list" id="gaSourceList"></div>
+              </div>
+              <div class="ga-section">
+                <div class="ga-section-title">국가별 방문자 TOP5 (30일)</div>
+                <div class="ga-list" id="gaCountryList"></div>
+              </div>
+            </div>
+            <div class="ga-section" style="margin-top:16px;">
+              <div class="ga-section-title">페이지별 조회수 (30일)</div>
+              <div class="ga-list" id="gaPageList"></div>
+            </div>
+          </div>
+          <div id="gaError" class="ga-error" style="display:none;"></div>
+        </div>
+        <div class="quick-links">
+          <div class="quick-link-card">
+            <h4>랜딩페이지</h4>
+            <a href="https://fairpass.world" target="_blank">🌐 KO버전</a>
+            <a href="https://fairpass.world/en" target="_blank">🌐 EN버전</a>
+          </div>
+          <div class="quick-link-card">
+            <h4>포트폴리오</h4>
+            <a href="https://fairpass.world/portfolio.html" target="_blank">포트폴리오 페이지</a>
+          </div>
+          <div class="quick-link-card">
+            <h4>Google Analytics</h4>
+            <a href="https://analytics.google.com/analytics/web/" target="_blank" id="gaLink">GA4 대시보드</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 포트폴리오 ── -->
+      <div id="page-portfolio" class="page">
+        <div class="page-header">
+          <div class="page-title">포트폴리오 관리</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="addBtn">+ 새 항목 추가</button>
+            <button class="btn btn-ghost btn-sm" id="excelDownloadBtn">⬇ 엑셀 다운로드</button>
+          </div>
+        </div>
+        <div class="stats-row" style="grid-template-columns: repeat(4,1fr); max-width:560px; margin-bottom:20px;">
+          <div class="stat-card"><div class="stat-num stat-num--gradient" id="statTotal">—</div><div class="stat-label">전체</div></div>
+          <div class="stat-card"><div class="stat-num" id="statKR">—</div><div class="stat-label">한국</div></div>
+          <div class="stat-card"><div class="stat-num" id="statSG">—</div><div class="stat-label">싱가포르</div></div>
+          <div class="stat-card"><div class="stat-num" id="statEtc">—</div><div class="stat-label">그 외 국가</div></div>
+        </div>
+        <div class="action-bar">
+          <input type="search" id="searchInput" class="search-input" placeholder="행사명 검색…">
+          <select id="regionFilter" class="form-select" style="width:auto">
+            <option value="">전체 지역</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" id="saveOrderBtn" style="white-space:nowrap;">💾 순서 저장</button>
+          <select id="pageSizeSelect" class="form-select" style="width:auto;margin-left:auto">
+            <option value="20">20개씩</option>
+            <option value="50">50개씩</option>
+            <option value="100">100개씩</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th style="width:32px"></th><th style="width:32px" title="상단 고정">📌</th><th style="width:36px;text-align:center;color:var(--muted)">#</th><th>행사명</th><th>종류</th><th>일자</th><th>장소</th><th>국가</th><th>국제</th><th>규모</th><th>관리</th>
+            </tr></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div id="paginationBar" style="display:none;margin-top:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap"></div>
+        <div class="empty-state" id="emptyState" style="display:none;">포트폴리오가 없습니다. "새 항목 추가" 또는 "기존 데이터 가져오기"를 눌러 시작하세요.</div>
+      </div>
+
+      <!-- ── 견적 문의 ── -->
+      <div id="page-quote" class="page">
+        <div class="page-header">
+          <div class="page-title">견적 문의</div>
+          <button class="btn btn-ghost btn-sm" id="quoteDownload">⬇ CSV 다운로드</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>접수 일시</th><th>담당자</th><th>소속</th><th>이메일</th><th>행사명</th><th>패키지</th><th>참가자</th><th>일수</th><th>총 금액</th><th>견적서</th><th>삭제</th>
+            </tr></thead>
+            <tbody id="quoteBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="quoteEmpty" style="display:none;">견적 문의가 없습니다.</div>
+      </div>
+
+      <!-- ── 소개서 요청 ── -->
+      <div id="page-brochure" class="page">
+        <div class="page-header">
+          <div class="page-title">소개서 요청</div>
+          <button class="btn btn-ghost btn-sm" id="brochureDownload">⬇ CSV 다운로드</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>날짜</th><th>이름</th><th>소속</th><th>직책</th><th>이메일</th>
+            </tr></thead>
+            <tbody id="brochureBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="brochureEmpty" style="display:none;">소개서 요청이 없습니다.</div>
+      </div>
+
+      <!-- ── 키오스크 문의 ── -->
+      <div id="page-kiosk" class="page">
+        <div class="page-title">키오스크 문의</div>
+        <div class="empty-state">키오스크 문의 폼이 아직 준비 중입니다.</div>
+      </div>
+
+      <!-- ── 설정 ── -->
+      <div id="page-settings" class="page">
+        <div class="page-title">설정</div>
+        <div class="settings-card">
+          <h3>Google Analytics 4</h3>
+          <div class="form-group" style="margin-bottom:14px;">
+            <label class="form-label">GA4 Measurement ID</label>
+            <input type="text" id="ga4Id" class="form-input" placeholder="G-XXXXXXXXXX" value="G-M17QN59ZBN">
+            <div class="form-hint" style="margin-top:4px;">GA4 속성의 측정 ID (G-로 시작)를 입력하세요.</div>
+          </div>
+          <button class="btn btn-primary" id="saveGaBtn">저장</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ══ 포트폴리오 편집 모달 ══ -->
+<div class="modal-bg" id="editModalBg">
+  <div class="modal">
+    <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
+    <div class="modal-title" id="modalTitle">새 포트폴리오 추가</div>
+
+    <div class="form-section-title">기본 정보</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">행사명 (한국어) *</label>
+        <input type="text" id="f_title_ko" class="form-input" placeholder="행사명을 입력하세요">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Event Name (English)</label>
+        <input type="text" id="f_title_en" class="form-input" placeholder="Event name in English">
+      </div>
+      <div class="form-group">
+        <label class="form-label">행사 종류 (한국어)</label>
+        <select id="f_type_ko" class="form-select">
+          <option value="">선택</option>
+          <option value="컨퍼런스">컨퍼런스</option>
+          <option value="전시회">전시회</option>
+          <option value="박람회">박람회</option>
+          <option value="포럼">포럼</option>
+          <option value="학술대회">학술대회</option>
+          <option value="세미나">세미나</option>
+          <option value="시상식">시상식</option>
+          <option value="네트워킹">네트워킹</option>
+          <option value="기념식">기념식</option>
+          <option value="총회">총회</option>
+          <option value="출판기념">출판기념</option>
+          <option value="기타">기타</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Event Type (English)</label>
+        <select id="f_type_en" class="form-select">
+          <option value="">Select</option>
+          <option value="Conference">Conference</option>
+          <option value="Exhibition">Exhibition</option>
+          <option value="Expo">Expo</option>
+          <option value="Forum">Forum</option>
+          <option value="Academic Conference">Academic Conference</option>
+          <option value="Seminar">Seminar</option>
+          <option value="Award Ceremony">Award Ceremony</option>
+          <option value="Networking">Networking</option>
+          <option value="Ceremony">Ceremony</option>
+          <option value="General Assembly">General Assembly</option>
+          <option value="Book Launch">Book Launch</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">시작일</label>
+        <input type="date" id="f_date_start" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">종료일 (여러 날인 경우)</label>
+        <input type="date" id="f_date_end" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">장소 (한국어)</label>
+        <input type="text" id="f_location_ko" class="form-input" placeholder="서울드래곤시티, 서울">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Location (English)</label>
+        <input type="text" id="f_location_en" class="form-input" placeholder="Seoul Dragon City, Seoul">
+      </div>
+      <div class="form-group">
+        <label class="form-label">규모</label>
+        <select id="f_scale" class="form-select">
+          <option value="">선택 안 함</option>
+          <option value="소규모">소규모 (~ 200명)</option>
+          <option value="중규모">중규모 (200 ~ 1,000명)</option>
+          <option value="대규모">대규모 (1,000명+)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">국가</label>
+        <div class="country-picker" id="countryPicker">
+          <input type="text" class="country-picker-input" id="f_region_display" placeholder="국가를 선택하세요" readonly>
+          <input type="hidden" id="f_region" value="KR">
+          <div class="country-picker-dropdown" id="countryDropdown">
+            <input type="text" class="country-search" id="countrySearch" placeholder="국가명 검색…" autocomplete="off">
+            <div id="countryList"></div>
+          </div>
+        </div>
+        <div class="country-en-preview" id="countryEnPreview"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">🌐 국제 행사</label>
+        <div class="toggle-row">
+          <label class="toggle-switch">
+            <input type="checkbox" id="f_is_international">
+            <span class="toggle-track"></span>
+          </label>
+          <span class="toggle-label">국제행사로 표시 (영문 페이지에서 🌐 배지 표시)</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">📌 상단 고정</label>
+        <div class="toggle-row">
+          <label class="toggle-switch">
+            <input type="checkbox" id="f_is_pinned">
+            <span class="toggle-track"></span>
+          </label>
+          <span class="toggle-label">포트폴리오 상단에 항상 고정</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section-title">코멘트</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">코멘트 (한국어)</label>
+        <textarea id="f_comment_ko" class="form-textarea" placeholder="행사에 대한 설명"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Comment (English)</label>
+        <textarea id="f_comment_en" class="form-textarea" placeholder="Event description in English"></textarea>
+      </div>
+    </div>
+
+    <div class="form-section-title">이미지</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">메인 이미지 <span id="mainUploading" class="uploading-badge">업로드 중…</span></label>
+        <div class="img-upload-area" id="mainImgArea">
+          <input type="file" id="mainImgFile" accept="image/*">
+          <div class="img-upload-text">클릭하거나 드래그해서 업로드<br><strong>권장: 16:9 비율, 3MB 이하</strong></div>
+          <img id="mainImgPreview" class="img-preview" alt="">
+        </div>
+        <button type="button" class="img-remove-btn" id="mainImgRemove">✕ 메인 이미지 제거</button>
+        <div style="margin-top:8px;">
+          <input type="text" id="f_main_image" class="form-input" placeholder="또는 이미지 URL 직접 입력">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">서브 이미지 <span id="subUploading" class="uploading-badge">업로드 중…</span></label>
+        <div class="sub-imgs-grid" id="subImgsGrid">
+          <button type="button" class="sub-add-btn" id="subAddBtn">
+            <input type="file" id="subImgFile" accept="image/*" multiple>
+            <span>+</span>
+          </button>
+        </div>
+        <div class="form-hint">여러 장 추가 가능 (각 3MB 이하)</div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="deleteBtn" style="margin-right:auto; display:none;">삭제</button>
+      <button class="btn btn-ghost" id="cancelBtn">취소</button>
+      <button class="btn btn-primary" id="saveBtn">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Seed progress -->
+<div class="seed-progress" id="seedProgress">
+  <div class="seed-progress-label" id="seedLabel">데이터 가져오는 중…</div>
+  <div class="seed-progress-bar"><div class="seed-progress-fill" id="seedFill"></div></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──
+let sessionPw = '';
+let allItems = [];
+let currentPage = 1;
+let pageSize = 20;
+let editingId = null;
+let subImgUrls = [];
+let quoteItems = [];
+let brochureItems = [];
+
+// ── 세션 복원 (F5 새로고침 대응) ──
+(async function restoreSession() {
+  const saved = sessionStorage.getItem('fairpass_admin_pw');
+  if (!saved) return;
+  sessionPw = saved;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const savedGaId = localStorage.getItem('fairpass_ga4_id') || 'G-M17QN59ZBN';
+  document.getElementById('ga4Id').value = savedGaId;
+  await Promise.all([loadItems(), loadInquiries()]);
+  loadGaStats();
+})();
+
+// ── Legacy seed data (60 items) ──
+const LEGACY = [
+  { title_ko:"제3차 K-퀀텀스퀘어미팅", date_start:"2024-01-10", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_ozFlkOIy_277afe5efd96f0db693f33b74dd809ab50c14e60.png", region:"KR" },
+  { title_ko:"2023 관광두레 전국대회 「이음두레」", date_start:"2023-11-17", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_xrGQHM0m_b3a2b4dde8b65ac43f3939a939deef9f6c0dbb8f.jpg", region:"KR" },
+  { title_ko:"KOREA MICE EXPO 2023", date_start:"2023-11-16", date_end:"2023-11-17", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_ZP40viBg_25d9c0ae4df1a25f158a7fe9ef517f688c5e31d0.jpg", region:"KR" },
+  { title_ko:"2023 해양수산과학기술주간", date_start:"2023-12-19", date_end:"2023-12-22", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_FWHKvCBg_f9d67fc54f6cdce9d678f6f8f1cfa1c960136b96.png", region:"KR" },
+  { title_ko:"대한민국여성과학기술인대회", date_start:"2023-11-23", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_TBU8xJuA_82982ed2b1f97a0fa64c15206692cf60ef9f204d.jpg", region:"KR" },
+  { title_ko:"마이스人 쇼", date_start:"2023-11-23", date_end:"2023-11-24", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_TBU8xJuA_82982ed2b1f97a0fa64c15206692cf60ef9f204d.jpg", region:"KR" },
+  { title_ko:"수원뷰티페스타 2023", date_start:"2023-11-24", date_end:"2023-11-25", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_pX9uMsHg_45475d3d2f9a5a710d92952aa022c6189d836ff0.jpg", region:"KR" },
+  { title_ko:"2023 강릉 마이스 도시포럼", date_start:"2023-11-24", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_s1kSvZxI_912ac5d1c3d1e8213a34febfa51be023fbfbf632.jpg", region:"KR" },
+  { title_ko:"UNWTO 연계 지속가능한 관광 컨퍼런스", date_start:"2023-11-16", date_end:"2023-11-17", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_G2rRPqF3_720322ecff68b45952aa9c0d1823c620099371e2.jpg", region:"KR" },
+  { title_ko:"CTO AI Conference", date_start:"2023-11-07", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_yQ5GZldx_1eeca60a36c1519608f78cfe0eb04eb29cf48918.jpg", region:"KR" },
+  { title_ko:"제31회 고객중심 경영혁신 컨퍼런스", date_start:"2023-11-07", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_NoO3ugh5_c347b1202e9d250dbc99d2002a342d149529cba2.jpg", region:"KR" },
+  { title_ko:"Edaily IT Convergence Forum", date_start:"2023-11-21", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_ox59vinB_ff8636078c0e38408a7e58f58fa093e2823d664f.jpg", region:"KR" },
+  { title_ko:"MIDAS SQUARE 24", date_start:"2023-11-14", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_JA82kVSI_83b6278c68d189ebaae964899a3f3b5e145e0062.jpg", region:"KR" },
+  { title_ko:"2023 한국해양학회 추계학술대회", date_start:"2023-11-01", date_end:"2023-11-03", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_d5146GC0_4adabc9d4363961a00f2eea1cd50d9a735c91d60.jpg", region:"KR" },
+  { title_ko:"Korea Eureka Day 2023 코리아유레카데이", date_start:"2023-10-30", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_vIXLDPVW_e9ee179aa7136f4487e8a357aa20f2160a98058d.jpg", region:"KR" },
+  { title_ko:"ABU 2023 SEOUL", date_start:"2023-10-28", date_end:"2023-11-01", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_6148b5fe125da5cf997a52b56a77cdb9f327c158.jpg", region:"KR" },
+  { title_ko:"제12회 이데일리 W페스타", date_start:"2023-10-26", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_aa4674f4cd3286e710b4f6809d1ec6d9dc1ab1d8.jpg", region:"KR" },
+  { title_ko:"제20회 대한민국 코칭컨페스티벌", date_start:"2023-10-25", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_62e0a3ff87d5031beac835260872eb8c7d46d2b5.png", region:"KR" },
+  { title_ko:"CSI KOREA 2023", date_start:"2023-10-18", date_end:"2023-10-20", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_62e0a3ff87d5031beac835260872eb8c7d46d2b5.png", region:"KR" },
+  { title_ko:"2023 World Korean Business Convention", date_start:"2023-10-11", date_end:"2023-10-14", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_27c806ea6a76124c9fc6faadc309ba92cceeb013.jpg", region:"KR" },
+  { title_ko:"KNU 진로·취창업박람회", date_start:"2023-10-04", date_end:"2023-10-05", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_45fa049b0f2fb0a41c46f8a9885001c441f8812d.jpg", region:"KR" },
+  { title_ko:"The 79th Korean Congress of Radiology (KCR 2023)", date_start:"2023-09-20", date_end:"2023-09-23", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_08e8533a54bbf620286e3a7dc5fb45822b42bf65.jpg", region:"KR" },
+  { title_ko:"HRevolution", date_start:"2023-09-20", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_deb89542f369776acaca215a83dfaba4644ff6ef.jpg", region:"KR" },
+  { title_ko:"2023년도 동물보건사 연수교육", date_start:"2023-09-17", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_deb89542f369776acaca215a83dfaba4644ff6ef.jpg", region:"KR" },
+  { title_ko:"입크페스티벌", date_start:"2023-09-16", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_deb89542f369776acaca215a83dfaba4644ff6ef.jpg", region:"KR" },
+  { title_ko:"AFLAS CONGRESS", date_start:"2023-09-13", date_end:"2023-09-15", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_5622875b300c190c32feeaa5ff1e8373d58c15f2.jpg", region:"KR" },
+  { title_ko:"2023 KSP Dissemination Conference", date_start:"2023-09-11", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_1fe0800b1b5577206bcb5b479b41cf979415471c.jpg", region:"KR" },
+  { title_ko:"강원 콘텐츠 페스타", date_start:"2023-09-08", date_end:"2023-09-09", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_102422f90ce763c2cc59755f888b56c94b95a49f.jpg", region:"KR" },
+  { title_ko:"한국MICE협회 창립 20주년 기념식", date_start:"2023-08-18", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_cd468d2c304d90dbe2e017c877e4f2aa4528c033.jpg", region:"KR" },
+  { title_ko:"제8회 심장혈관영상CT 서밋", date_start:"2023-07-14", date_end:"2023-07-15", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_1a5c3e5730677771ef9dea4036979706f235d967.png", region:"KR" },
+  { title_ko:"XIX WFD (제19회 세계농아인대회)", date_start:"2023-07-11", date_end:"2023-07-15", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_arg3emwc_f3b202e3d9240473a341bbf7fe1f886c720e3693.jpg", region:"KR" },
+  { title_ko:"QUANTUM KOREA 2023", date_start:"2023-06-26", date_end:"2023-06-29", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_9Igu85eK_250c4739c11d20521a078feef4649800bff2c3b6.jpg", region:"KR" },
+  { title_ko:"IDEN 2023", date_start:"2023-06-09", date_end:"2023-06-10", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_b6JXV57z_722ce5be00a4d979b4f26b0748789e0f1de31595.png", region:"KR" },
+  { title_ko:"TÜV Rheinland Automotive TechDay", date_start:"2023-06-08", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_Je7lndNH_f76770d703da99c96b61afd9f05ad9108f3ebd94.jpg", region:"KR" },
+  { title_ko:"GCIM 2023", date_start:"2023-06-06", date_end:"2023-06-09", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_GPb0B3cm_d0d2a7b5aeb4f46f5cd1cf3f5a55f20abe7c408e.png", region:"KR" },
+  { title_ko:"제7회 글로벌 푸드 트렌드 & 테크 컨퍼런스", date_start:"2023-05-31", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_s1dBfu06_1011650d6340f5c6034cda2a527f46bf84a6dc0d.jpg", region:"KR" },
+  { title_ko:"제20회 자동차의날", date_start:"2023-05-11", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_SEceRFlu_4c2cbcf7d9014c4c958cd42ade9624988ed6d669.png", region:"KR" },
+  { title_ko:"제56차 아시아개발은행 연차총회", date_start:"2023-05-02", date_end:"2023-05-05", main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_SEceRFlu_4c2cbcf7d9014c4c958cd42ade9624988ed6d669.png", region:"KR" },
+  { title_ko:"리월드포럼 2023", date_start:"2023-04-26", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/75d323206cfbc3b30e660b688455a78d_SEceRFlu_4c2cbcf7d9014c4c958cd42ade9624988ed6d669.png", region:"KR" },
+  { title_ko:"기후행동 컨퍼런스 2023", date_start:"2023-03-23", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_TtM2Z3R4_f3c1383a9296f42b88911e6251ef1b36fb4793a5.jpg", region:"KR" },
+  { title_ko:"2023 제1회 춘천창업엑스포", date_start:"2023-05-19", date_end:"2023-05-20", main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_ziIGEOU4_8fa1eb6688c2cf5c103f839e927dfefb702c0a4b.jpg", region:"KR" },
+  { title_ko:"ASK 2023", date_start:"2023-05-17", date_end:"2023-05-18", main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_lICVFqj1_f55ea307739dbbd6ce30ef73d4d47c37af6c1dc8.jpg", region:"KR" },
+  { title_ko:"2023 서울특별시 치과기공사회 학술대회", date_start:"2023-04-08", date_end:"2023-04-09", main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_1SO6PC8l_80685af28e121deecbcd671b0f74558dae34973b.jpg", region:"KR" },
+  { title_ko:"김승호의 기초사장학개론", date_start:"2023-02-25", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_uwVPD2ZW_c52393676db92f499db02ea572bbf7f296709fea.jpg", region:"KR" },
+  { title_ko:"제1회 마이스 테크 포럼", date_start:"2023-02-22", date_end:null, main_image:"", region:"KR" },
+  { title_ko:"2023 한국전시서비스업협회 네트워킹 및 만찬회", date_start:"2023-02-08", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_JPks7zeM_a321512e49631bb7fb749105e5db734f4b04a292.jpg", region:"KR" },
+  { title_ko:"2022 대한민국 마케팅 데이", date_start:"2022-12-14", date_end:"2022-12-15", main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_ogRXxOEY_8a1b13d4c8fc4814a342fcb2cc7134d649eeb193.jpg", region:"KR" },
+  { title_ko:"MICE DT 우수사례 발표회", date_start:"2022-12-14", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_39cbvCHN_f68557157c2f34fed1db3f79cde232e570d541e3.jpg", region:"KR" },
+  { title_ko:"한중 지방정부 협력 교류회", date_start:"2022-12-13", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_CDGBOsl8_610917d4de4cc1103d0668985f8f90c43b0fe299.jpg", region:"KR" },
+  { title_ko:"제7차 국가관광전략회의", date_start:"2022-12-12", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_vi8KrXSl_96ac7a95a912e6e1167c6904854dc89f5419bd9f.jpg", region:"KR" },
+  { title_ko:"2022 EVENT AWARD & SYMPOSIUM", date_start:"2022-11-23", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_etAUR9DF_493dc413024fb5889a50aa27aee4756b81faabbe.jpg", region:"KR" },
+  { title_ko:"한-스페인 비즈니스 포럼", date_start:"2022-11-18", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_lRWym7Pq_49ab9f78d231cbe3b227b175f65b5f06b6cc8ed7.jpg", region:"KR" },
+  { title_ko:"KME 2022", date_start:"2022-11-09", date_end:"2022-11-10", main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_7vMiaukE_fa49269caf31b723d0f0bf30ad32f8a4872e8f42.JPG", region:"KR" },
+  { title_ko:"세계경제연구원 우리금융그룹 국제컨퍼런스", date_start:"2022-11-03", date_end:"2022-11-04", main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_S3cjhT6k_3d63b69b10c4bcdf2aaa65f4bf2d2c42e4fb604b.jpg", region:"KR" },
+  { title_ko:"2022 스마트 국토엑스포", date_start:"2022-11-02", date_end:"2022-11-04", main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_fNs7q3Lp_11469c6703d4aec04a147148e4a577d5a3ec1498.jpg", region:"KR" },
+  { title_ko:"2022 국제ESG협회 ESG포럼", date_start:"2022-08-29", date_end:"2022-08-31", main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_5Luawrs0_38387d8e0f717f947acdd2f2017bb8345be93dda.jpg", region:"KR" },
+  { title_ko:"CCC(Creators Community Club)", date_start:"2022-07-28", date_end:"2022-08-27", main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_aFA1ZK3e_688cf35b647c60f174ccb62b7110327c68b59ecd.jpg", region:"KR" },
+  { title_ko:"2022 글로벌 푸드 트렌드&테크 컨퍼런스", date_start:"2022-06-07", date_end:"2022-06-10", main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_jfS7D1BG_f1e669e592ac6b96b4f7461bb5a7016daa7a2313.jpg", region:"KR" },
+  { title_ko:"김영춘 출판기념 사진전", date_start:"2022-02-14", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/f25454840f7fc521405640e92a446028_ak3doxMB_ac8803a10b776edb738784121d213d92d972c050.JPG", region:"KR" },
+  { title_ko:"2022 상용표준물질 개발-보급사업 기술 세미나", date_start:"2022-06-16", date_end:null, main_image:"https://fairpass.world/data/file/portfolio/6b54fd76fa458f31388599d6444eca78_WyFh3JON_9de8c11f6f22fda2b5c92df3711f8330fbf4107d.jpeg", region:"KR" },
+];
+
+// ── Utils ──
+function showToast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isErr ? ' err' : '');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function formatDate(s, e) {
+  if (!s) return '-';
+  const fmt = d => d.slice(0,7).replace('-','.') + '.' + d.slice(8,10);
+  return e && e !== s ? fmt(s) + ' ~ ' + fmt(e) : fmt(s);
+}
+
+function regionTag(r) {
+  const cls = r === 'KR' ? 'tag-kr' : r === 'SG' ? 'tag-sg' : 'tag-other';
+  return `<span class="tag ${cls}">${r || 'KR'}</span>`;
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val ?? '';
+}
+
+function today() {
+  return new Date().toISOString().slice(0,10).replace(/-/g,'');
+}
+
+function parseQuoteContent(content) {
+  const get = (label) => {
+    const m = (content || '').match(new RegExp('- ' + label + ': ([^\n]+)'));
+    return m ? m[1].trim() : '';
+  };
+  const totalMatch = (content || '').match(/\[총계\] ([^\n]+)/);
+  const billingSection = (() => {
+    const m = (content || '').match(/\[비용 상세\]([\s\S]*?)\[총계\]/);
+    return m ? m[1].trim() : '';
+  })();
+  const atRaw = get('참가자/일수'); // e.g. "300명 / 1일"
+  const atParts = atRaw.split(' / ');
+  return {
+    담당자: get('담당자'),
+    소속: get('소속'),
+    행사명: get('행사명'),
+    행사장소: get('행사 장소'),
+    패키지: get('패키지'),
+    참가자수: atParts[0] ? atParts[0].trim() : '',
+    운영일수: atParts[1] ? atParts[1].trim() : '',
+    종이명찰: get('종이명찰'),
+    키오스크: get('키오스크'),
+    매니저: get('매니저'),
+    총계: totalMatch ? totalMatch[1].trim() : '',
+    비용상세: billingSection,
+  };
+}
+
+function downloadCSV(data, filename) {
+  if (!data || !data.length) { showToast('다운로드할 데이터가 없습니다', true); return; }
+  const headers = Object.keys(data[0]);
+  const rows = data.map(row => headers.map(h => JSON.stringify(row[h] ?? '')).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Navigation ──
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('page-' + btn.dataset.page).classList.add('active');
+  });
+});
+
+// ── Login ──
+document.getElementById('loginBtn').onclick = async () => {
+  const pw = document.getElementById('pwInput').value.trim();
+  if (!pw) return;
+  sessionPw = pw;
+  sessionStorage.setItem('fairpass_admin_pw', pw);
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const savedGaId = localStorage.getItem('fairpass_ga4_id') || 'G-M17QN59ZBN';
+  document.getElementById('ga4Id').value = savedGaId;
+  await Promise.all([loadItems(), loadInquiries()]);
+  loadGaStats();
+};
+
+document.getElementById('pwInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('loginBtn').click();
+});
+
+document.getElementById('logoutBtn').onclick = () => {
+  sessionPw = '';
+  sessionStorage.removeItem('fairpass_admin_pw');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('pwInput').value = '';
+};
+
+// ── GA4 Stats ──
+async function loadGaStats() {
+  const loading = document.getElementById('gaLoading');
+  const stats = document.getElementById('gaStats');
+  const errEl = document.getElementById('gaError');
+  loading.style.display = 'block';
+  stats.style.display = 'none';
+  errEl.style.display = 'none';
+  try {
+    const res = await fetch(`/api/analytics?password=${encodeURIComponent(sessionPw)}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || '데이터 로드 실패');
+
+    // 방문자
+    const t = data.overview?.today || {};
+    const w = data.overview?.['7days'] || {};
+    const m = data.overview?.['30days'] || {};
+    document.getElementById('gaToday').textContent = Number(t.users||0).toLocaleString();
+    document.getElementById('gaTodaySessions').textContent = `세션 ${Number(t.sessions||0).toLocaleString()}`;
+    document.getElementById('ga7days').textContent = Number(w.users||0).toLocaleString();
+    document.getElementById('ga7daysSessions').textContent = `세션 ${Number(w.sessions||0).toLocaleString()}`;
+    document.getElementById('ga30days').textContent = Number(m.users||0).toLocaleString();
+    document.getElementById('ga30daysSessions').textContent = `세션 ${Number(m.sessions||0).toLocaleString()}`;
+
+    // 이벤트
+    const ev = data.events || {};
+    document.getElementById('evQuoteStart').textContent = Number(ev.quote_start||0).toLocaleString();
+    document.getElementById('evQuoteClick').textContent = Number(ev.quote_email_click||0).toLocaleString();
+    document.getElementById('evQuoteSubmit').textContent = Number(ev.quote_submit||0).toLocaleString();
+    document.getElementById('evBrochureOpen').textContent = Number(ev.brochure_open||0).toLocaleString();
+    document.getElementById('evBrochureSubmit').textContent = Number(ev.brochure_submit||0).toLocaleString();
+    document.getElementById('evSignup').textContent = Number(ev.cta_signup_click||0).toLocaleString();
+
+    // 유입경로
+    const maxSrc = Math.max(...(data.sources||[]).map(s=>Number(s.sessions)||0), 1);
+    document.getElementById('gaSourceList').innerHTML = (data.sources||[]).map(s => {
+      const pct = Math.round((Number(s.sessions)/maxSrc)*100);
+      return `<div class="ga-list-row">
+        <span class="ga-list-label">${s.channel}</span>
+        <div class="ga-bar-wrap"><div class="ga-bar" style="width:${pct}%"></div></div>
+        <span class="ga-list-val">${Number(s.sessions).toLocaleString()}</span>
+      </div>`;
+    }).join('') || '<div class="ga-list-row"><span class="ga-list-label">데이터 없음</span></div>';
+
+    // 국가
+    const maxCnt = Math.max(...(data.countries||[]).map(c=>Number(c.users)||0), 1);
+    document.getElementById('gaCountryList').innerHTML = (data.countries||[]).map(c => {
+      const pct = Math.round((Number(c.users)/maxCnt)*100);
+      return `<div class="ga-list-row">
+        <span class="ga-list-label">${c.country}</span>
+        <div class="ga-bar-wrap"><div class="ga-bar" style="width:${pct}%"></div></div>
+        <span class="ga-list-val">${Number(c.users).toLocaleString()}</span>
+      </div>`;
+    }).join('') || '<div class="ga-list-row"><span class="ga-list-label">데이터 없음</span></div>';
+
+    // 페이지
+    const maxPg = Math.max(...(data.pages||[]).map(p=>Number(p.views)||0), 1);
+    document.getElementById('gaPageList').innerHTML = (data.pages||[]).map(p => {
+      const pct = Math.round((Number(p.views)/maxPg)*100);
+      return `<div class="ga-list-row">
+        <span class="ga-list-label">${p.path}</span>
+        <div class="ga-bar-wrap"><div class="ga-bar" style="width:${pct}%"></div></div>
+        <span class="ga-list-val">${Number(p.views).toLocaleString()}</span>
+      </div>`;
+    }).join('') || '<div class="ga-list-row"><span class="ga-list-label">데이터 없음</span></div>';
+
+    loading.style.display = 'none';
+    stats.style.display = 'block';
+  } catch (e) {
+    loading.style.display = 'none';
+    errEl.style.display = 'block';
+    errEl.textContent = '⚠️ GA4 데이터 로드 실패: ' + e.message;
+  }
+}
+
+// ── Portfolio ──
+async function loadItems() {
+  try {
+    const res = await fetch('/api/portfolio');
+    allItems = await res.json();
+    if (!Array.isArray(allItems)) allItems = [];
+    rebuildRegionFilter();
+    renderTable();
+    renderStats();
+    document.getElementById('dashPortfolio').textContent = allItems.length;
+  } catch (e) {
+    showToast('포트폴리오 로드 실패: ' + e.message, true);
+  }
+}
+
+function renderStats() {
+  document.getElementById('statTotal').textContent = allItems.length;
+  document.getElementById('statKR').textContent = allItems.filter(i => (i.region || 'KR') === 'KR').length;
+  document.getElementById('statSG').textContent = allItems.filter(i => i.region === 'SG').length;
+  document.getElementById('statEtc').textContent = allItems.filter(i => i.region && i.region !== 'KR' && i.region !== 'SG').length;
+}
+
+const PINNED_REGIONS = [
+  { code: 'KR', label: '한국' },
+  { code: 'SG', label: '싱가포르' },
+  { code: 'US', label: '미국' },
+];
+function rebuildRegionFilter() {
+  const sel = document.getElementById('regionFilter');
+  const prev = sel.value;
+  const pinnedCodes = PINNED_REGIONS.map(r => r.code);
+  const foundPinned = PINNED_REGIONS.filter(r => allItems.some(i => (i.region || 'KR') === r.code));
+  const hasEtc = allItems.some(i => i.region && !pinnedCodes.includes(i.region));
+  sel.innerHTML = '<option value="">전체 지역</option>';
+  foundPinned.forEach(r => {
+    sel.innerHTML += `<option value="${r.code}">${r.label}</option>`;
+  });
+  if (hasEtc) {
+    sel.innerHTML += `<option value="__etc__">그 외 국가</option>`;
+  }
+  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+}
+
+// ── Country Picker ──
+const COUNTRIES_PINNED = [
+  { ko: '한국',     en: 'South Korea', code: 'KR' },
+  { ko: '싱가포르', en: 'Singapore',   code: 'SG' },
+  { ko: '미국',     en: 'United States', code: 'US' },
+];
+const COUNTRIES_ALL = [
+  { ko: '가나',       en: 'Ghana',           code: 'GH' },
+  { ko: '그리스',     en: 'Greece',          code: 'GR' },
+  { ko: '네덜란드',   en: 'Netherlands',     code: 'NL' },
+  { ko: '노르웨이',   en: 'Norway',          code: 'NO' },
+  { ko: '뉴질랜드',   en: 'New Zealand',     code: 'NZ' },
+  { ko: '대만',       en: 'Taiwan',          code: 'TW' },
+  { ko: '덴마크',     en: 'Denmark',         code: 'DK' },
+  { ko: '독일',       en: 'Germany',         code: 'DE' },
+  { ko: '러시아',     en: 'Russia',          code: 'RU' },
+  { ko: '말레이시아', en: 'Malaysia',        code: 'MY' },
+  { ko: '멕시코',     en: 'Mexico',          code: 'MX' },
+  { ko: '모로코',     en: 'Morocco',         code: 'MA' },
+  { ko: '몽골',       en: 'Mongolia',        code: 'MN' },
+  { ko: '미국',       en: 'United States',   code: 'US' },
+  { ko: '바레인',     en: 'Bahrain',         code: 'BH' },
+  { ko: '베트남',     en: 'Vietnam',         code: 'VN' },
+  { ko: '벨기에',     en: 'Belgium',         code: 'BE' },
+  { ko: '브라질',     en: 'Brazil',          code: 'BR' },
+  { ko: '사우디아라비아', en: 'Saudi Arabia', code: 'SA' },
+  { ko: '스웨덴',     en: 'Sweden',          code: 'SE' },
+  { ko: '스위스',     en: 'Switzerland',     code: 'CH' },
+  { ko: '스페인',     en: 'Spain',           code: 'ES' },
+  { ko: '싱가포르',   en: 'Singapore',       code: 'SG' },
+  { ko: '아랍에미리트', en: 'UAE',           code: 'AE' },
+  { ko: '아르헨티나', en: 'Argentina',       code: 'AR' },
+  { ko: '아이슬란드', en: 'Iceland',         code: 'IS' },
+  { ko: '영국',       en: 'United Kingdom',  code: 'GB' },
+  { ko: '오스트리아', en: 'Austria',         code: 'AT' },
+  { ko: '오스트레일리아', en: 'Australia',   code: 'AU' },
+  { ko: '우즈베키스탄', en: 'Uzbekistan',    code: 'UZ' },
+  { ko: '이스라엘',   en: 'Israel',          code: 'IL' },
+  { ko: '이탈리아',   en: 'Italy',           code: 'IT' },
+  { ko: '인도',       en: 'India',           code: 'IN' },
+  { ko: '인도네시아', en: 'Indonesia',       code: 'ID' },
+  { ko: '일본',       en: 'Japan',           code: 'JP' },
+  { ko: '중국',       en: 'China',           code: 'CN' },
+  { ko: '카자흐스탄', en: 'Kazakhstan',      code: 'KZ' },
+  { ko: '카타르',     en: 'Qatar',           code: 'QA' },
+  { ko: '캄보디아',   en: 'Cambodia',        code: 'KH' },
+  { ko: '캐나다',     en: 'Canada',          code: 'CA' },
+  { ko: '케냐',       en: 'Kenya',           code: 'KE' },
+  { ko: '콜롬비아',   en: 'Colombia',        code: 'CO' },
+  { ko: '쿠웨이트',   en: 'Kuwait',          code: 'KW' },
+  { ko: '태국',       en: 'Thailand',        code: 'TH' },
+  { ko: '터키',       en: 'Turkey',          code: 'TR' },
+  { ko: '파키스탄',   en: 'Pakistan',        code: 'PK' },
+  { ko: '페루',       en: 'Peru',            code: 'PE' },
+  { ko: '포르투갈',   en: 'Portugal',        code: 'PT' },
+  { ko: '폴란드',     en: 'Poland',          code: 'PL' },
+  { ko: '프랑스',     en: 'France',          code: 'FR' },
+  { ko: '필리핀',     en: 'Philippines',     code: 'PH' },
+  { ko: '한국',       en: 'South Korea',     code: 'KR' },
+  { ko: '헝가리',     en: 'Hungary',         code: 'HU' },
+  { ko: '홍콩',       en: 'Hong Kong',       code: 'HK' },
+];
+
+function getCountry(code) {
+  return COUNTRIES_PINNED.find(c => c.code === code) ||
+         COUNTRIES_ALL.find(c => c.code === code) ||
+         { ko: code, en: code, code };
+}
+
+function initCountryPicker() {
+  const display  = document.getElementById('f_region_display');
+  const hidden   = document.getElementById('f_region');
+  const dropdown = document.getElementById('countryDropdown');
+  const search   = document.getElementById('countrySearch');
+  const list     = document.getElementById('countryList');
+  const preview  = document.getElementById('countryEnPreview');
+
+  function renderList(q) {
+    const filter = (q || '').trim().toLowerCase();
+    list.innerHTML = '';
+
+    // 상단 고정 3개
+    const pinned = COUNTRIES_PINNED.filter(c => !filter || c.ko.includes(filter) || c.en.toLowerCase().includes(filter));
+    pinned.forEach(c => addOption(c));
+    if (pinned.length > 0) {
+      const hr = document.createElement('hr');
+      hr.className = 'country-divider';
+      list.appendChild(hr);
+    }
+
+    // 나머지 (중복 제외)
+    const pinnedCodes = COUNTRIES_PINNED.map(c => c.code);
+    const rest = COUNTRIES_ALL
+      .filter(c => !pinnedCodes.includes(c.code))
+      .filter(c => !filter || c.ko.includes(filter) || c.en.toLowerCase().includes(filter))
+      .sort((a, b) => a.ko.localeCompare(b.ko, 'ko'));
+    rest.forEach(c => addOption(c));
+  }
+
+  function addOption(c) {
+    const div = document.createElement('div');
+    div.className = 'country-option';
+    div.innerHTML = `<span>${c.ko}</span><span class="en-name">${c.en}</span>`;
+    div.addEventListener('mousedown', e => {
+      e.preventDefault();
+      selectCountry(c);
+      dropdown.classList.remove('open');
+    });
+    list.appendChild(div);
+  }
+
+  function selectCountry(c) {
+    hidden.value   = c.code;
+    display.value  = c.ko;
+    preview.textContent = c.en;
+  }
+
+  display.addEventListener('click', () => {
+    dropdown.classList.toggle('open');
+    if (dropdown.classList.contains('open')) {
+      search.value = '';
+      renderList('');
+      search.focus();
+    }
+  });
+
+  search.addEventListener('input', () => renderList(search.value));
+
+  document.addEventListener('click', e => {
+    if (!document.getElementById('countryPicker').contains(e.target)) {
+      dropdown.classList.remove('open');
+    }
+  });
+
+  renderList('');
+}
+
+function setCountryValue(code) {
+  const c = getCountry(code);
+  document.getElementById('f_region').value         = c.code;
+  document.getElementById('f_region_display').value = c.ko;
+  document.getElementById('countryEnPreview').textContent = c.en;
+}
+
+function renderTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const rf = document.getElementById('regionFilter').value;
+  // 고정 먼저, 그 다음 최신 일자순
+  const sorted = [...allItems].sort((a, b) => {
+    if (!!b.is_pinned !== !!a.is_pinned) return b.is_pinned ? 1 : -1;
+    const da = a.date_start || '';
+    const db = b.date_start || '';
+    return db > da ? 1 : db < da ? -1 : 0;
+  });
+  const pinnedCodes = PINNED_REGIONS.map(r => r.code);
+  const filtered = sorted.filter(i => {
+    const matchQ = !q || (i.title_ko||'').toLowerCase().includes(q) || (i.title_en||'').toLowerCase().includes(q);
+    const matchR = !rf ||
+      (rf === '__etc__' ? (i.region && !pinnedCodes.includes(i.region)) : (i.region || 'KR') === rf);
+    return matchQ && matchR;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  if (currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * pageSize;
+  const paged = filtered.slice(start, start + pageSize);
+
+  const tbody = document.getElementById('tableBody');
+  document.getElementById('emptyState').style.display = filtered.length ? 'none' : 'block';
+  tbody.innerHTML = paged.map((item, idx) => `
+    <tr draggable="true" data-id="${item.id}">
+      <td><span class="drag-handle" title="드래그해서 순서 변경">⠿</span></td>
+      <td style="text-align:center">${item.is_pinned ? '<span style="font-size:15px" title="상단 고정">📌</span>' : '<span style="color:var(--muted);font-size:12px">-</span>'}</td>
+      <td style="text-align:center;color:var(--muted);font-size:12px">${start + idx + 1}</td>
+      <td>
+        <div class="td-title">${item.title_ko||'-'}</div>
+        ${item.title_en?`<div class="td-muted" style="font-size:11px;margin-top:2px">${item.title_en}</div>`:''}
+      </td>
+      <td class="td-muted">${item.event_type_ko||'-'}</td>
+      <td class="td-muted">${formatDate(item.date_start,item.date_end)}</td>
+      <td class="td-muted">${item.location_ko||'-'}</td>
+      <td>${regionTag(item.region)}</td>
+      <td style="text-align:center">${item.is_international ? '<span style="font-size:16px" title="국제행사">🌐</span>' : '<span style="color:var(--muted);font-size:12px">-</span>'}</td>
+      <td class="td-muted">${item.scale||'-'}</td>
+      <td><div class="td-actions"><button class="btn btn-ghost btn-sm" onclick="openModal(${item.id})">편집</button></div></td>
+    </tr>
+  `).join('');
+
+  // 페이지네이션 바
+  const bar = document.getElementById('paginationBar');
+  if (totalPages <= 1) {
+    bar.style.display = 'none';
+  } else {
+    bar.style.display = 'flex';
+    const pages = [];
+    for (let p = 1; p <= totalPages; p++) {
+      pages.push(`<button class="pg-btn${p === currentPage ? ' pg-active' : ''}" onclick="goPage(${p})">${p}</button>`);
+    }
+    bar.innerHTML = `
+      <button class="pg-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>
+      ${pages.join('')}
+      <button class="pg-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>›</button>
+      <span style="color:var(--muted);font-size:12px;margin-left:4px">${filtered.length}건 / ${totalPages}페이지</span>
+    `;
+  }
+
+  setupDragDrop();
+}
+
+function goPage(p) {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const rf = document.getElementById('regionFilter').value;
+  const pinnedCodes = PINNED_REGIONS.map(r => r.code);
+  const filtered = [...allItems].filter(i => {
+    const matchQ = !q || (i.title_ko||'').toLowerCase().includes(q) || (i.title_en||'').toLowerCase().includes(q);
+    const matchR = !rf ||
+      (rf === '__etc__' ? (i.region && !pinnedCodes.includes(i.region)) : (i.region || 'KR') === rf);
+    return matchQ && matchR;
+  });
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  currentPage = Math.max(1, Math.min(p, totalPages));
+  renderTable();
+}
+
+// ── Drag & Drop ──
+let dragId = null;
+function setupDragDrop() {
+  document.querySelectorAll('#tableBody tr[data-id]').forEach(row => {
+    row.addEventListener('dragstart', e => {
+      dragId = parseInt(row.dataset.id);
+      setTimeout(() => row.classList.add('dragging'), 0);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      document.querySelectorAll('#tableBody tr').forEach(r => r.classList.remove('drag-over'));
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      document.querySelectorAll('#tableBody tr').forEach(r => r.classList.remove('drag-over'));
+      if (parseInt(row.dataset.id) !== dragId) row.classList.add('drag-over');
+    });
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      const targetId = parseInt(row.dataset.id);
+      if (!dragId || dragId === targetId) return;
+      const fromIdx = allItems.findIndex(i => i.id === dragId);
+      const toIdx   = allItems.findIndex(i => i.id === targetId);
+      if (fromIdx < 0 || toIdx < 0) return;
+      const [moved] = allItems.splice(fromIdx, 1);
+      allItems.splice(toIdx, 0, moved);
+      allItems.forEach((item, idx) => { item.display_order = idx + 1; });
+      renderTable();
+    });
+  });
+}
+
+// ── Save Order ──
+document.getElementById('saveOrderBtn').onclick = async () => {
+  if (!confirm('순서를 변경하시겠습니까?')) return;
+  const orders = allItems.map((item, idx) => ({ id: item.id, display_order: idx + 1 }));
+  const btn = document.getElementById('saveOrderBtn');
+  btn.disabled = true; btn.textContent = '저장 중…';
+  try {
+    const res = await fetch('/api/portfolio', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: sessionPw, orders }),
+    });
+    const data = await res.json();
+    if (!res.ok) showToast('저장 실패: ' + (data.error||''), true);
+    else showToast('순서가 저장되었습니다 ✓');
+  } catch(e) { showToast('오류: ' + e.message, true); }
+  finally { btn.disabled = false; btn.textContent = '💾 순서 저장'; }
+};
+
+document.getElementById('searchInput').addEventListener('input', () => { currentPage = 1; renderTable(); });
+document.getElementById('regionFilter').addEventListener('change', () => { currentPage = 1; renderTable(); });
+document.getElementById('pageSizeSelect').addEventListener('change', e => { pageSize = parseInt(e.target.value); currentPage = 1; renderTable(); });
+document.getElementById('addBtn').onclick = () => openModal(null);
+initCountryPicker();
+
+// ── Inquiries ──
+async function loadInquiries() {
+  try {
+    const [qRes, bRes] = await Promise.all([
+      fetch(`/api/inquiries?password=${encodeURIComponent(sessionPw)}&type=quote`),
+      fetch(`/api/inquiries?password=${encodeURIComponent(sessionPw)}&type=brochure`),
+    ]);
+    const qData = await qRes.json();
+    const bData = await bRes.json();
+    quoteItems = Array.isArray(qData) ? qData : [];
+    brochureItems = Array.isArray(bData) ? bData : [];
+    renderQuoteTable();
+    renderBrochureTable();
+    document.getElementById('dashQuote').textContent = quoteItems.length;
+    document.getElementById('dashBrochure').textContent = brochureItems.length;
+  } catch (e) {
+    document.getElementById('dashQuote').textContent = '—';
+    document.getElementById('dashBrochure').textContent = '—';
+  }
+}
+
+function renderQuoteTable() {
+  const tbody = document.getElementById('quoteBody');
+  document.getElementById('quoteEmpty').style.display = quoteItems.length ? 'none' : 'block';
+  tbody.innerHTML = quoteItems.map((item, idx) => {
+    const p = parseQuoteContent(item.content || '');
+    const pkgShort = (p.패키지||'-').replace('플랫폼만 사용','플랫폼').replace('키오스크 포함','키오스크').replace('풀패키지','풀패키지');
+    return `<tr>
+      <td class="td-muted" style="white-space:nowrap;font-size:12px">${item.created_at ? new Date(item.created_at).toLocaleString('ko-KR', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : '-'}</td>
+      <td style="font-weight:600">${item.name||'-'}</td>
+      <td class="td-muted">${item.company||'-'}</td>
+      <td class="td-muted" style="font-size:12px">${item.email||'-'}</td>
+      <td style="font-weight:600;max-width:160px;">${p.행사명||'-'}<div class="td-muted" style="font-size:11px;margin-top:2px">${p.행사장소||''}</div></td>
+      <td><span style="display:inline-block;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:700;background:rgba(139,92,246,0.18);color:var(--purple-light)">${pkgShort}</span></td>
+      <td class="td-muted" style="text-align:right">${p.참가자수||'-'}</td>
+      <td class="td-muted" style="text-align:right">${p.운영일수||'-'}</td>
+      <td style="font-weight:700;white-space:nowrap;color:var(--cyan-light)">${item.total||p.총계||'-'}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openQuotePdf(${idx})" style="white-space:nowrap">📄 보기</button></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteQuote(${item.id})" style="white-space:nowrap">삭제</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderBrochureTable() {
+  const tbody = document.getElementById('brochureBody');
+  document.getElementById('brochureEmpty').style.display = brochureItems.length ? 'none' : 'block';
+  tbody.innerHTML = brochureItems.map(item => `
+    <tr>
+      <td class="td-muted">${item.created_at ? new Date(item.created_at).toLocaleDateString('ko-KR') : '-'}</td>
+      <td>${item.name||'-'}</td>
+      <td class="td-muted">${item.company||'-'}</td>
+      <td class="td-muted">${item.position||'-'}</td>
+      <td class="td-muted">${item.email||'-'}</td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('excelDownloadBtn').onclick = () => {
+  if (!allItems.length) { showToast('다운로드할 데이터가 없습니다', true); return; }
+  const rows = allItems.map(item => ({
+    'ID': item.id,
+    '행사명(한)': item.title_ko || '',
+    '행사명(영)': item.title_en || '',
+    '행사유형(한)': item.event_type_ko || '',
+    '행사유형(영)': item.event_type_en || '',
+    '시작일': item.date_start || '',
+    '종료일': item.date_end || '',
+    '장소(한)': item.location_ko || '',
+    '장소(영)': item.location_en || '',
+    '국가': item.region || 'KR',
+    '규모': item.scale || '',
+    '국제행사': item.is_international ? 'Y' : 'N',
+    '상단고정': item.is_pinned ? 'Y' : 'N',
+    '메인이미지': item.main_image || '',
+    '설명(한)': item.comment_ko || '',
+    '설명(영)': item.comment_en || '',
+    '등록일': item.created_at ? new Date(item.created_at).toLocaleDateString('ko-KR') : '',
+  }));
+  downloadCSV(rows, '포트폴리오_' + today() + '.csv');
+};
+
+document.getElementById('quoteDownload').onclick = () => {
+  if (!quoteItems.length) { showToast('다운로드할 데이터가 없습니다', true); return; }
+  const rows = quoteItems.map(item => {
+    const p = parseQuoteContent(item.content || '');
+    return {
+      '날짜': item.created_at ? new Date(item.created_at).toLocaleDateString('ko-KR') : '',
+      '이름': item.name || '',
+      '소속': item.company || '',
+      '이메일': item.email || '',
+      '행사명': p.행사명,
+      '행사장소': p.행사장소,
+      '패키지': p.패키지,
+      '참가자 수': p.참가자수,
+      '운영 일수': p.운영일수,
+      '종이명찰': p.종이명찰,
+      '키오스크': p.키오스크,
+      '매니저': p.매니저,
+      '총 금액': item.total || p.총계,
+      '비용 상세': p.비용상세.replace(/\n/g, ' | '),
+    };
+  });
+  downloadCSV(rows, '견적문의_' + today() + '.csv');
+};
+document.getElementById('brochureDownload').onclick = () => downloadCSV(brochureItems, '소개서요청_' + today() + '.csv');
+
+// ── Event type auto-fill ──
+const EVENT_TYPE_MAP = {
+  '컨퍼런스': 'Conference', '전시회': 'Exhibition', '박람회': 'Expo',
+  '포럼': 'Forum', '학술대회': 'Academic Conference', '세미나': 'Seminar',
+  '시상식': 'Award Ceremony', '네트워킹': 'Networking', '기념식': 'Ceremony',
+  '총회': 'General Assembly', '출판기념': 'Book Launch', '기타': 'Other',
+};
+document.getElementById('f_type_ko').addEventListener('change', e => {
+  const en = EVENT_TYPE_MAP[e.target.value] || '';
+  document.getElementById('f_type_en').value = en;
+});
+
+// ── Settings ──
+document.getElementById('saveGaBtn').onclick = () => {
+  const id = document.getElementById('ga4Id').value.trim();
+  localStorage.setItem('fairpass_ga4_id', id);
+  showToast('GA4 ID가 저장되었습니다.');
+};
+
+// ── Modal ──
+function openModal(id) {
+  editingId = id || null;
+  subImgUrls = [];
+  const item = id ? allItems.find(i => i.id === id) : null;
+  document.getElementById('modalTitle').textContent = item ? '포트폴리오 편집' : '새 포트폴리오 추가';
+  document.getElementById('deleteBtn').style.display = item ? 'inline-block' : 'none';
+  setVal('f_title_ko', item?.title_ko);
+  setVal('f_title_en', item?.title_en);
+  setVal('f_type_ko', item?.event_type_ko);
+  setVal('f_type_en', item?.event_type_en);
+  setVal('f_date_start', item?.date_start);
+  setVal('f_date_end', item?.date_end);
+  setVal('f_location_ko', item?.location_ko);
+  setVal('f_location_en', item?.location_en);
+  setVal('f_scale', item?.scale);
+  setCountryValue(item?.region || 'KR');
+  setVal('f_order', item?.display_order ?? 0);
+  setVal('f_comment_ko', item?.comment_ko);
+  setVal('f_comment_en', item?.comment_en);
+  document.getElementById('f_is_international').checked = item?.is_international || false;
+  document.getElementById('f_is_pinned').checked = item?.is_pinned || false;
+  setVal('f_main_image', item?.main_image);
+  const preview = document.getElementById('mainImgPreview');
+  const removeBtn = document.getElementById('mainImgRemove');
+  if (item?.main_image) {
+    preview.src = item.main_image; preview.classList.add('show'); removeBtn.classList.add('show');
+  } else {
+    preview.src = ''; preview.classList.remove('show'); removeBtn.classList.remove('show');
+  }
+  subImgUrls = Array.isArray(item?.sub_images) ? [...item.sub_images] : [];
+  renderSubImgs();
+  document.getElementById('editModalBg').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('editModalBg').classList.remove('open');
+  editingId = null; subImgUrls = [];
+}
+
+document.getElementById('modalCloseBtn').onclick = closeModal;
+document.getElementById('cancelBtn').onclick = closeModal;
+document.getElementById('editModalBg').onclick = e => { if (e.target === document.getElementById('editModalBg')) closeModal(); };
+
+document.getElementById('f_main_image').addEventListener('input', e => {
+  const url = e.target.value.trim();
+  const preview = document.getElementById('mainImgPreview');
+  const removeBtn = document.getElementById('mainImgRemove');
+  if (url) { preview.src = url; preview.classList.add('show'); removeBtn.classList.add('show'); }
+  else { preview.src = ''; preview.classList.remove('show'); removeBtn.classList.remove('show'); }
+});
+
+document.getElementById('mainImgRemove').onclick = () => {
+  setVal('f_main_image', '');
+  document.getElementById('mainImgPreview').src = '';
+  document.getElementById('mainImgPreview').classList.remove('show');
+  document.getElementById('mainImgRemove').classList.remove('show');
+};
+
+['dragenter','dragover'].forEach(ev => document.getElementById('mainImgArea').addEventListener(ev, e => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }));
+['dragleave','drop'].forEach(ev => document.getElementById('mainImgArea').addEventListener(ev, e => { e.preventDefault(); e.currentTarget.classList.remove('drag-over'); }));
+document.getElementById('mainImgArea').addEventListener('drop', async e => {
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const url = await uploadImage(file, 'main');
+    if (url) { setVal('f_main_image', url); document.getElementById('mainImgPreview').src = url; document.getElementById('mainImgPreview').classList.add('show'); document.getElementById('mainImgRemove').classList.add('show'); }
+  }
+});
+
+document.getElementById('mainImgFile').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const url = await uploadImage(file, 'main');
+  if (url) { setVal('f_main_image', url); document.getElementById('mainImgPreview').src = url; document.getElementById('mainImgPreview').classList.add('show'); document.getElementById('mainImgRemove').classList.add('show'); }
+  e.target.value = '';
+});
+
+document.getElementById('subImgFile').addEventListener('change', async e => {
+  for (const file of Array.from(e.target.files)) {
+    const url = await uploadImage(file, 'sub');
+    if (url) subImgUrls.push(url);
+  }
+  renderSubImgs();
+  e.target.value = '';
+});
+
+function renderSubImgs() {
+  const grid = document.getElementById('subImgsGrid');
+  const addBtn = document.getElementById('subAddBtn');
+  grid.innerHTML = '';
+  subImgUrls.forEach((url, i) => {
+    const div = document.createElement('div');
+    div.className = 'sub-img-item';
+    div.innerHTML = `<img src="${url}" loading="lazy"><button type="button" class="sub-img-del" onclick="removeSubImg(${i})">×</button>`;
+    grid.appendChild(div);
+  });
+  grid.appendChild(addBtn);
+}
+
+window.removeSubImg = i => { subImgUrls.splice(i, 1); renderSubImgs(); };
+
+async function uploadImage(file, type) {
+  const badge = document.getElementById(type === 'main' ? 'mainUploading' : 'subUploading');
+  badge.classList.add('show');
+  try {
+    const base64 = await fileToBase64(file);
+    const res = await fetch('/api/portfolio-upload', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: sessionPw, fileData: base64, fileName: file.name, mimeType: file.type }),
+    });
+    const data = await res.json();
+    if (!res.ok) { showToast('업로드 실패: ' + data.error, true); return null; }
+    if (data.facesBlurred > 0) showToast(`✅ 얼굴 ${data.facesBlurred}개 블러 처리됨`);
+    else if (data.facesBlurred === 0) showToast('업로드 완료 (얼굴 없음)');
+    else if (data.facesBlurred === -1) alert('⚠️ 블러 처리 실패\n\n오류 내용:\n' + (data.blurError || '알 수 없음') + '\n\n(원본 이미지로 저장됨)');
+    return data.url;
+  } catch (e) {
+    showToast('업로드 오류: ' + e.message, true); return null;
+  } finally {
+    badge.classList.remove('show');
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── Save ──
+document.getElementById('saveBtn').onclick = async () => {
+  const title_ko = document.getElementById('f_title_ko').value.trim();
+  if (!title_ko) { showToast('행사명(한국어)은 필수입니다', true); return; }
+  const payload = {
+    password: sessionPw, title_ko,
+    title_en: document.getElementById('f_title_en').value.trim(),
+    event_type_ko: document.getElementById('f_type_ko').value.trim(),
+    event_type_en: document.getElementById('f_type_en').value.trim(),
+    date_start: document.getElementById('f_date_start').value || null,
+    date_end: document.getElementById('f_date_end').value || null,
+    location_ko: document.getElementById('f_location_ko').value.trim(),
+    location_en: document.getElementById('f_location_en').value.trim(),
+    scale: document.getElementById('f_scale').value,
+    region: document.getElementById('f_region').value,
+    comment_ko: document.getElementById('f_comment_ko').value.trim(),
+    comment_en: document.getElementById('f_comment_en').value.trim(),
+    main_image: document.getElementById('f_main_image').value.trim(),
+    sub_images: subImgUrls,
+    is_international: document.getElementById('f_is_international').checked,
+    is_pinned: document.getElementById('f_is_pinned').checked,
+  };
+  if (editingId) payload.id = editingId;
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.textContent = '저장 중…'; saveBtn.disabled = true;
+  try {
+    const res = await fetch('/api/portfolio', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) showToast('저장 실패: ' + data.error, true);
+    else { showToast(editingId ? '수정 완료' : '추가 완료'); closeModal(); await loadItems(); }
+  } catch (e) {
+    showToast('오류: ' + e.message, true);
+  } finally {
+    saveBtn.textContent = '저장'; saveBtn.disabled = false;
+  }
+};
+
+// ── Delete ──
+document.getElementById('deleteBtn').onclick = async () => {
+  if (!confirm('이 항목을 삭제할까요?')) return;
+  try {
+    const res = await fetch('/api/portfolio', {
+      method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: sessionPw, id: editingId }),
+    });
+    const data = await res.json();
+    if (!res.ok) showToast('삭제 실패: ' + data.error, true);
+    else { showToast('삭제 완료'); closeModal(); await loadItems(); }
+  } catch (e) {
+    showToast('오류: ' + e.message, true);
+  }
+};
+
+// ── Quote Delete ──
+window.deleteQuote = async function(id) {
+  if (!confirm('이 견적 문의를 삭제할까요?')) return;
+  try {
+    const res = await fetch('/api/inquiries', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: sessionPw, id }),
+    });
+    const data = await res.json();
+    if (!res.ok) { showToast('삭제 실패: ' + data.error, true); return; }
+    showToast('삭제 완료');
+    await loadInquiries();
+  } catch(e) {
+    showToast('오류: ' + e.message, true);
+  }
+};
+
+// ── Quote PDF ──
+window.openQuotePdf = function(index) {
+  const item = quoteItems[index];
+  if (!item) return;
+  const p = parseQuoteContent(item.content || '');
+  const date = item.created_at ? new Date(item.created_at).toLocaleDateString('ko-KR') : '-';
+
+  const infoRows = [
+    ['담당자', item.name || p.담당자 || '-'],
+    ['소속', item.company || p.소속 || '-'],
+    ['이메일', item.email || '-'],
+    ['행사명', p.행사명 || '-'],
+    ['행사 장소', p.행사장소 || '-'],
+    ['패키지', p.패키지 || '-'],
+    ['참가자 수', p.참가자수 || '-'],
+    ['운영 일수', p.운영일수 || '-'],
+    ...(p.종이명찰 ? [['종이명찰', p.종이명찰]] : []),
+    ...(p.키오스크 ? [['키오스크', p.키오스크]] : []),
+    ...(p.매니저 ? [['매니저', p.매니저]] : []),
+  ];
+
+  const billingLines = p.비용상세.split('\n').filter(l => l.trim()).map(l => {
+    const parts = l.replace(/^- /, '').split(': ');
+    const label = parts[0] || '';
+    const val = parts.slice(1).join(': ') || '';
+    return `<tr><td class="bl">${label}</td><td class="br">${val}</td></tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+  <title>FAIRPASS 모의견적서 — ${item.name||'-'}</title>
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif; color:#1a1a2e; background:#f4f5f8; min-height:100vh; padding:32px 16px; }
+    .wrap { max-width:680px; margin:0 auto; }
+    .print-bar { display:flex; justify-content:flex-end; margin-bottom:20px; }
+    .print-btn { display:inline-flex; align-items:center; gap:8px; padding:10px 22px; background:#1a1a2e; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; letter-spacing:0.03em; }
+    .print-btn:hover { background:#2d2d4e; }
+    .card { background:#fff; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,0.08); overflow:hidden; }
+    .card-header { background:linear-gradient(135deg,#1a1a2e 0%,#2d1b69 60%,#0e4f6b 100%); padding:36px 40px 28px; position:relative; overflow:hidden; }
+    .card-header::after { content:''; position:absolute; right:-40px; top:-40px; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.05); }
+    .brand { font-size:22px; font-weight:900; color:#fff; letter-spacing:3px; }
+    .brand-sub { font-size:13px; color:rgba(255,255,255,0.6); margin-top:4px; letter-spacing:0.05em; }
+    .badge-row { display:flex; gap:8px; margin-top:20px; flex-wrap:wrap; }
+    .badge { display:inline-block; padding:5px 14px; border-radius:100px; font-size:11px; font-weight:700; letter-spacing:0.05em; }
+    .badge-date { background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.85); }
+    .badge-pkg { background:rgba(139,92,246,0.5); color:#e9d5ff; }
+    .card-body { padding:32px 40px; }
+    .section-label { font-size:10px; font-weight:800; letter-spacing:0.15em; color:#8b5cf6; text-transform:uppercase; margin:0 0 12px; }
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid #e8eaf0; border-radius:10px; overflow:hidden; margin-bottom:28px; }
+    .info-cell { padding:10px 16px; border-bottom:1px solid #e8eaf0; }
+    .info-cell:nth-last-child(-n+2) { border-bottom:none; }
+    .info-cell:nth-child(odd) { border-right:1px solid #e8eaf0; background:#fafbff; }
+    .info-label { font-size:10px; font-weight:700; color:#94a3b8; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:3px; }
+    .info-val { font-size:14px; font-weight:600; color:#1a1a2e; }
+    .info-full { grid-column:1/-1; border-right:none !important; }
+    .divider { border:none; border-top:1px solid #e8eaf0; margin:24px 0; }
+    table.billing { width:100%; border-collapse:collapse; }
+    table.billing td { padding:9px 0; font-size:13px; border-bottom:1px solid #f0f1f5; }
+    table.billing td.bl { color:#64748b; }
+    table.billing td.br { text-align:right; font-weight:600; color:#1a1a2e; }
+    table.billing tr:last-child td { border-bottom:none; }
+    .total-box { background:linear-gradient(135deg,#f5f3ff,#ecfeff); border:1px solid #ddd6fe; border-radius:10px; padding:16px 20px; margin-top:20px; display:flex; align-items:center; justify-content:space-between; }
+    .total-label { font-size:12px; font-weight:700; color:#7c3aed; letter-spacing:0.05em; text-transform:uppercase; }
+    .total-amount { font-size:24px; font-weight:900; color:#1a1a2e; }
+    .footnote { margin-top:20px; padding:14px 16px; background:#fafbff; border-radius:8px; border-left:3px solid #8b5cf6; }
+    .footnote p { font-size:11px; color:#94a3b8; line-height:1.8; }
+    @media print {
+      body { background:#fff; padding:0; }
+      .print-bar { display:none; }
+      .card { box-shadow:none; border-radius:0; }
+      .card-header { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .total-box { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    }
+  </style></head><body>
+  <div class="wrap">
+    <div class="print-bar">
+      <button class="print-btn" onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="brand">FAIRPASS</div>
+        <div class="brand-sub">모의 견적서 · Quotation</div>
+        <div class="badge-row">
+          <span class="badge badge-date">📅 ${date}</span>
+          <span class="badge badge-pkg">${p.패키지||'패키지 미선택'}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="section-label">신청자 정보</div>
+        <div class="info-grid">
+          <div class="info-cell"><div class="info-label">담당자</div><div class="info-val">${item.name||p.담당자||'-'}</div></div>
+          <div class="info-cell"><div class="info-label">소속</div><div class="info-val">${item.company||p.소속||'-'}</div></div>
+          <div class="info-cell info-full" style="grid-column:1/-1;border-right:none"><div class="info-label">이메일</div><div class="info-val">${item.email||'-'}</div></div>
+        </div>
+        <div class="section-label">행사 정보</div>
+        <div class="info-grid">
+          <div class="info-cell info-full" style="border-right:none"><div class="info-label">행사명</div><div class="info-val">${p.행사명||'-'}</div></div>
+          <div class="info-cell"><div class="info-label">행사 장소</div><div class="info-val">${p.행사장소||'-'}</div></div>
+          <div class="info-cell"><div class="info-label">패키지</div><div class="info-val">${p.패키지||'-'}</div></div>
+          <div class="info-cell"><div class="info-label">참가자 수</div><div class="info-val">${p.참가자수||'-'}</div></div>
+          <div class="info-cell"><div class="info-label">운영 일수</div><div class="info-val">${p.운영일수||'-'}</div></div>
+          ${p.종이명찰?`<div class="info-cell"><div class="info-label">종이명찰</div><div class="info-val">${p.종이명찰}</div></div>`:''}
+          ${p.키오스크?`<div class="info-cell"><div class="info-label">키오스크</div><div class="info-val">${p.키오스크}</div></div>`:''}
+          ${p.매니저?`<div class="info-cell"><div class="info-label">매니저</div><div class="info-val">${p.매니저}</div></div>`:''}
+        </div>
+        <hr class="divider">
+        <div class="section-label">비용 내역</div>
+        <table class="billing">${billingLines}</table>
+        <div class="total-box">
+          <div class="total-label">모의 견적 합계</div>
+          <div class="total-amount">${item.total||p.총계||'-'}</div>
+        </div>
+        <div class="footnote" style="margin-top:20px">
+          <p>* 본 견적은 모의 견적이며, 실제 견적과 차이가 있을 수 있습니다.<br>
+          * 부가서비스(출입관리·알림톡·문자 등)는 실제 견적 시 반영됩니다.<br>
+          * 유료 결제 서비스 이용 시 결제액의 5% (행사 후 정산)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  </body></html>`;
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+};
+
+// ── Seed ──
+document.getElementById('seedBtn').onclick = async () => {
+  if (!confirm('기존 60개 데이터를 Supabase에 추가합니다.\n이미 가져온 경우 중복될 수 있습니다. 계속할까요?')) return;
+  const progress = document.getElementById('seedProgress');
+  const fill = document.getElementById('seedFill');
+  const label = document.getElementById('seedLabel');
+  progress.classList.add('show');
+  let done = 0;
+  for (const item of LEGACY) {
+    try {
+      await fetch('/api/portfolio', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...item, title_en: '', sub_images: [], password: sessionPw }),
+      });
+    } catch(e) {}
+    done++;
+    fill.style.width = (done / LEGACY.length * 100) + '%';
+    label.textContent = `가져오는 중… ${done} / ${LEGACY.length}`;
+  }
+  progress.classList.remove('show');
+  showToast(`${LEGACY.length}개 데이터 가져오기 완료!`);
+  await loadItems();
+};
+</script>
+</body>
+</html>

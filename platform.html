@@ -3,7 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-M17QN59ZBN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-M17QN59ZBN');
+  </script>
   <title>등록 플랫폼 — FAIRPASS</title>
+  <meta name="title-ko" content="등록 플랫폼 — FAIRPASS">
+  <meta name="title-en" content="Registration Platform — FAIRPASS">
   <meta name="description" content="FAIRPASS 등록 플랫폼 - 커스텀 등록 폼, 결제 연동, 실시간 대시보드, 자동 안내 발송까지 하나의 SaaS에서.">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="images/FAIRPASS_APP.png" type="image/png">
@@ -21,29 +31,34 @@
       <div class="nav-links" id="navLinks">
         <div class="nav-dropdown">
           <button class="nav-link nav-link--dropdown" id="navDropdownBtn">
-            서비스
+            <span class="lang-ko">서비스</span><span class="lang-en">Services</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="nav-dropdown-menu" id="navDropdownMenu">
             <a href="platform.html" class="nav-dropdown-item">
               <span class="nav-dropdown-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
-              <span><strong>등록 플랫폼</strong><small>온라인 등록부터 통계까지</small></span>
+              <span><strong><span class="lang-ko">등록 플랫폼</span><span class="lang-en">Registration Platform</span></strong><small><span class="lang-ko">온라인 등록부터 통계까지</span><span class="lang-en">From registration to analytics</span></small></span>
             </a>
             <a href="kiosk.html" class="nav-dropdown-item">
               <span class="nav-dropdown-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="14" rx="1.5"/><line x1="12" y1="16" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="9" y1="12" x2="15" y2="12"/></svg></span>
-              <span><strong>무인발권 키오스크</strong><small>무인 체크인 · 즉석 명찰 발급</small></span>
+              <span><strong><span class="lang-ko">무인발권 키오스크</span><span class="lang-en">Self-Service Kiosk</span></strong><small><span class="lang-ko">무인 체크인 · 즉석 명찰 발급</span><span class="lang-en">Self check-in · Instant badge printing</span></small></span>
             </a>
             <a href="badge.html" class="nav-dropdown-item">
               <span class="nav-dropdown-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg></span>
-              <span><strong>종이명찰</strong><small>100% 친환경 종이명찰</small></span>
+              <span><strong><span class="lang-ko">종이명찰</span><span class="lang-en">Paper Badge</span></strong><small><span class="lang-ko">100% 친환경 종이명찰</span><span class="lang-en">100% eco-friendly paper badge</span></small></span>
             </a>
           </div>
         </div>
-        <a href="index.html#differentiators" class="nav-link">차별점</a>
-        <a href="index.html#values" class="nav-link">우리의 가치</a>
-        <a href="index.html#quote" class="nav-link">모의 견적</a>
-        <a href="#" class="nav-link nav-link--login">로그인</a>
-        <a href="#" class="nav-link nav-link--cta">회원가입</a>
+        <a href="index.html#differentiators" class="nav-link"><span class="lang-ko">차별점</span><span class="lang-en">Why Us</span></a>
+        <a href="index.html#values" class="nav-link"><span class="lang-ko">우리의 가치</span><span class="lang-en">Our Values</span></a>
+        <a href="portfolio.html" class="nav-link"><span class="lang-ko">포트폴리오</span><span class="lang-en">Portfolio</span></a>
+        <a href="index.html#quote" class="nav-link en-hide"><span class="lang-ko">모의 견적</span><span class="lang-en">Get a Quote</span></a>
+        <div class="nav-lang-toggle">
+          <button class="nav-lang-btn active" data-lang="ko" onclick="setLang('ko')">KO</button>
+          <button class="nav-lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+        </div>
+        <a href="https://admin.fairpass.co.kr/Login" class="nav-link nav-link--login" target="_blank" rel="noopener"><span class="lang-ko">로그인</span><span class="lang-en">Log In</span></a>
+        <a href="https://admin.fairpass.co.kr/Join" class="nav-link nav-link--cta" target="_blank" rel="noopener"><span class="lang-ko">회원가입</span><span class="lang-en">Sign Up</span></a>
       </div>
       <button class="nav-toggle" id="navToggle" aria-label="메뉴 열기">
         <span></span><span></span><span></span>
@@ -64,30 +79,28 @@
       <div class="kiosk-hero-text">
         <div class="detail-hero-tag detail-hero-tag--cyan fade-up">SaaS Platform</div>
         <h1 class="kiosk-hero-hook fade-up" style="--delay: 0.08s">
-          5명의 일을 1명이,<br>
-          320시간을 <span class="gradient-text">1시간으로</span>
+          <span class="lang-ko">5명의 일을 1명이,<br>320시간을 <span class="gradient-text">1시간으로</span></span><span class="lang-en">The work of 5, done by 1.<br>320 hours cut to <span class="gradient-text">just one.</span></span>
         </h1>
         <p class="kiosk-hero-sub fade-up" style="--delay: 0.16s">
-          <span class="kw-blue">20년 MICE 경험</span>이 녹아든 전용 솔루션 — FAIRPASS 등록 플랫폼<br>
-          <span class="kw-blue">반복 업무 제거</span> &nbsp;·&nbsp; <span class="kw-blue">휴먼에러 방지</span> &nbsp;·&nbsp; <span class="kw-blue">운영 효율 극대화</span>
+          <span class="lang-ko"><span class="kw-blue">20년 MICE 경험</span>이 녹아든 전용 솔루션 — FAIRPASS 등록 플랫폼<br><span class="kw-blue">반복 업무 제거</span> &nbsp;·&nbsp; <span class="kw-blue">휴먼에러 방지</span> &nbsp;·&nbsp; <span class="kw-blue">운영 효율 극대화</span></span><span class="lang-en">Built on <span class="kw-blue">20 years of MICE expertise</span> — FAIRPASS Registration Platform<br><span class="kw-blue">Eliminate repetitive tasks</span> &nbsp;·&nbsp; <span class="kw-blue">Prevent human error</span> &nbsp;·&nbsp; <span class="kw-blue">Maximize efficiency</span></span>
         </p>
         <div class="kiosk-hero-stats fade-up" style="--delay: 0.22s">
           <div class="kiosk-stat">
-            <span class="kiosk-stat-num">20년</span>
-            <span class="kiosk-stat-label">MICE 전문가 경험 기반</span>
+            <span class="kiosk-stat-num">20<span class="lang-ko">년</span><span class="lang-en">yr</span></span>
+            <span class="kiosk-stat-label"><span class="lang-ko">MICE 전문가 경험 기반</span><span class="lang-en">MICE Expertise</span></span>
           </div>
           <div class="kiosk-stat">
             <span class="kiosk-stat-num">99.4%</span>
-            <span class="kiosk-stat-label">업무 시간 절감률</span>
+            <span class="kiosk-stat-label"><span class="lang-ko">업무 시간 절감률</span><span class="lang-en">Time Saved</span></span>
           </div>
           <div class="kiosk-stat">
-            <span class="kiosk-stat-num">무제한</span>
-            <span class="kiosk-stat-label">행사 규모 · 인원</span>
+            <span class="kiosk-stat-num"><span class="lang-ko">무제한</span><span class="lang-en">Unlimited</span></span>
+            <span class="kiosk-stat-label"><span class="lang-ko">행사 규모 · 인원</span><span class="lang-en">Event Scale &amp; Capacity</span></span>
           </div>
         </div>
         <div class="hero-actions fade-up" style="--delay: 0.3s">
-          <a href="#" class="btn btn-primary">무료로 시작하기</a>
-          <a href="index.html#quote" class="btn btn-secondary">1분 모의 견적</a>
+          <a href="https://admin.fairpass.co.kr/Login" class="btn btn-primary" target="_blank" rel="noopener"><span class="lang-ko">무료로 시작하기</span><span class="lang-en">Start for Free</span></a>
+          <a href="index.html#quote" class="btn btn-secondary"><span class="lang-ko">1분 모의 견적</span><span class="lang-en">Quick Quote</span></a>
         </div>
       </div>
 
@@ -106,9 +119,8 @@
   <!-- ===================== SUBNAV ===================== -->
   <nav class="subnav" id="subnav">
     <div class="subnav-inner">
-      <a href="#features" class="subnav-link">핵심기능</a>
-      <a href="#preview" class="subnav-link">미리보기</a>
-      <a href="#renewal" class="subnav-link">업데이트 예정</a>
+      <a href="#features" class="subnav-link"><span class="lang-ko">핵심기능</span><span class="lang-en">Features</span></a>
+      <a href="#renewal" class="subnav-link"><span class="lang-ko">업데이트 예정</span><span class="lang-en">Upcoming</span></a>
     </div>
   </nav>
 
@@ -116,8 +128,8 @@
   <section class="section" id="features">
     <div class="container">
       <div class="section-label fade-up">CORE FEATURES</div>
-      <h2 class="section-title fade-up">핵심 <span class="gradient-text">기능</span></h2>
-      <p class="section-desc fade-up">행사 운영에 필요한 모든 기능, 하나의 플랫폼에 담았습니다</p>
+      <h2 class="section-title fade-up"><span class="lang-ko">행사 등록, <span class="gradient-text">이 안에서 전부</span> 끝납니다.</span><span class="lang-en">Everything for event registration. <span class="gradient-text">All in one place.</span></span></h2>
+      <p class="section-desc fade-up"><span class="lang-ko">등록폼 설계부터 <strong class="kw-blue">결제·알림·통계</strong>까지, 따로 쓰던 툴이 전부 필요 없어집니다.</span><span class="lang-en">From <strong class="kw-blue">form design</strong> to <strong class="kw-blue">payments, notifications, and analytics</strong><br>— no more juggling separate tools.</span></p>
       <div class="detail-features-grid detail-features-grid--3col">
 
         <div class="detail-feature-card fade-up" style="--delay: 0.1s">
@@ -126,8 +138,8 @@
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
             </svg>
           </div>
-          <h3 class="detail-feature-title">맞춤형 등록폼 설계</h3>
-          <p class="detail-feature-desc">원하는 항목을 직접 골라 행사에 맞는 등록폼을<br>자유롭게 구성하세요.<br>조건부 필드, 사진 첨부, 영어 지원 —<br>어떤 행사든 딱 맞는 등록폼을 만들 수 있습니다.</p>
+          <h3 class="detail-feature-title"><span class="lang-ko">맞춤형 등록폼 설계</span><span class="lang-en">Custom Registration Form Builder</span></h3>
+          <p class="detail-feature-desc"><span class="lang-ko">원하는 항목을 직접 골라 행사에 맞는 등록폼을<br>자유롭게 구성하세요.<br>조건부 필드, 사진 첨부, 영어 지원 —<br>어떤 행사든 딱 맞는 등록폼을 만들 수 있습니다.</span><span class="lang-en">Pick exactly the fields you need and build a form tailored to your event.<br>Conditional fields, photo uploads, multilingual support —<br>any event, any format.</span></p>
         </div>
 
         <div class="detail-feature-card fade-up" style="--delay: 0.15s">
@@ -136,8 +148,8 @@
               <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
             </svg>
           </div>
-          <h3 class="detail-feature-title">국내·해외 결제 연동</h3>
-          <p class="detail-feature-desc">국내는 토스페이먼츠, 해외는 엑심베이 —<br>신용카드 결제를 지원합니다.<br>정산 관리와 영수증 발송까지 플랫폼 안에서 한번에.</p>
+          <h3 class="detail-feature-title"><span class="lang-ko">국내·해외 결제 연동</span><span class="lang-en">Domestic &amp; Global Payment Integration</span></h3>
+          <p class="detail-feature-desc"><span class="lang-ko">국내는 토스페이먼츠, 해외는 엑심베이 —<br>신용카드 결제를 지원합니다.<br>정산 관리와 영수증 발송까지 플랫폼 안에서 한번에.</span><span class="lang-en">Toss Payments for domestic, Eximbay for international — credit card payments supported.<br>Settlement management and receipt delivery, all within the platform.</span></p>
         </div>
 
         <div class="detail-feature-card fade-up" style="--delay: 0.2s">
@@ -146,8 +158,8 @@
               <rect x="4" y="6" width="16" height="14" rx="2"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/>
             </svg>
           </div>
-          <h3 class="detail-feature-title">자동 맵핑 명찰 디자인</h3>
-          <p class="detail-feature-desc">참가자 정보가 실시간으로 명찰 디자인에<br>자동 반영됩니다.<br>글자 수에 따라 폰트 크기가 자동 조정되어,<br>수기 수정 없이 완성된 명찰이 바로 만들어집니다.</p>
+          <h3 class="detail-feature-title"><span class="lang-ko">자동 맵핑 명찰 디자인</span><span class="lang-en">Auto-Mapped Badge Design</span></h3>
+          <p class="detail-feature-desc"><span class="lang-ko">참가자 정보가 실시간으로 명찰 디자인에<br>자동 반영됩니다.<br>글자 수에 따라 폰트 크기가 자동 조정되어,<br>수기 수정 없이 완성된 명찰이 바로 만들어집니다.</span><span class="lang-en">Attendee data is automatically mapped to badge designs in real time.<br>Font size adjusts based on text length — perfect badges, no manual editing needed.</span></p>
         </div>
 
         <div class="detail-feature-card fade-up" style="--delay: 0.25s">
@@ -156,8 +168,8 @@
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
           </div>
-          <h3 class="detail-feature-title">카카오·SMS·이메일 통합 발송</h3>
-          <p class="detail-feature-desc">카카오 알림톡부터 문자, 이메일, 뉴스레터까지 —<br>플랫폼 하나에서 전송·관리합니다.<br>별도 발송 툴이 필요 없습니다.</p>
+          <h3 class="detail-feature-title"><span class="lang-ko">카카오·SMS·이메일 통합 발송</span><span class="lang-en">Kakao · SMS · Email Integrated Messaging</span></h3>
+          <p class="detail-feature-desc"><span class="lang-ko">카카오 알림톡부터 문자, 이메일, 뉴스레터까지 —<br>플랫폼 하나에서 전송·관리합니다.<br>별도 발송 툴이 필요 없습니다.</span><span class="lang-en">Kakao notifications, SMS, email, newsletters — all sent and managed from one platform.<br>No separate messaging tools needed.</span></p>
         </div>
 
         <div class="detail-feature-card fade-up" style="--delay: 0.3s">
@@ -166,8 +178,8 @@
               <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
             </svg>
           </div>
-          <h3 class="detail-feature-title">키오스크 실시간 연동</h3>
-          <p class="detail-feature-desc">현장 등록·변경 사항이 바로 반영되고,<br>체크인 현황과 참석률을 실시간으로 확인 가능합니다.</p>
+          <h3 class="detail-feature-title"><span class="lang-ko">키오스크 실시간 연동</span><span class="lang-en">Real-Time Kiosk Sync</span></h3>
+          <p class="detail-feature-desc"><span class="lang-ko">현장 등록·변경 사항이 바로 반영되고,<br>체크인 현황과 참석률을 실시간으로 확인 가능합니다.</span><span class="lang-en">On-site registrations and changes are reflected instantly.<br>Check-in status and attendance tracked in real time.</span></p>
         </div>
 
         <div class="detail-feature-card fade-up" style="--delay: 0.35s">
@@ -176,34 +188,10 @@
               <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
             </svg>
           </div>
-          <h3 class="detail-feature-title">다양한 부가 서비스</h3>
-          <p class="detail-feature-desc">행사 운영의 처음부터 끝까지, 필요한 기능이<br>이미 준비되어 있습니다.</p>
+          <h3 class="detail-feature-title"><span class="lang-ko">다양한 부가 서비스</span><span class="lang-en">Extensive Add-on Services</span></h3>
+          <p class="detail-feature-desc"><span class="lang-ko">행사 운영의 처음부터 끝까지, 필요한 기능이<br>이미 준비되어 있습니다.</span><span class="lang-en">From start to finish, every feature you need<br>is already built in.</span></p>
         </div>
 
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== SCREENSHOT ===================== -->
-  <section class="section section--alt" id="preview">
-    <div class="container">
-      <div class="section-label fade-up">PRODUCT</div>
-      <h2 class="section-title fade-up">플랫폼 <span class="gradient-text">미리보기</span></h2>
-      <p class="section-desc fade-up">직관적인 대시보드에서 모든 행사 데이터를 한눈에 관리</p>
-      <!-- 이미지 슬라이더 -->
-      <div class="platform-slider-wrap fade-up" style="--delay: 0.2s">
-        <div class="platform-slider" id="platformSlider">
-          <div class="platform-slide"><img src="images/FAIRPASS_Platform_screen shot_1.png" alt="FAIRPASS 플랫폼 화면 1"></div>
-          <div class="platform-slide"><img src="images/FAIRPASS_Platform_screen shot_2.png" alt="FAIRPASS 플랫폼 화면 2"></div>
-          <div class="platform-slide"><img src="images/FAIRPASS_Platform_screen shot_3.png" alt="FAIRPASS 플랫폼 화면 3"></div>
-          <div class="platform-slide"><img src="images/FAIRPASS_Platform_screen shot_4.png" alt="FAIRPASS 플랫폼 화면 4"></div>
-        </div>
-        <div class="platform-slider-dots" id="sliderDots">
-          <span class="slider-dot active" data-idx="0"></span>
-          <span class="slider-dot" data-idx="1"></span>
-          <span class="slider-dot" data-idx="2"></span>
-          <span class="slider-dot" data-idx="3"></span>
-        </div>
       </div>
     </div>
   </section>
@@ -212,28 +200,26 @@
   <section class="section section--alt" id="renewal">
     <div class="container">
       <div class="platform-renewal-wrap fade-up">
-        <div class="platform-renewal-badge">2026 하반기 예정</div>
-        <h2 class="platform-renewal-title">더 직관적으로, 더 간편하게</h2>
+        <div class="platform-renewal-badge"><span class="lang-ko">2026 하반기 예정</span><span class="lang-en">Coming H2 2026</span></div>
+        <h2 class="platform-renewal-title"><span class="lang-ko">더 직관적으로, 더 간편하게</span><span class="lang-en">More Intuitive. More Seamless.</span></h2>
         <p class="platform-renewal-desc">
-          처음 써도 막히지 않는 UI, 놓치는 정보 없는 대시보드 — FAIRPASS가 관리자 경험을 새롭게 설계합니다.<br>
-          2026년 하반기, <strong class="gradient-text">전면 리뉴얼된 관리자 페이지</strong>가 출시됩니다.
+          <span class="lang-ko">처음 써도 막히지 않는 UI, 놓치는 정보 없는 대시보드 — FAIRPASS가 관리자 경험을 새롭게 설계합니다.<br>2026년 하반기, <strong class="gradient-text">전면 리뉴얼된 관리자 페이지</strong>가 출시됩니다.</span><span class="lang-en">A UI anyone can use from day one. A dashboard that misses nothing — FAIRPASS is redesigning the admin experience.<br>In H2 2026, a <strong class="gradient-text">fully renewed admin page</strong> launches.</span>
         </p>
         <ul class="platform-renewal-list">
           <li>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            처음도 혼자 할 수 있는 UI — 단계별 가이드로 행사 세팅 완료
+            <span class="lang-ko">처음도 혼자 할 수 있는 UI — 단계별 가이드로 행사 세팅 완료</span><span class="lang-en">Set up your event solo from day one — step-by-step guided setup</span>
           </li>
           <li>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            등록·결제·체크인 현황을 한눈에 — 업무 효율을 높이는 스마트 대시보드
+            <span class="lang-ko">등록·결제·체크인 현황을 한눈에 — 업무 효율을 높이는 스마트 대시보드</span><span class="lang-en">Registration, payments, and check-in at a glance — a smart dashboard that boosts efficiency</span>
           </li>
-
           <li>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            계약부터 정산까지 플랫폼 안에서 — 이메일 없이 한번에 완결
+            <span class="lang-ko">계약부터 정산까지 플랫폼 안에서 — 이메일 없이 한번에 완결</span><span class="lang-en">From contracts to settlements, all within the platform — no email needed</span>
           </li>
         </ul>
-        <p class="platform-renewal-cta-text">앞으로의 FAIRPASS, 많은 기대 바랍니다.</p>
+        <p class="platform-renewal-cta-text"><span class="lang-ko">앞으로의 FAIRPASS, 많은 기대 바랍니다.</span><span class="lang-en">Stay tuned for what's coming from FAIRPASS.</span></p>
       </div>
     </div>
   </section>
@@ -241,11 +227,11 @@
   <!-- ===================== CTA ===================== -->
   <section class="section section--alt" style="padding-top: 0;">
     <div class="container detail-cta">
-      <h2 class="section-title fade-up">지금 바로 <span class="gradient-text">시작</span>하세요</h2>
-      <p class="section-desc fade-up">무료 계정으로 등록 플랫폼의 모든 기능을 체험해 보세요.</p>
+      <h2 class="section-title fade-up"><span class="lang-ko"><span class="gradient-text">나만의</span> 등록 페이지 바로 만들어보세요.</span><span class="lang-en"><span class="gradient-text">Build</span> your registration page right now.</span></h2>
+      <p class="section-desc fade-up"><span class="lang-ko"><strong class="kw-blue">무료 계정</strong>으로 시작하고, 다양한 기능들을 체험해 보세요.</span><span class="lang-en">Start with a <strong class="kw-blue">free account</strong> and explore everything FAIRPASS has to offer.</span></p>
       <div class="detail-cta-actions fade-up" style="--delay: 0.2s">
-        <a href="#" class="btn btn-primary btn-lg">무료로 시작하기</a>
-        <a href="index.html#quote" class="btn btn-secondary btn-lg">1분 모의 견적</a>
+        <a href="https://admin.fairpass.co.kr/Login" class="btn btn-primary" target="_blank" rel="noopener"><span class="lang-ko">무료로 시작하기</span><span class="lang-en">Start for Free</span></a>
+        <a href="index.html#quote" class="btn btn-secondary btn-lg"><span class="lang-ko">1분 모의 견적</span><span class="lang-en">Quick Quote</span></a>
       </div>
     </div>
   </section>
@@ -257,7 +243,7 @@
       <!-- Top: BlueOrigin Logo + SNS -->
       <div class="footer-top">
         <a href="#" class="footer-logo-link" target="_blank" rel="noopener">
-          <img src="images/Blue origin(W).png" alt="Blue Origin" class="footer-logo-img">
+          <img src="images/BlueOrigin_logo_white.png" alt="Blue Origin" class="footer-logo-img">
         </a>
         <div class="footer-sns">
           <a href="#" class="footer-sns-link footer-sns-link--fp" aria-label="FAIRPASS">
@@ -277,8 +263,8 @@
 
       <!-- Nav links -->
       <nav class="footer-nav">
-        <a href="terms.html" class="footer-nav-link">이용약관</a>
-        <button type="button" class="footer-nav-link footer-nav-btn" id="brochureBtn">서비스 소개서</button>
+        <a href="terms.html" class="footer-nav-link"><span class="lang-ko">이용약관</span><span class="lang-en">Terms of Use</span></a>
+        <button type="button" class="footer-nav-link footer-nav-btn" id="brochureBtn"><span class="lang-ko">서비스 소개서</span><span class="lang-en">Brochure</span></button>
       </nav>
 
       <!-- 사업자 정보 -->
@@ -291,7 +277,7 @@
       <div class="footer-bottom">
         <span class="footer-copy">&copy; 2026 FAIRPASS. All rights reserved.</span>
         <button class="footer-info-btn" id="footerInfoBtn" type="button">
-          사업자 정보
+          <span class="lang-ko">사업자 정보</span><span class="lang-en">Business Info</span>
           <svg class="footer-info-chevron" id="footerInfoChevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </div>
@@ -313,7 +299,7 @@
       <form id="brochureForm">
         <label class="form-label">
           <span>성함 <span style="color:var(--cyan-light)">*</span></span>
-          <input type="text" name="name" class="form-input" placeholder="홍길동" required>
+          <input type="text" name="name" class="form-input" placeholder="홍길동" data-ph-ko="홍길동" data-ph-en="John Doe" required>
         </label>
         <label class="form-label">
           <span>소속 <span style="color:var(--cyan-light)">*</span></span>
@@ -343,7 +329,7 @@
   <script src="js/main.js"></script>
   <script>
     (function(){
-      var sections = ['features','preview','renewal'];
+      var sections = ['features','renewal'];
       var links = document.querySelectorAll('.subnav-link');
       var subnav = document.getElementById('subnav');
       function onScroll(){

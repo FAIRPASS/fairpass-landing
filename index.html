@@ -3,7 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FAIRPASS — 행사 운영, 이제는 시스템으로</title>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-M17QN59ZBN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-M17QN59ZBN');
+  </script>
+  <title>FAIRPASS — 지속가능한 친환경 행사 운영</title>
+  <meta name="title-ko" content="FAIRPASS — 지속가능한 친환경 행사 운영">
+  <meta name="title-en" content="FAIRPASS — Sustainable Eco-Friendly Event Management">
   <meta name="description" content="FAIRPASS - 등록, 체크인, 명찰, 통계까지. 행사 운영을 하나의 시스템으로 통합합니다.">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="images/FAIRPASS_APP.png" type="image/png">
@@ -21,7 +31,7 @@
       <div class="nav-links" id="navLinks">
         <div class="nav-dropdown">
           <button class="nav-link nav-link--dropdown" id="navDropdownBtn">
-            서비스
+            <span class="lang-ko">서비스</span><span class="lang-en">Services</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="nav-dropdown-menu" id="navDropdownMenu">
@@ -30,8 +40,8 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
               </span>
               <span>
-                <strong>등록 플랫폼</strong>
-                <small>온라인 등록부터 통계까지</small>
+                <strong><span class="lang-ko">등록 플랫폼</span><span class="lang-en">Registration Platform</span></strong>
+                <small><span class="lang-ko">온라인 등록부터 통계까지</span><span class="lang-en">From registration to analytics</span></small>
               </span>
             </a>
             <a href="kiosk.html" class="nav-dropdown-item">
@@ -39,8 +49,8 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="14" rx="1.5"/><line x1="12" y1="16" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
               </span>
               <span>
-                <strong>무인발권 키오스크</strong>
-                <small>무인 체크인 · 즉석 명찰 발급</small>
+                <strong><span class="lang-ko">무인발권 키오스크</span><span class="lang-en">Self-Service Kiosk</span></strong>
+                <small><span class="lang-ko">무인 체크인 · 즉석 명찰 발급</span><span class="lang-en">Self check-in · Instant badge printing</span></small>
               </span>
             </a>
             <a href="badge.html" class="nav-dropdown-item">
@@ -48,17 +58,22 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg>
               </span>
               <span>
-                <strong>종이명찰</strong>
-                <small>100% 친환경 종이명찰</small>
+                <strong><span class="lang-ko">종이명찰</span><span class="lang-en">Paper Badge</span></strong>
+                <small><span class="lang-ko">100% 친환경 종이명찰</span><span class="lang-en">100% eco-friendly paper badge</span></small>
               </span>
             </a>
           </div>
         </div>
-        <a href="#differentiators" class="nav-link">차별점</a>
-        <a href="#values" class="nav-link">우리의 가치</a>
-        <a href="#quote" class="nav-link">모의 견적</a>
-        <a href="#" class="nav-link nav-link--login">로그인</a>
-        <a href="#" class="nav-link nav-link--cta">회원가입</a>
+        <a href="#differentiators" class="nav-link"><span class="lang-ko">차별점</span><span class="lang-en">Why Us</span></a>
+        <a href="#values" class="nav-link"><span class="lang-ko">우리의 가치</span><span class="lang-en">Our Values</span></a>
+        <a href="portfolio.html" class="nav-link"><span class="lang-ko">포트폴리오</span><span class="lang-en">Portfolio</span></a>
+        <a href="#quote" class="nav-link en-hide"><span class="lang-ko">모의 견적</span><span class="lang-en">Get a Quote</span></a>
+        <div class="nav-lang-toggle">
+          <button class="nav-lang-btn active" data-lang="ko" onclick="setLang('ko')">KO</button>
+          <button class="nav-lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+        </div>
+        <a href="https://admin.fairpass.co.kr/Login" class="nav-link nav-link--login" target="_blank" rel="noopener"><span class="lang-ko">로그인</span><span class="lang-en">Log In</span></a>
+        <a href="https://admin.fairpass.co.kr/Join" class="nav-link nav-link--cta" target="_blank" rel="noopener"><span class="lang-ko">회원가입</span><span class="lang-en">Sign Up</span></a>
       </div>
       <button class="nav-toggle" id="navToggle" aria-label="메뉴 열기">
         <span></span><span></span><span></span>
@@ -76,49 +91,49 @@
     </div>
     <div class="container hero-content">
       <h1 class="hero-title fade-up">
-        더 쉽고 지속가능한 행사 운영<br>
-        <span style="color:rgba(255,255,255,0.45);font-style:italic;">FAIR</span><span class="gradient-text" style="font-style:italic;">PASS</span> 하나로
+        <span class="shimmer-text">Scan. Print. Go.</span>
       </h1>
       <p class="hero-subtitle fade-up" style="--delay: 0.2s">
-        처음부터 끝까지, 온·오프라인을 연결하는 통합 스마트 솔루션
+        <span class="lang-ko"><span style="white-space:nowrap"><strong class="kw-blue">야근 없이</strong> 운영하는 주최사, <strong class="kw-blue">줄 없이</strong> 입장하는 참가자 — 그게 FAIRPASS가 만드는 행사입니다.</span><br><strong class="kw-blue">온·오프라인을 연결하는</strong> 하나의 플랫폼에서 행사 <strong class="kw-blue">처음과 끝까지</strong> 운영하세요.</span>
+        <span class="lang-en">Organizers run events <strong class="kw-blue">without overtime</strong>.<br>Attendees walk in <strong class="kw-blue">without waiting in line</strong>.<br><br><strong class="kw-blue">One platform —</strong> online to on-site, <strong class="kw-blue">start to finish.</strong></span>
       </p>
       <div class="hero-tags fade-up" style="--delay: 0.28s">
-        <span class="hero-tag hero-tag--cyan">#온라인 등록</span>
-        <span class="hero-tag hero-tag--purple">#무인발권 키오스크</span>
-        <span class="hero-tag hero-tag--cyan">#실시간 연동</span>
-        <span class="hero-tag hero-tag--purple">#자동화</span>
-        <span class="hero-tag hero-tag--green">#종이명찰</span>
+        <span class="hero-tag hero-tag--purple"><span class="lang-ko">#온라인 등록</span><span class="lang-en">#Online Registration</span></span>
+        <span class="hero-tag hero-tag--purple"><span class="lang-ko">#자동화</span><span class="lang-en">#Automation</span></span>
+        <span class="hero-tag hero-tag--purple"><span class="lang-ko">#무인발권 키오스크</span><span class="lang-en">#Self-Service Kiosk</span></span>
+        <span class="hero-tag hero-tag--purple"><span class="lang-ko">#실시간 연동</span><span class="lang-en">#Real-Time Sync</span></span>
+        <span class="hero-tag hero-tag--purple"><span class="lang-ko">#친환경 종이명찰</span><span class="lang-en">#Eco Paper Badge</span></span>
       </div>
       <div class="hero-actions fade-up" style="--delay: 0.38s">
-        <a href="#" class="btn btn-primary">무료로 시작하기</a>
-        <a href="#quote" class="btn btn-secondary">1분 모의 견적</a>
+        <a href="https://admin.fairpass.co.kr/Login" class="btn btn-primary" target="_blank" rel="noopener"><span class="lang-ko">무료로 시작하기</span><span class="lang-en">Start for Free</span></a>
+        <a href="#quote" class="btn btn-secondary"><span class="lang-ko">1분 모의 견적</span><span class="lang-en">Quick Quote</span></a>
       </div>
     </div>
     <div class="marquee fade-up" style="--delay: 0.5s">
       <div class="marquee-inner">
         <div class="marquee-track">
-          <span class="marquee-item">기업행사</span>
-          <span class="marquee-item">컨퍼런스</span>
-          <span class="marquee-item">전시회</span>
-          <span class="marquee-item">세미나</span>
-          <span class="marquee-item">포럼</span>
-          <span class="marquee-item">페스티벌</span>
-          <span class="marquee-item">학술대회</span>
-          <span class="marquee-item">채용박람회</span>
-          <span class="marquee-item">신제품 런칭</span>
-          <span class="marquee-item">주주총회</span>
+          <span class="marquee-item"><span class="lang-ko">기업행사</span><span class="lang-en">Corporate Events</span></span>
+          <span class="marquee-item"><span class="lang-ko">컨퍼런스</span><span class="lang-en">Conferences</span></span>
+          <span class="marquee-item"><span class="lang-ko">전시회</span><span class="lang-en">Exhibitions</span></span>
+          <span class="marquee-item"><span class="lang-ko">세미나</span><span class="lang-en">Seminars</span></span>
+          <span class="marquee-item"><span class="lang-ko">포럼</span><span class="lang-en">Forums</span></span>
+          <span class="marquee-item"><span class="lang-ko">페스티벌</span><span class="lang-en">Festivals</span></span>
+          <span class="marquee-item"><span class="lang-ko">학술대회</span><span class="lang-en">Academic Conferences</span></span>
+          <span class="marquee-item"><span class="lang-ko">채용박람회</span><span class="lang-en">Job Fairs</span></span>
+          <span class="marquee-item"><span class="lang-ko">신제품 런칭</span><span class="lang-en">Product Launches</span></span>
+          <span class="marquee-item"><span class="lang-ko">주주총회</span><span class="lang-en">Shareholder Meetings</span></span>
         </div>
         <div class="marquee-track" aria-hidden="true">
-          <span class="marquee-item">기업행사</span>
-          <span class="marquee-item">컨퍼런스</span>
-          <span class="marquee-item">전시회</span>
-          <span class="marquee-item">세미나</span>
-          <span class="marquee-item">포럼</span>
-          <span class="marquee-item">페스티벌</span>
-          <span class="marquee-item">학술대회</span>
-          <span class="marquee-item">채용박람회</span>
-          <span class="marquee-item">신제품 런칭</span>
-          <span class="marquee-item">주주총회</span>
+          <span class="marquee-item"><span class="lang-ko">기업행사</span><span class="lang-en">Corporate Events</span></span>
+          <span class="marquee-item"><span class="lang-ko">컨퍼런스</span><span class="lang-en">Conferences</span></span>
+          <span class="marquee-item"><span class="lang-ko">전시회</span><span class="lang-en">Exhibitions</span></span>
+          <span class="marquee-item"><span class="lang-ko">세미나</span><span class="lang-en">Seminars</span></span>
+          <span class="marquee-item"><span class="lang-ko">포럼</span><span class="lang-en">Forums</span></span>
+          <span class="marquee-item"><span class="lang-ko">페스티벌</span><span class="lang-en">Festivals</span></span>
+          <span class="marquee-item"><span class="lang-ko">학술대회</span><span class="lang-en">Academic Conferences</span></span>
+          <span class="marquee-item"><span class="lang-ko">채용박람회</span><span class="lang-en">Job Fairs</span></span>
+          <span class="marquee-item"><span class="lang-ko">신제품 런칭</span><span class="lang-en">Product Launches</span></span>
+          <span class="marquee-item"><span class="lang-ko">주주총회</span><span class="lang-en">Shareholder Meetings</span></span>
         </div>
       </div>
     </div>
@@ -130,22 +145,22 @@
       <div class="trust-bar-grid fade-up" id="trustBar">
         <div class="trust-bar-item">
           <div class="trust-bar-value"><span class="counter" data-target="1700" data-suffix="+" data-format="comma">0</span></div>
-          <div class="trust-bar-label">누적 행사 운영</div>
+          <div class="trust-bar-label"><span class="lang-ko">누적 행사 운영</span><span class="lang-en">Events Managed</span></div>
         </div>
         <div class="trust-bar-item">
           <div class="trust-bar-value"><span class="counter" data-target="450000" data-suffix="+" data-format="comma">0</span></div>
-          <div class="trust-bar-label">이용 참가자 수</div>
+          <div class="trust-bar-label"><span class="lang-ko">이용 참가자 수</span><span class="lang-en">Attendees Served</span></div>
         </div>
         <div class="trust-bar-item">
           <div class="trust-bar-value"><span class="counter" data-target="6840" data-suffix="kg+" data-format="comma">0</span></div>
-          <div class="trust-bar-label">플라스틱 절감</div>
+          <div class="trust-bar-label"><span class="lang-ko">플라스틱 절감</span><span class="lang-en">Plastic Reduced</span></div>
         </div>
         <div class="trust-bar-item">
           <div class="trust-bar-value"><span class="counter" data-target="99.4" data-suffix="%" data-decimal="1">0</span></div>
-          <div class="trust-bar-label">업무 시간 절감</div>
+          <div class="trust-bar-label"><span class="lang-ko">업무 시간 절감</span><span class="lang-en">Time Saved</span></div>
         </div>
       </div>
-      <div class="trust-bar-since fade-up">* 2023년 출시 이후 누적</div>
+      <div class="trust-bar-since fade-up"><span class="lang-ko">* 2023년 출시 이후 누적</span><span class="lang-en">* Cumulative since 2023 launch</span></div>
     </div>
   </section>
 
@@ -153,8 +168,8 @@
   <section id="products" class="section section--alt">
     <div class="container">
       <div class="section-label fade-up">FAIRPASS SERVICE</div>
-      <h2 class="section-title fade-up"><img src="images/FAIRPASS(w+Blue).png" alt="FAIRPASS" class="inline-logo"> Service</h2>
-      <p class="section-desc fade-up">원하는 서비스만 골라 조합하는 <strong class="kw-blue">맞춤형 행사 운영 솔루션</strong></p>
+      <h2 class="section-title fade-up"><span class="lang-ko">내 행사에 <span class="gradient-text">필요한 것만</span>, 골라서 씁니다.</span><span class="lang-en">Pick only what your event <span class="gradient-text">needs.</span></span></h2>
+      <p class="section-desc fade-up"><span class="lang-ko">소프트웨어·하드웨어·친환경 명찰<br>조합하든 단독으로 쓰든, 모두 <strong class="kw-blue">하나의 시스템으로 연결</strong>됩니다.</span><span class="lang-en"><span style="white-space:nowrap">Software, hardware, and eco-friendly badges — use them together or separately.</span><br>Everything connects as <strong class="kw-blue">one system</strong>.</span></p>
       <div class="products-grid">
         <a href="platform.html" class="product-card product-card--cyan fade-up" style="--delay: 0.1s">
           <div class="product-icon">
@@ -163,9 +178,9 @@
             </svg>
           </div>
           <div class="product-tag">SaaS</div>
-          <h3 class="product-title">등록 플랫폼</h3>
-          <p class="product-desc">커스텀 등록폼부터 결제, 통계, 안내 발송까지<br>하나의 플랫폼에서.</p>
-          <span class="product-link">자세히 보기 &rarr;</span>
+          <h3 class="product-title"><span class="lang-ko">등록 플랫폼</span><span class="lang-en">Registration Platform</span></h3>
+          <p class="product-desc"><span class="lang-ko">커스텀 등록폼부터 결제, 통계, 안내 발송까지<br>하나의 플랫폼에서.</span><span class="lang-en">Custom forms, payments, analytics, and notifications — all in one platform.</span></p>
+          <span class="product-link"><span class="lang-ko">자세히 보기</span><span class="lang-en">Learn More</span> &rarr;</span>
         </a>
         <a href="kiosk.html" class="product-card product-card--purple fade-up" style="--delay: 0.2s">
           <div class="product-icon">
@@ -174,9 +189,9 @@
             </svg>
           </div>
           <div class="product-tag">Hardware</div>
-          <h3 class="product-title">무인발권 키오스크</h3>
-          <p class="product-desc">QR 체크인부터 명찰 인쇄, 스폰서 광고까지<br>무인으로 자동 운영.</p>
-          <span class="product-link">자세히 보기 &rarr;</span>
+          <h3 class="product-title"><span class="lang-ko">무인발권 키오스크</span><span class="lang-en">Self-Service Kiosk</span></h3>
+          <p class="product-desc"><span class="lang-ko">QR 체크인부터 명찰 인쇄, 스폰서 광고까지<br>무인으로 자동 운영.</span><span class="lang-en">QR check-in, badge printing, and sponsor ads —<br>all automated.</span></p>
+          <span class="product-link"><span class="lang-ko">자세히 보기</span><span class="lang-en">Learn More</span> &rarr;</span>
         </a>
         <a href="badge.html" class="product-card product-card--pink fade-up" style="--delay: 0.3s">
           <div class="product-icon">
@@ -185,9 +200,9 @@
             </svg>
           </div>
           <div class="product-tag">Eco Product</div>
-          <h3 class="product-title">종이명찰 <span class="product-first-badge">국내 최초 All-paper 명찰</span></h3>
-          <p class="product-desc">생분해 가능한 100% 친환경 종이명찰, 생활 방수,<br>ZERO 플라스틱.</p>
-          <span class="product-link">자세히 보기 &rarr;</span>
+          <h3 class="product-title"><span class="lang-ko">종이명찰</span><span class="lang-en">Paper Badge</span> <span class="product-first-badge"><span class="lang-ko">국내 최초 All-paper 명찰</span><span class="lang-en">Korea's First All-Paper Badge</span></span></h3>
+          <p class="product-desc"><span class="lang-ko">생분해 가능한 100% 친환경 종이명찰, 생활 방수,<br>ZERO 플라스틱.</span><span class="lang-en">100% biodegradable eco-friendly paper badge. Water-resistant. ZERO plastic.</span></p>
+          <span class="product-link"><span class="lang-ko">자세히 보기</span><span class="lang-en">Learn More</span> &rarr;</span>
         </a>
       </div>
     </div>
@@ -197,45 +212,45 @@
   <section id="compare" class="section">
     <div class="container">
       <div class="section-label fade-up">WHY FAIRPASS</div>
-      <h2 class="section-title fade-up"><span class="section-title-sm">기존 방식 vs</span> <img src="images/FAIRPASS(w+Blue).png" alt="FAIRPASS" class="inline-logo"></h2>
-      <p class="section-desc fade-up"><strong class="kw-blue">자동화</strong>와 <strong class="kw-blue">실시간 연동</strong> 서비스로 비효율 해결</p>
+      <h2 class="section-title fade-up"><span class="lang-ko">FAIRPASS 맡기고, <span class="gradient-text">야근 없이 퇴근</span>합니다.</span><span class="lang-en">Hand it to FAIRPASS. <span class="gradient-text">Leave on time.</span></span></h2>
+      <p class="section-desc fade-up"><span class="lang-ko"><strong class="kw-blue">자동화</strong>와 <strong class="kw-blue">실시간 연동</strong>으로, 수작업과 실수가 사라지니까요.</span><span class="lang-en"><strong class="kw-blue">Automation</strong> and <strong class="kw-blue">real-time sync</strong> eliminate manual work and human error.</span></p>
       <div class="compare-table fade-up" style="--delay: 0.2s">
         <!-- 헤더 -->
-        <div class="cmp-header cmp-header--left"><span class="compare-card-badge compare-card-badge--before">기존 방식</span></div>
+        <div class="cmp-header cmp-header--left"><span class="compare-card-badge compare-card-badge--before"><span class="lang-ko">기존 방식</span><span class="lang-en">Old Way</span></span></div>
         <div class="cmp-header cmp-header--mid"></div>
         <div class="cmp-header cmp-header--right"><span class="compare-card-badge compare-card-badge--after">FAIRPASS</span></div>
-        <!-- 등록 관리 -->
-        <div class="cmp-cell cmp-cell--left">구글폼 + 엑셀 수작업 <span class="compare-icon compare-icon--x"></span></div>
-        <div class="cmp-cell cmp-cell--mid">등록 관리</div>
-        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> 커스텀 등록폼 + 자동 수집</div>
-        <!-- 현장 체크인 -->
-        <div class="cmp-cell cmp-cell--left">명단 출력 + 수기 체크 <span class="compare-icon compare-icon--x"></span></div>
-        <div class="cmp-cell cmp-cell--mid">현장 체크인</div>
-        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> QR 스캔 1초 자동 체크인</div>
-        <!-- 유료 행사 -->
-        <div class="cmp-cell cmp-cell--left">PG사 별도 계약 · 보증보험료 <span class="compare-icon compare-icon--x"></span></div>
-        <div class="cmp-cell cmp-cell--mid">유료 행사</div>
-        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> 국내외 PG 결제 연동 및 영수증 발행</div>
-        <!-- 알림 서비스 -->
-        <div class="cmp-cell cmp-cell--left">별도 플랫폼 이용 또는 수기 발송 <span class="compare-icon compare-icon--x"></span></div>
-        <div class="cmp-cell cmp-cell--mid">알림 서비스</div>
-        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> 카카오 알림톡 · 이메일 · 문자 통합 발송</div>
-        <!-- 명찰 제작 -->
-        <div class="cmp-cell cmp-cell--left">외주 인쇄 + 수동 분류 <span class="compare-icon compare-icon--x"></span></div>
-        <div class="cmp-cell cmp-cell--mid">명찰 제작</div>
-        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> 참가자 정보 실시간 명찰 자동 맵핑</div>
-        <!-- 데이터 통합 -->
-        <div class="cmp-cell cmp-cell--left">행사 후 수일간 수동 병합 <span class="compare-icon compare-icon--x"></span></div>
-        <div class="cmp-cell cmp-cell--mid">데이터 통합</div>
-        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> 실시간 대시보드 자동 동기화</div>
-        <!-- 필요 인력 -->
-        <div class="cmp-cell cmp-cell--left">행사당 5~8명 <span class="compare-icon compare-icon--x"></span></div>
-        <div class="cmp-cell cmp-cell--mid">필요 인력</div>
-        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> 1~2명 (무인 운영)</div>
-        <!-- 휴먼 에러 -->
-        <div class="cmp-cell cmp-cell--left">오타 · 누락 빈번 <span class="compare-icon compare-icon--x"></span></div>
-        <div class="cmp-cell cmp-cell--mid">휴먼 에러</div>
-        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> 시스템 자동화로 0%</div>
+        <!-- 등록 관리 / Registration -->
+        <div class="cmp-cell cmp-cell--left"><span class="lang-ko">구글폼 + 엑셀 수작업</span><span class="lang-en">Google Forms + Excel manual work</span> <span class="compare-icon compare-icon--x"></span></div>
+        <div class="cmp-cell cmp-cell--mid"><span class="lang-ko">등록 관리</span><span class="lang-en">Registration</span></div>
+        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> <span class="lang-ko">커스텀 등록폼 + 자동 수집</span><span class="lang-en">Custom forms + auto collection</span></div>
+        <!-- 현장 체크인 / On-site Check-in -->
+        <div class="cmp-cell cmp-cell--left"><span class="lang-ko">명단 출력 + 수기 체크</span><span class="lang-en">Print lists + manual check</span> <span class="compare-icon compare-icon--x"></span></div>
+        <div class="cmp-cell cmp-cell--mid"><span class="lang-ko">현장 체크인</span><span class="lang-en">On-site Check-in</span></div>
+        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> <span class="lang-ko">QR 스캔 1초 자동 체크인</span><span class="lang-en">QR scan, 1-second auto check-in</span></div>
+        <!-- 유료 행사 / Paid Events -->
+        <div class="cmp-cell cmp-cell--left"><span class="lang-ko">PG사 별도 계약 · 보증보험료</span><span class="lang-en">Separate payment gateway contracts</span> <span class="compare-icon compare-icon--x"></span></div>
+        <div class="cmp-cell cmp-cell--mid"><span class="lang-ko">유료 행사</span><span class="lang-en">Paid Events</span></div>
+        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> <span class="lang-ko">국내외 PG 결제 연동 및 영수증 발행</span><span class="lang-en">Domestic & global payments + receipts</span></div>
+        <!-- 알림 서비스 / Notifications -->
+        <div class="cmp-cell cmp-cell--left"><span class="lang-ko">별도 플랫폼 이용 또는 수기 발송</span><span class="lang-en">Separate tools or manual sending</span> <span class="compare-icon compare-icon--x"></span></div>
+        <div class="cmp-cell cmp-cell--mid"><span class="lang-ko">알림 서비스</span><span class="lang-en">Notifications</span></div>
+        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> <span class="lang-ko">카카오 알림톡 · 이메일 · 문자 통합 발송</span><span class="lang-en">Email · SMS integrated messaging</span></div>
+        <!-- 명찰 제작 / Badge Production -->
+        <div class="cmp-cell cmp-cell--left"><span class="lang-ko">외주 인쇄 + 수동 분류</span><span class="lang-en">Outsourced printing + manual sorting</span> <span class="compare-icon compare-icon--x"></span></div>
+        <div class="cmp-cell cmp-cell--mid"><span class="lang-ko">명찰 제작</span><span class="lang-en">Badge Production</span></div>
+        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> <span class="lang-ko">참가자 정보 실시간 명찰 자동 맵핑</span><span class="lang-en">Real-time auto badge data mapping</span></div>
+        <!-- 데이터 통합 / Data Integration -->
+        <div class="cmp-cell cmp-cell--left"><span class="lang-ko">행사 후 수일간 수동 병합</span><span class="lang-en">Days of manual merging post-event</span> <span class="compare-icon compare-icon--x"></span></div>
+        <div class="cmp-cell cmp-cell--mid"><span class="lang-ko">데이터 통합</span><span class="lang-en">Data Integration</span></div>
+        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> <span class="lang-ko">실시간 대시보드 자동 동기화</span><span class="lang-en">Real-time dashboard auto-sync</span></div>
+        <!-- 필요 인력 / Staff Required -->
+        <div class="cmp-cell cmp-cell--left"><span class="lang-ko">행사당 5~8명</span><span class="lang-en">5–8 staff per event</span> <span class="compare-icon compare-icon--x"></span></div>
+        <div class="cmp-cell cmp-cell--mid"><span class="lang-ko">필요 인력</span><span class="lang-en">Staff Required</span></div>
+        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> <span class="lang-ko">1~2명 (무인 운영)</span><span class="lang-en">1–2 staff (automated operations)</span></div>
+        <!-- 휴먼 에러 / Human Error -->
+        <div class="cmp-cell cmp-cell--left"><span class="lang-ko">오타 · 누락 빈번</span><span class="lang-en">Frequent typos and omissions</span> <span class="compare-icon compare-icon--x"></span></div>
+        <div class="cmp-cell cmp-cell--mid"><span class="lang-ko">휴먼 에러</span><span class="lang-en">Human Error</span></div>
+        <div class="cmp-cell cmp-cell--right"><span class="compare-icon compare-icon--check"></span> <span class="lang-ko">시스템 자동화로 0%</span><span class="lang-en">0% with system automation</span></div>
       </div>
     </div>
   </section>
@@ -244,8 +259,8 @@
   <section id="flow" class="section">
     <div class="container">
       <div class="section-label fade-up">HOW IT WORKS — ENTRY TO EXIT</div>
-      <h2 class="section-title fade-up">3단계로 <span class="gradient-text">완성</span>되는 행사 운영</h2>
-      <p class="section-desc fade-up">세팅부터 리포트까지, <strong class="kw-blue">온-오프라인 연결</strong>로 <strong class="kw-blue">끊김없는</strong> 워크 플로우</p>
+      <h2 class="section-title fade-up"><span class="lang-ko">준비, 현장, 마무리까지 —<br>행사 기획자가 <span class="gradient-text">진짜 필요한 것만</span> 담았습니다.</span><span class="lang-en">Preparation, on-site, wrap-up — built with everything event planners <span class="gradient-text">actually need.</span></span></h2>
+      <p class="section-desc fade-up"><span class="lang-ko" style="white-space:nowrap">세팅부터 데이터 리포트까지, <strong class="kw-blue">온·오프라인</strong>이 <strong class="kw-blue">끊김 없이 연결</strong>되니까 중간에 손댈 게 없습니다.</span><span class="lang-en">From setup to data reporting, <strong class="kw-blue">online and on-site</strong> stay <strong class="kw-blue">seamlessly connected</strong>. No gaps. No handoffs.</span></p>
       <div class="flow-wrapper fade-up" style="--delay: 0.2s">
         <div class="flow-line">
           <div class="flow-line-fill" id="flowLineFill"></div>
@@ -254,20 +269,20 @@
           <div class="flow-step" data-step="1">
             <div class="flow-dot"></div>
             <div class="flow-num">01</div>
-            <div class="flow-title">세팅</div>
-            <div class="flow-label">등록폼 · 명찰 디자인 · 키오스크 세팅</div>
+            <div class="flow-title"><span class="lang-ko">세팅</span><span class="lang-en">Setup</span></div>
+            <div class="flow-label"><span class="lang-ko">등록폼 · 명찰 디자인 · 키오스크 세팅</span><span class="lang-en">Registration form · Badge design · Kiosk setup</span></div>
           </div>
           <div class="flow-step" data-step="2">
             <div class="flow-dot"></div>
             <div class="flow-num">02</div>
-            <div class="flow-title">운영</div>
-            <div class="flow-label">온라인 등록 · QR 체크인 · 현장 자동 발권</div>
+            <div class="flow-title"><span class="lang-ko">운영</span><span class="lang-en">Operations</span></div>
+            <div class="flow-label"><span class="lang-ko">온라인 등록 · QR 체크인 · 현장 자동 발권</span><span class="lang-en">Online registration · QR check-in · Auto badge printing</span></div>
           </div>
           <div class="flow-step" data-step="3">
             <div class="flow-dot"></div>
             <div class="flow-num">03</div>
-            <div class="flow-title">리포트</div>
-            <div class="flow-label">실시간 대시보드 · 참석률 분석<br>데이터 내보내기 · ESG 리포트</div>
+            <div class="flow-title"><span class="lang-ko">리포트</span><span class="lang-en">Report</span></div>
+            <div class="flow-label"><span class="lang-ko">실시간 대시보드 · 참석률 분석<br>데이터 내보내기 · ESG 리포트</span><span class="lang-en">Real-time dashboard · Attendance analytics<br>Data export · ESG report</span></div>
           </div>
         </div>
       </div>
@@ -278,8 +293,8 @@
   <section id="differentiators" class="section section--alt">
     <div class="container">
       <div class="section-label fade-up">WHY US</div>
-      <h2 class="section-title fade-up"><img src="images/FAIRPASS(w+Blue).png" alt="FAIRPASS" class="inline-logo">만의 <span class="gradient-text">핵심 차별점</span></h2>
-      <p class="section-desc fade-up">단순 도구가 아닌, 행사 운영의 <strong class="kw-blue">게임체인저</strong></p>
+      <h2 class="section-title fade-up"><span class="lang-ko">써본 사람만 압니다. 행사 운영의 <span class="gradient-text">결이 다르다</span>는 걸.</span><span class="lang-en">Those who've used it know.<br>The difference is in <span class="gradient-text">the details.</span></span></h2>
+      <p class="section-desc fade-up"><span class="lang-ko"><strong class="kw-blue">1,700개 행사</strong>에서 검증한 이유가 있습니다.</span><span class="lang-en">Proven across <strong class="kw-blue">1,700 events</strong>. There's a reason.</span></p>
       <div class="diff-grid">
         <div class="diff-card fade-up" style="--delay: 0.1s">
           <div class="diff-icon diff-icon--purple">
@@ -287,8 +302,8 @@
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
             </svg>
           </div>
-          <h3 class="diff-title">O2O 실시간 연동</h3>
-          <p class="diff-desc">시작과 끝까지 연결되는 온라인과 오프라인 서비스로<br>효율적인 운영을 극대화합니다.</p>
+          <h3 class="diff-title"><span class="lang-ko">O2O 실시간 연동</span><span class="lang-en">O2O Real-Time Sync</span></h3>
+          <p class="diff-desc"><span class="lang-ko">시작과 끝까지 연결되는 온라인과 오프라인 서비스로<br>효율적인 운영을 극대화합니다.</span><span class="lang-en">Online and offline connected from start to finish — maximizing operational efficiency.</span></p>
         </div>
         <div class="diff-card fade-up" style="--delay: 0.2s">
           <div class="diff-icon diff-icon--cyan">
@@ -296,8 +311,8 @@
               <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
             </svg>
           </div>
-          <h3 class="diff-title">자동 데이터 맵핑</h3>
-          <p class="diff-desc">등록 데이터가 명찰·체크인·통계에 자동 연동됩니다.<br>수작업 데이터 병합이 사라집니다.</p>
+          <h3 class="diff-title"><span class="lang-ko">자동 데이터 맵핑</span><span class="lang-en">Automatic Data Mapping</span></h3>
+          <p class="diff-desc"><span class="lang-ko">등록 데이터가 명찰·체크인·통계에 자동 연동됩니다.<br>수작업 데이터 병합이 사라집니다.</span><span class="lang-en">Registration data automatically syncs to badges, check-in, and analytics. No more manual merging.</span></p>
         </div>
         <div class="diff-card fade-up" style="--delay: 0.3s">
           <div class="diff-icon diff-icon--green">
@@ -305,8 +320,8 @@
               <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
             </svg>
           </div>
-          <h3 class="diff-title">ESG 달성 지원</h3>
-          <p class="diff-desc">종이명찰로 플라스틱 폐기물을 제거하고,<br>디지털 전환으로 탄소 배출을 줄입니다.</p>
+          <h3 class="diff-title"><span class="lang-ko">ESG 달성 지원</span><span class="lang-en">ESG Impact</span></h3>
+          <p class="diff-desc"><span class="lang-ko">종이명찰로 플라스틱 폐기물을 제거하고,<br>디지털 전환으로 탄소 배출을 줄입니다.</span><span class="lang-en">Eliminate plastic waste with paper badges and reduce carbon emissions through digital transformation.</span></p>
         </div>
         <div class="diff-card fade-up" style="--delay: 0.4s">
           <div class="diff-icon diff-icon--pink">
@@ -314,8 +329,8 @@
               <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </svg>
           </div>
-          <h3 class="diff-title">광고 수익화</h3>
-          <p class="diff-desc">키오스크 화면과 등록 페이지에 스폰서 배너를 노출하여<br>행사 수익을 창출합니다.</p>
+          <h3 class="diff-title"><span class="lang-ko">광고 수익화</span><span class="lang-en">Sponsor Monetization</span></h3>
+          <p class="diff-desc"><span class="lang-ko">키오스크 화면과 등록 페이지에 스폰서 배너를 노출하여<br>행사 수익을 창출합니다.</span><span class="lang-en">Display sponsor banners on kiosk screens and registration pages to generate event revenue.</span></p>
         </div>
         <div class="diff-card fade-up" style="--delay: 0.5s">
           <div class="diff-icon diff-icon--blue">
@@ -323,8 +338,8 @@
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
           </div>
-          <h3 class="diff-title">엔터프라이즈급 보안</h3>
-          <p class="diff-desc">AWS 클라우드 기반 서버리스 인프라로 구현.<br>부적절한 접근 자동 차단, 암호화된 정보 관리, 행사 종료 후<br>보안을 위한 참가자 정보 자동 삭제까지 지원합니다.</p>
+          <h3 class="diff-title"><span class="lang-ko">엔터프라이즈급 보안</span><span class="lang-en">Enterprise-Grade Security</span></h3>
+          <p class="diff-desc"><span class="lang-ko">AWS 클라우드 기반 서버리스 인프라로 구현.<br>부적절한 접근 자동 차단, 암호화된 정보 관리, 행사 종료 후<br>보안을 위한 참가자 정보 자동 삭제까지 지원합니다.</span><span class="lang-en">Built on AWS serverless infrastructure. Auto-blocks unauthorized access, encrypts data, and automatically deletes attendee info after the event.</span></p>
         </div>
         <div class="diff-card fade-up" style="--delay: 0.6s">
           <div class="diff-icon diff-icon--amber">
@@ -332,8 +347,8 @@
               <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
             </svg>
           </div>
-          <h3 class="diff-title">등록·국제 특허 기술</h3>
-          <p class="diff-desc">국내 등록특허 3건, PCT 국제출원 1건 보유.<br>독자적 기술로 법적 보호를 받는<br>차별화된 제품을 제공합니다.</p>
+          <h3 class="diff-title"><span class="lang-ko">등록·국제 특허 기술</span><span class="lang-en">Patented Technology</span></h3>
+          <p class="diff-desc"><span class="lang-ko">국내 등록특허 3건, PCT 국제출원 1건 보유.<br>독자적 기술로 법적 보호를 받는<br>차별화된 제품을 제공합니다.</span><span class="lang-en">3 domestic registered patents, 1 PCT international application. Proprietary technology protected by law.</span></p>
         </div>
       </div>
     </div>
@@ -344,11 +359,11 @@
     <div class="container">
       <div class="section-label fade-up">OUR VALUES</div>
       <h2 class="section-title fade-up"><span class="gradient-text">Hybrid Event Identity Infrastructure</span></h2>
-      <p class="section-desc fade-up" style="--delay: 0.08s; max-width: 780px;"><strong class="kw-blue">온·오프라인</strong>을 끊김 없이 연결하는 참가자 <strong class="kw-blue">Identity 운영 인프라</strong>의 <strong class="kw-blue">글로벌 표준</strong>을 만듭니다.</p>
+      <p class="section-desc fade-up" style="--delay: 0.08s; max-width: 780px;"><span class="lang-ko"><strong class="kw-blue">온·오프라인</strong>을 끊김 없이 연결하는 참가자 <strong class="kw-blue">Identity 운영 인프라</strong>의 <strong class="kw-blue">글로벌 표준</strong>을 만듭니다.</span><span class="lang-en">Building the <strong class="kw-blue">global standard</strong> for attendee <strong class="kw-blue">Identity infrastructure</strong> that <strong class="kw-blue">seamlessly connects</strong> online and on-site.</span></p>
 
       <!-- FAIRPASS 진화 로드맵 다이어그램 -->
       <div class="fp-roadmap fade-up" style="--delay: 0.18s; margin: 56px 0;">
-        <p class="fp-roadmap-heading">행사 운영 변화의 시작점, FAIRPASS</p>
+        <p class="fp-roadmap-heading"><span class="lang-ko">행사 운영 변화의 시작점, FAIRPASS</span><span class="lang-en">FAIRPASS — Where Event Management Innovation Begins</span></p>
         <div class="fp-roadmap-track">
 
           <!-- STEP 1: PAST -->
@@ -357,11 +372,11 @@
             <div class="fp-roadmap-icon">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             </div>
-            <div class="fp-roadmap-title">수기 접수 &<br>플라스틱 명찰</div>
+            <div class="fp-roadmap-title"><span class="lang-ko">수기 접수 &<br>플라스틱 명찰</span><span class="lang-en">Manual Registration &<br>Plastic Badges</span></div>
             <ul class="fp-roadmap-list">
-              <li>엑셀·워드 수기 관리</li>
-              <li>라미네이팅·플라스틱 명찰</li>
-              <li>인력 의존 현장 운영</li>
+              <li><span class="lang-ko">엑셀·워드 수기 관리</span><span class="lang-en">Excel/Word manual management</span></li>
+              <li><span class="lang-ko">라미네이팅·플라스틱 명찰</span><span class="lang-en">Laminated plastic badges</span></li>
+              <li><span class="lang-ko">인력 의존 현장 운영</span><span class="lang-en">Staff-heavy on-site operations</span></li>
             </ul>
           </div>
 
@@ -375,11 +390,11 @@
             <div class="fp-roadmap-icon">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
             </div>
-            <div class="fp-roadmap-title">온·오프라인 자동화<br>& 종이명찰</div>
+            <div class="fp-roadmap-title"><span class="lang-ko">온·오프라인 자동화<br>& 종이명찰</span><span class="lang-en">O2O Automation<br>& Paper Badges</span></div>
             <ul class="fp-roadmap-list">
-              <li>SaaS 플랫폼으로 처음부터 끝까지</li>
-              <li>무인 키오스크 현장 즉시 발권</li>
-              <li>ZERO 플라스틱 All-Paper 명찰</li>
+              <li><span class="lang-ko">SaaS 플랫폼으로 처음부터 끝까지</span><span class="lang-en">SaaS platform from start to finish</span></li>
+              <li><span class="lang-ko">무인 키오스크 현장 즉시 발권</span><span class="lang-en">Instant on-site badge printing via kiosk</span></li>
+              <li>ZERO Plastic All-Paper Badge</li>
             </ul>
           </div>
 
@@ -393,8 +408,8 @@
             <div class="fp-roadmap-icon">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/><rect x="8" y="6" width="3" height="3"/><rect x="13" y="6" width="3" height="3"/><rect x="8" y="11" width="3" height="3"/><rect x="13" y="11" width="3" height="3"/></svg>
             </div>
-            <div class="fp-roadmap-title">디지털 명찰</div>
-            <p class="fp-roadmap-next-desc">지속가능한 미래를 위한<br>차세대 등록 모델을 준비합니다.</p>
+            <div class="fp-roadmap-title"><span class="lang-ko">디지털 명찰</span><span class="lang-en">Digital Badge</span></div>
+            <p class="fp-roadmap-next-desc"><span class="lang-ko">지속가능한 미래를 위한<br>차세대 등록 모델을 준비합니다.</span><span class="lang-en">Preparing the next-generation registration model for a sustainable future.</span></p>
           </div>
 
         </div>
@@ -402,31 +417,31 @@
 
       <!-- Badge Philosophy + Timeline -->
       <div class="badge-story fade-up" style="--delay: 0.12s; margin-top: 96px;">
-        <h3 class="badge-story-heading">FAIRPASS는 명찰 회사가 아닙니다.</h3>
-        <p class="badge-story-intro">글로벌 행사부터 작은 규모의 세미나까지, 사람이 모이는 모든 자리에서<br>명찰은 본인 확인·소통·보안의 이유로 필요합니다.<br><br>참가자는 누구나 <strong>'등록'</strong>이라는 절차를 거치게 됩니다.<br>주최사의 간편하고 정확한 업무와 참가자의 빠르고 편리한 경험을 위해 &mdash; <span class="kw-blue">FAIRPASS는 새로운 등록의 표준을 만듭니다.</span></p>
+        <h3 class="badge-story-heading"><span class="lang-ko">FAIRPASS는 명찰 회사가 아닙니다.</span><span class="lang-en">FAIRPASS is not a badge company.</span></h3>
+        <p class="badge-story-intro"><span class="lang-ko">글로벌 행사부터 작은 규모의 세미나까지, 사람이 모이는 모든 자리에서<br>명찰은 본인 확인·소통·보안의 이유로 필요합니다.<br><br>참가자는 누구나 <strong>'등록'</strong>이라는 절차를 거치게 됩니다.<br>주최사의 간편하고 정확한 업무와 참가자의 빠르고 편리한 경험을 위해 &mdash; <span class="kw-blue">FAIRPASS는 새로운 등록의 표준을 만듭니다.</span></span><span class="lang-en">From global events to small seminars — wherever people gather, badges are needed for identity, communication, and security.<br><br>Every attendee goes through <strong>registration</strong>.<br>For organizers who need speed and accuracy, and attendees who deserve a seamless experience — <span class="kw-blue">FAIRPASS is setting the new standard for registration.</span></span></p>
 
         <div class="badge-why-wrap">
           <img src="images/image_badge_why_plastic.jpg" alt="플라스틱 명찰" class="badge-why-img">
           <div class="badge-why-text">
-            <h3 class="badge-story-heading">FAIRPASS는 왜 종이명찰을 만들었을까요?</h3>
-            <p class="badge-story-sustain"><strong style="color:#fff">단 몇시간</strong> 사용되고 폐기되는 플라스틱 명찰,<br>매일 전세계 각 도시에서 개최되는 다양한 행사에서 버려져 심각한 탄소 배출을 늘리고 있습니다.<br><br>FAIRPASS는 <span class="kw-blue">재활용 가능한 종이명찰</span>과 <span class="kw-blue">반영구 키오스크</span>로,<br>더 <span class="kw-blue">지속가능한 행사 운영</span>을 만들어갑니다.</p>
+            <h3 class="badge-story-heading"><span class="lang-ko">FAIRPASS는 왜 종이명찰을 만들었을까요?</span><span class="lang-en">Why did FAIRPASS create paper badges?</span></h3>
+            <p class="badge-story-sustain"><span class="lang-ko"><strong style="color:#fff">단 몇시간</strong> 사용되고 폐기되는 플라스틱 명찰,<br>매일 전세계 각 도시에서 개최되는 다양한 행사에서 버려져 심각한 탄소 배출을 늘리고 있습니다.<br><br>FAIRPASS는 <span class="kw-blue">재활용 가능한 종이명찰</span>과 <span class="kw-blue">반영구 키오스크</span>로,<br>더 <span class="kw-blue">지속가능한 행사 운영</span>을 만들어갑니다.</span><span class="lang-en">Plastic badges used for <strong style="color:#fff">just a few hours</strong> are thrown away at events around the world every day — adding to serious carbon emissions.<br><br>FAIRPASS is building <span class="kw-blue">more sustainable events</span> with <span class="kw-blue">recyclable paper badges</span> and <span class="kw-blue">semi-permanent kiosks</span>.</span></p>
           </div>
         </div>
 
         <div class="badge-next-wrap">
-          <h3 class="badge-story-heading">FAIRPASS의 다음 스텝은?!</h3>
-          <p class="badge-story-sustain">현상을 유지하는 건 누구나 합니다.<br>아직 오지 않은 것을 준비하는 것은 아무나 하지 않습니다.<br><span class="kw-blue">FAIRPASS는 다음을 준비합니다.</span></p>
+          <h3 class="badge-story-heading"><span class="lang-ko">FAIRPASS의 다음 스텝은?!</span><span class="lang-en">What's FAIRPASS's next step?!</span></h3>
+          <p class="badge-story-sustain"><span class="lang-ko">현상을 유지하는 건 누구나 합니다.<br>아직 오지 않은 것을 준비하는 것은 아무나 하지 않습니다.<br><span class="kw-blue">FAIRPASS는 다음을 준비합니다.</span></span><span class="lang-en">Anyone can maintain the status quo.<br>Not everyone prepares for what hasn't arrived yet.<br><span class="kw-blue">FAIRPASS is preparing what's next.</span></span></p>
         </div>
       </div>
 
       <div class="values-grid values-grid--2 fade-up" style="--delay: 0.15s; margin-top: 34px;">
         <div class="values-card">
-          <div class="values-card-label">MISSION — 우리의 존재 이유</div>
-          <p class="values-card-title">행사 참가자가 등록하고, 명찰을 받고, 입장하는 모든 과정을<br>하나의 인프라로</p>
+          <div class="values-card-label"><span class="lang-ko">MISSION — 우리의 존재 이유</span><span class="lang-en">MISSION — Why We Exist</span></div>
+          <p class="values-card-title"><span class="lang-ko">행사 참가자가 등록하고, 명찰을 받고, 입장하는 모든 과정을<br>하나의 인프라로</span><span class="lang-en">One infrastructure for every step — registration, badge pickup, and entry — for every attendee at every event.</span></p>
         </div>
         <div class="values-card">
-          <div class="values-card-label">VISION — 우리가 만들 미래</div>
-          <p class="values-card-title">어떤 행사든, 어디서든 FAIRPASS 하나로 입장하고 연결되는 세상</p>
+          <div class="values-card-label"><span class="lang-ko">VISION — 우리가 만들 미래</span><span class="lang-en">VISION — The Future We're Building</span></div>
+          <p class="values-card-title"><span class="lang-ko">어떤 행사든, 어디서든 FAIRPASS 하나로 입장하고 연결되는 세상</span><span class="lang-en">A world where every event, everywhere, is entered and connected through FAIRPASS.</span></p>
         </div>
       </div>
       <div class="values-wordcloud fade-up" style="--delay: 0.25s; margin-top: 80px;">
@@ -434,7 +449,7 @@
       </div>
       <!-- 우리가 약속하는 세 가지 -->
       <div class="promise-wrap fade-up" style="--delay: 0.35s; margin-top: 50px;">
-        <p class="promise-heading">우리가 약속하는 세 가지</p>
+        <p class="promise-heading"><span class="lang-ko">우리가 약속하는 세 가지</span><span class="lang-en">Three Promises We Make</span></p>
         <div class="promise-grid">
           <div class="promise-card promise-card--amber">
             <div class="promise-card-icon promise-card-icon--amber">
@@ -442,8 +457,8 @@
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
               </svg>
             </div>
-            <h4 class="promise-card-title">빠르고 간편한 입장</h4>
-            <p class="promise-card-desc">사전 등록부터 현장 명찰 발급까지, 몇 초 만에 완료됩니다. 대기줄 없는 행사를 경험하세요.</p>
+            <h4 class="promise-card-title"><span class="lang-ko">빠르고 간편한 입장</span><span class="lang-en">Fast &amp; Effortless Entry</span></h4>
+            <p class="promise-card-desc"><span class="lang-ko">사전 등록부터 현장 명찰 발급까지, 몇 초 만에 완료됩니다. 대기줄 없는 행사를 경험하세요.</span><span class="lang-en">From pre-registration to on-site badge printing — done in seconds. Experience events without waiting in line.</span></p>
           </div>
           <div class="promise-card promise-card--purple">
             <div class="promise-card-icon promise-card-icon--purple">
@@ -451,8 +466,8 @@
                 <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M8.46 8.46a5 5 0 0 0 0 7.07"/>
               </svg>
             </div>
-            <h4 class="promise-card-title">운영 효율의 극대화</h4>
-            <p class="promise-card-desc">수작업을 제거하고 인력을 줄입니다. 시스템이 알아서 작동하니, 운영팀은 더 중요한 일에 집중할 수 있습니다.</p>
+            <h4 class="promise-card-title"><span class="lang-ko">운영 효율의 극대화</span><span class="lang-en">Maximum Operational Efficiency</span></h4>
+            <p class="promise-card-desc"><span class="lang-ko">수작업을 제거하고 인력을 줄입니다. 시스템이 알아서 작동하니, 운영팀은 더 중요한 일에 집중할 수 있습니다.</span><span class="lang-en">Eliminate manual work and reduce staff. The system runs itself — so your team can focus on what matters.</span></p>
           </div>
           <div class="promise-card promise-card--green">
             <div class="promise-card-icon promise-card-icon--green">
@@ -461,10 +476,87 @@
                 <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
               </svg>
             </div>
-            <h4 class="promise-card-title">지속가능한 행사 운영</h4>
-            <p class="promise-card-desc">일회용 플라스틱 명찰을 없앱니다. 환경을 생각하는 행사 운영, FAIRPASS가 기본값으로 만듭니다.</p>
+            <h4 class="promise-card-title"><span class="lang-ko">지속가능한 행사 운영</span><span class="lang-en">Sustainable Event Operations</span></h4>
+            <p class="promise-card-desc"><span class="lang-ko">일회용 플라스틱 명찰을 없앱니다. 환경을 생각하는 행사 운영, FAIRPASS가 기본값으로 만듭니다.</span><span class="lang-en">Eliminate single-use plastic badges. Eco-conscious event operations — made the default by FAIRPASS.</span></p>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SUSTAINABILITY ===================== -->
+  <section class="section sustain-section" id="sustainability">
+    <div class="container" style="position:relative;z-index:1;">
+      <div class="section-label fade-up sustain-label">SUSTAINABILITY</div>
+      <h2 class="section-title fade-up"><span class="lang-ko">명찰 하나 바꿨을 뿐인데, <span class="sustain-gradient-text">행사도 지구도 가벼워집니다.</span></span><span class="lang-en">One badge swap. <span class="sustain-gradient-text">A lighter event. A lighter planet.</span></span></h2>
+      <p class="section-desc fade-up" style="max-width:680px;"><span class="lang-ko">몇 시간 쓰고 버려지는 <strong class="kw-blue">플라스틱 명찰</strong> 대신, <strong class="kw-blue">100% 종이명찰</strong>로 전환하는 것만으로 충분합니다.</span><span class="lang-en">Replacing <strong class="kw-blue">single-use plastic badges</strong> with <strong class="kw-blue">100% paper</strong> is all it takes.</span></p>
+
+      <!-- 핵심 수치 -->
+      <div class="sustain-metrics fade-up" style="--delay:0.1s">
+        <div class="sustain-metric">
+          <span class="sustain-metric-num">6,840<span class="sustain-metric-unit">kg+</span></span>
+          <span class="sustain-metric-label"><span class="lang-ko">누적 플라스틱 절감량</span><span class="lang-en">Total Plastic Reduced</span></span>
+        </div>
+        <div class="sustain-metric-divider"></div>
+        <div class="sustain-metric">
+          <span class="sustain-metric-num">1,240<span class="sustain-metric-unit"><span class="lang-ko">그루+</span><span class="lang-en">trees+</span></span></span>
+          <span class="sustain-metric-label"><span class="lang-ko">나무 심은 효과</span><span class="lang-en">Equivalent Trees Planted</span></span>
+          <span class="sustain-metric-sub"><span class="lang-ko">CO₂ 흡수량 환산 기준</span><span class="lang-en">Based on CO₂ absorption equivalent</span></span>
+        </div>
+        <div class="sustain-metric-divider"></div>
+        <div class="sustain-metric">
+          <span class="sustain-metric-num">100<span class="sustain-metric-unit">%</span></span>
+          <span class="sustain-metric-label"><span class="lang-ko">FSC 인증 용지 사용</span><span class="lang-en">FSC-Certified Paper Used</span></span>
+        </div>
+        <div class="sustain-metric-divider"></div>
+        <div class="sustain-metric">
+          <span class="sustain-metric-num">2<span class="sustain-metric-unit"><span class="lang-ko">건</span><span class="lang-en"> patents</span></span></span>
+          <span class="sustain-metric-label"><span class="lang-ko">친환경 기술 특허 등록</span><span class="lang-en">Eco-Tech Patents Filed</span></span>
+        </div>
+      </div>
+
+      <!-- 3개 카드 -->
+      <div class="sustain-grid fade-up" style="--delay:0.15s">
+
+        <div class="sustain-card">
+          <div class="sustain-card-icon sustain-card-icon--green">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+          </div>
+          <h3 class="sustain-card-title">ALL-PAPER BADGE</h3>
+          <p class="sustain-card-desc"><span class="lang-ko">내지·커넥터·목걸이줄까지 전부 종이 소재. 플라스틱 ZERO를 실현한 특허 기술로, 행사 후 통째로 종이 분리수거할 수 있습니다.</span><span class="lang-en">Inner card, connector, and lanyard — all paper. Patented ZERO plastic technology. Fully recyclable as paper after the event.</span></p>
+          <div class="sustain-card-tags">
+            <span class="sustain-tag"><span class="lang-ko">특허 등록</span><span class="lang-en">Patented</span></span>
+            <span class="sustain-tag"><span class="lang-ko">FSC 인증</span><span class="lang-en">FSC Certified</span></span>
+            <span class="sustain-tag"><span class="lang-ko">생분해 가능</span><span class="lang-en">Biodegradable</span></span>
+          </div>
+        </div>
+
+        <div class="sustain-card">
+          <div class="sustain-card-icon sustain-card-icon--cyan">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <h3 class="sustain-card-title"><span class="lang-ko">탄소 절감 파트너</span><span class="lang-en">Carbon Reduction Partner</span></h3>
+          <p class="sustain-card-desc"><span class="lang-ko">단 몇 시간 사용 후 버려지는 플라스틱 명찰 대신, FAIRPASS 종이명찰로 전환하면 행사당 평균 수 kg의 플라스틱이 줄어듭니다. 2023년 이후 누적 6,840kg+ 절감을 달성했습니다.</span><span class="lang-en">Switching from single-use plastic badges to FAIRPASS paper badges reduces several kilograms of plastic per event. Over 6,840kg+ saved cumulatively since 2023.</span></p>
+          <div class="sustain-card-tags">
+            <span class="sustain-tag"><span class="lang-ko">플라스틱 대체</span><span class="lang-en">Plastic Alternative</span></span>
+            <span class="sustain-tag"><span class="lang-ko">탄소 저감</span><span class="lang-en">Carbon Reduction</span></span>
+          </div>
+        </div>
+
+        <div class="sustain-card sustain-card--coming">
+          <div class="sustain-card-icon sustain-card-icon--purple">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div class="sustain-coming-badge"><span class="lang-ko">2026 상반기 예정</span><span class="lang-en">Coming H1 2026</span></div>
+          <h3 class="sustain-card-title"><span class="lang-ko">자동 지속가능성 보고서</span><span class="lang-en">Auto Sustainability Report</span></h3>
+          <p class="sustain-card-desc"><span class="lang-ko">행사 종료 후 결과 데이터가 자동 연동되어 지속가능성 보고서를 받아볼 수 있습니다. 행사 장소·일자·규모·명찰 발급 수를 기반으로 절감된 플라스틱량, 탄소 저감 수치를 데이터로 확인할 수 있습니다.</span><span class="lang-en">After the event, result data is automatically synced to generate a sustainability report. Track plastic reduction and carbon savings based on venue, date, scale, and badges issued.</span></p>
+          <div class="sustain-card-tags">
+            <span class="sustain-tag sustain-tag--muted"><span class="lang-ko">결과 데이터 연동</span><span class="lang-en">Result Data Sync</span></span>
+            <span class="sustain-tag sustain-tag--muted"><span class="lang-ko">지속가능성 보고서</span><span class="lang-en">Sustainability Report</span></span>
+            <span class="sustain-tag sustain-tag--muted"><span class="lang-ko">탄소 저감 데이터</span><span class="lang-en">Carbon Savings Data</span></span>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -473,10 +565,24 @@
   <section id="quote" class="section section--alt">
     <div class="container">
       <div class="section-label fade-up">INSTANT QUOTE</div>
-      <h2 class="section-title fade-up">행사에 맞춘 솔루션 선택, <span class="gradient-text">모의 견적</span> 즉시 완성</h2>
-      <p class="section-desc fade-up">필요한 기능과 출력 옵션을 고르면 <strong class="kw-blue">예상 비용</strong>이 <strong class="kw-blue">바로 반영</strong>됩니다.</p>
+      <h2 class="section-title fade-up"><span class="lang-ko">행사에 맞춘 솔루션 선택, <span class="gradient-text">모의 견적</span> 즉시 완성</span><span class="lang-en">Your <span class="gradient-text">instant quote</span> — coming soon</span></h2>
+      <p class="section-desc fade-up"><span class="lang-ko">필요한 기능과 출력 옵션을 고르면 <strong class="kw-blue">예상 비용</strong>이 <strong class="kw-blue">바로 반영</strong>됩니다.</span><span class="lang-en" style="white-space:nowrap">Select your features and options and the <strong class="kw-blue">estimated cost</strong> is <strong class="kw-blue">reflected instantly</strong>.</span></p>
 
-      <div class="quote-grid">
+      <!-- EN: OPEN SOON -->
+      <div class="lang-en en-quote-soon fade-up" style="--delay:0.1s">
+        <div class="en-quote-soon-inner glass-card">
+          <span class="en-soon-badge">OPEN SOON</span>
+          <h3 class="en-soon-title">Online quote tool is on its way.</h3>
+          <p class="en-soon-desc">We're preparing an instant quote builder for international clients.<br>Leave your email and we'll reach out as soon as it's live.</p>
+          <button class="btn btn-primary" id="enWaitlistBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Contact via email
+          </button>
+        </div>
+      </div>
+
+      <!-- KO: 기존 견적 폼 -->
+      <div class="lang-ko quote-grid">
         <!-- LEFT: Form -->
         <form class="quote-form" id="quoteForm">
           <!-- Basic Info -->
@@ -485,7 +591,7 @@
             <div class="form-row">
               <label class="form-label">
                 <span>담당자 성함</span>
-                <input type="text" name="contactName" class="form-input" placeholder="홍길동">
+                <input type="text" name="contactName" class="form-input" placeholder="홍길동" data-ph-ko="홍길동" data-ph-en="John Doe">
               </label>
               <label class="form-label">
                 <span>소속</span>
@@ -669,9 +775,37 @@
             </div>
           </div>
         </aside>
-      </div>
+      </div><!-- end lang-ko quote-grid -->
     </div>
   </section>
+
+  <!-- EN Waitlist Modal -->
+  <div class="modal-overlay" id="enWaitlistModal">
+    <div class="modal-card glass-card">
+      <button class="modal-close" id="enWaitlistModalClose" type="button">&times;</button>
+      <h3 class="modal-title">Get in touch</h3>
+      <p class="modal-desc">Leave your email address and we'll get back to you shortly.</p>
+      <form id="enWaitlistForm">
+        <label class="form-label">
+          <span>Email <span style="color:var(--cyan-light)">*</span></span>
+          <input type="email" name="email" class="form-input" placeholder="you@company.com" required>
+        </label>
+        <label class="form-label">
+          <span>Company</span>
+          <input type="text" name="company" class="form-input" placeholder="Your company or organization">
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin:12px 0 16px;cursor:pointer;">
+          <input type="checkbox" id="enWaitlistConsent" style="margin-top:3px;flex-shrink:0;accent-color:var(--cyan-light);" required>
+          <span style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.6;">I agree to the <strong style="color:var(--text);">collection and use of my personal information</strong> for the purpose of inquiry response. <span style="color:var(--cyan-light)">*</span></span>
+        </label>
+        <button type="submit" class="btn btn-primary btn-full" id="enWaitlistSubmitBtn">Send inquiry</button>
+      </form>
+      <div class="email-success" id="enWaitlistSuccess" style="display:none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-light)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <p>We've received your message.<br>We'll be in touch soon.</p>
+      </div>
+    </div>
+  </div>
 
   <!-- ===================== 9. FINAL CTA ===================== -->
   <section id="final-cta" class="section final-cta">
@@ -682,11 +816,11 @@
     </div>
     <div class="container">
       <div class="final-cta-inner fade-up">
-        <h2 class="final-cta-title">행사 운영,<br>지금 바로 <span class="gradient-text">시스템</span>으로 전환하세요</h2>
-        <p class="final-cta-desc"><strong class="kw-blue">무료 계정</strong>으로 시작하고, <strong class="kw-blue">첫 행사까지</strong> FAIRPASS가 함께합니다.</p>
+        <h2 class="final-cta-title"><span class="lang-ko"><span class="gradient-text">20년 현장 경험</span>이 설계한 시스템,<br>지금 바로 써보세요.</span><span class="lang-en">Built on <span class="gradient-text">20 years of event expertise.</span><br>Start using it today.</span></h2>
+        <p class="final-cta-desc"><span class="lang-ko"><strong class="kw-blue">무료 계정</strong>으로 시작하고, <strong class="kw-blue">첫 행사까지</strong> FAIRPASS가 함께합니다.</span><span class="lang-en" style="white-space:nowrap">Start with a <strong class="kw-blue">free account</strong>. FAIRPASS stays with you through your <strong class="kw-blue">first event</strong>.</span></p>
         <div class="final-cta-actions">
-          <a href="#" class="btn btn-primary btn-lg">무료로 시작하기</a>
-          <a href="#quote" class="btn btn-secondary btn-lg">1분 모의 견적</a>
+          <a href="https://admin.fairpass.co.kr/Login" class="btn btn-primary" target="_blank" rel="noopener"><span class="lang-ko">무료로 시작하기</span><span class="lang-en">Start for Free</span></a>
+          <a href="#quote" class="btn btn-secondary btn-lg"><span class="lang-ko">1분 모의 견적</span><span class="lang-en">Quick Quote</span></a>
         </div>
       </div>
     </div>
@@ -699,7 +833,7 @@
       <!-- Top: BlueOrigin Logo + SNS -->
       <div class="footer-top">
         <a href="#" class="footer-logo-link" target="_blank" rel="noopener">
-          <img src="images/Blue origin(W).png" alt="Blue Origin" class="footer-logo-img">
+          <img src="images/BlueOrigin_logo_white.png" alt="Blue Origin" class="footer-logo-img">
         </a>
         <div class="footer-sns">
           <!-- FP 원형 로고 (맨 좌측) -->
@@ -723,8 +857,8 @@
 
       <!-- Nav links -->
       <nav class="footer-nav">
-        <a href="terms.html" class="footer-nav-link">이용약관</a>
-        <button type="button" class="footer-nav-link footer-nav-btn" id="brochureBtn">서비스 소개서</button>
+        <a href="terms.html" class="footer-nav-link"><span class="lang-ko">이용약관</span><span class="lang-en">Terms of Use</span></a>
+        <button type="button" class="footer-nav-link footer-nav-btn" id="brochureBtn"><span class="lang-ko">서비스 소개서</span><span class="lang-en">Brochure</span></button>
       </nav>
 
       <!-- 사업자 정보 (버튼 클릭 시 COPYRIGHT 위에 펼침) -->
@@ -737,7 +871,7 @@
       <div class="footer-bottom">
         <span class="footer-copy">&copy; 2026 FAIRPASS. All rights reserved.</span>
         <button class="footer-info-btn" id="footerInfoBtn" type="button">
-          사업자 정보
+          <span class="lang-ko">사업자 정보</span><span class="lang-en">Business Info</span>
           <svg class="footer-info-chevron" id="footerInfoChevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </div>
@@ -759,7 +893,7 @@
       <form id="brochureForm">
         <label class="form-label">
           <span>성함 <span style="color:var(--cyan-light)">*</span></span>
-          <input type="text" name="name" class="form-input" placeholder="홍길동" required>
+          <input type="text" name="name" class="form-input" placeholder="홍길동" data-ph-ko="홍길동" data-ph-en="John Doe" required>
         </label>
         <label class="form-label">
           <span>소속 <span style="color:var(--cyan-light)">*</span></span>

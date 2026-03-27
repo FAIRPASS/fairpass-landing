@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-M17QN59ZBN"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-M17QN59ZBN');</script>
+  <title>포트폴리오 — FAIRPASS</title>
+  <meta name="description" content="FAIRPASS가 함께한 행사 포트폴리오. 컨퍼런스, 전시회, 포럼, 학술대회 등 다양한 행사 운영 사례를 확인하세요.">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="images/FAIRPASS_APP.png" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Portfolio Page ── */
+    .pf-hero {
+      padding: 140px 0 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .pf-hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+      color: var(--purple-light); margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+    .pf-hero-eyebrow-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--purple-light);
+      box-shadow: 0 0 8px var(--purple-light);
+    }
+    .pf-hero-title {
+      font-size: clamp(38px, 5vw, 62px);
+      font-weight: 800; line-height: 1.12;
+      margin-bottom: 20px; letter-spacing: -0.02em;
+    }
+    .pf-hero-desc {
+      font-size: 16px; color: var(--text-muted);
+      max-width: 520px; margin: 0 auto 40px;
+      line-height: 1.75;
+    }
+
+    /* ── Body layout ── */
+    .pf-body {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px 120px;
+    }
+
+    /* ── Filter bar ── */
+    .pf-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+    .pf-filter {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .pf-filter-btn {
+      padding: 7px 16px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .pf-filter-btn:hover { border-color: rgba(139,92,246,0.5); color: var(--text); }
+    .pf-filter-btn.active {
+      background: var(--purple);
+      border-color: var(--purple);
+      color: #fff;
+    }
+
+    /* ── International toggle ── */
+    .pf-intl-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .pf-intl-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+    .pf-intl-toggle.on .pf-intl-label { color: var(--cyan-light); }
+    .pf-intl-switch {
+      position: relative;
+      width: 44px; height: 24px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 100px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .pf-intl-toggle.on .pf-intl-switch { background: var(--cyan); }
+    .pf-intl-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.2s;
+    }
+    .pf-intl-toggle.on .pf-intl-switch::after { transform: translateX(20px); }
+
+    /* ── Controls second row ── */
+    .pf-controls-row2 {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .pf-country-select {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.18s;
+    }
+    .pf-country-select:focus { border-color: var(--purple); }
+    .pf-country-select option { background: #1a1a2e; color: var(--text); }
+
+    /* ── Grid ── */
+    .pf-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    /* ── Card ── */
+    .pf-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.22s, transform 0.22s, box-shadow 0.22s;
+      display: flex;
+      flex-direction: column;
+    }
+    .pf-card:hover {
+      border-color: rgba(139,92,246,0.4);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+    .pf-card-img-wrap {
+      width: 100%;
+      aspect-ratio: 16/9;
+      overflow: hidden;
+      background: rgba(255,255,255,0.03);
+      position: relative;
+      flex-shrink: 0;
+    }
+    .pf-card-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s;
+    }
+    .pf-card:hover .pf-card-img { transform: scale(1.05); }
+    .pf-card-img-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.08);
+      background: linear-gradient(135deg, rgba(139,92,246,0.04), rgba(6,182,212,0.04));
+    }
+    .pf-card-body { padding: 16px 18px 20px; flex: 1; display: flex; flex-direction: column; }
+    .pf-card-tags {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 6px; flex-wrap: wrap;
+      margin-bottom: 11px;
+    }
+    .pf-card-tags-left { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .pf-card-country {
+      font-size: 10px; font-weight: 600;
+      color: rgba(255,255,255,0.4);
+      white-space: nowrap; margin-left: auto;
+    }
+    /* 태그 공통 베이스 */
+    .pf-card-type-tag, .pf-card-intl-badge, .pf-card-scale-tag {
+      display: inline-flex; align-items: center;
+      height: 20px; line-height: 1;
+      font-size: 10px; font-weight: 700;
+      padding: 0 9px; border-radius: 100px;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .pf-card-type-tag {
+      color: var(--purple-light);
+      background: rgba(139,92,246,0.12);
+      border: 1px solid rgba(139,92,246,0.2);
+    }
+    .pf-card-intl-badge {
+      color: var(--cyan-light);
+      background: rgba(6,182,212,0.1);
+      border: 1px solid rgba(6,182,212,0.2);
+    }
+    .pf-card-title {
+      font-size: 14px; font-weight: 700;
+      line-height: 1.45; color: var(--text);
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .pf-card-meta {
+      margin-top: auto;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .pf-card-meta-row {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: rgba(255,255,255,0.45);
+    }
+    .pf-card-meta-icon { flex-shrink: 0; opacity: 0.7; }
+    .pf-card-scale-tag {
+      font-weight: 600;
+    }
+    .scale-소규모 { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+    .scale-중규모 { background: rgba(234,179,8,0.1); color: #fbbf24; border: 1px solid rgba(234,179,8,0.2); }
+    .scale-대규모 { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+
+    /* ── Empty / Loading ── */
+    .pf-state {
+      grid-column: 1 / -1;
+      padding: 80px 20px;
+      text-align: center;
+      color: rgba(255,255,255,0.25);
+    }
+    .pf-spinner {
+      width: 32px; height: 32px;
+      border: 3px solid rgba(255,255,255,0.08);
+      border-top-color: var(--purple-light);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Modal ── */
+    .pf-modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.82);
+      backdrop-filter: blur(6px);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .pf-modal.open { display: flex; }
+    .pf-modal-inner {
+      background: #0c0c1e;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      width: 100%; max-width: 980px;
+      max-height: 90vh;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+    .pf-modal-close {
+      position: absolute; top: 14px; right: 16px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      font-size: 20px; cursor: pointer;
+      border-radius: 50%; width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10;
+      transition: background 0.2s, color 0.2s;
+    }
+    .pf-modal-close:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+    /* modal left — image */
+    .pf-modal-left {
+      width: 52%; flex-shrink: 0;
+      display: flex; flex-direction: column;
+      background: #070712;
+    }
+    .pf-modal-img-main {
+      flex: 1; overflow: hidden; min-height: 0;
+      position: relative;
+    }
+    .pf-modal-img-main img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+    .pf-modal-img-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.07);
+      background: linear-gradient(135deg, rgba(139,92,246,0.05), rgba(6,182,212,0.05));
+      min-height: 280px;
+    }
+    .pf-modal-thumbs {
+      display: flex; gap: 6px; padding: 10px;
+      overflow-x: auto; background: rgba(0,0,0,0.4);
+      flex-shrink: 0;
+    }
+    .pf-modal-thumbs:empty { display: none; }
+    .pf-modal-thumb {
+      width: 68px; height: 48px;
+      object-fit: cover; border-radius: 6px;
+      cursor: pointer; flex-shrink: 0;
+      opacity: 0.45; border: 2px solid transparent;
+      transition: opacity 0.2s, border-color 0.2s;
+    }
+    .pf-modal-thumb.active, .pf-modal-thumb:hover { opacity: 1; border-color: var(--purple-light); }
+
+    /* modal right — info */
+    .pf-modal-right {
+      flex: 1; padding: 36px 32px 32px;
+      overflow-y: auto;
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .pf-modal-badges {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .pf-modal-badge {
+      font-size: 11px; font-weight: 700;
+      padding: 4px 12px; border-radius: 100px;
+    }
+    .pf-modal-badge--type {
+      background: rgba(139,92,246,0.15);
+      border: 1px solid rgba(139,92,246,0.3);
+      color: var(--purple-light);
+    }
+    .pf-modal-badge--intl {
+      background: rgba(6,182,212,0.12);
+      border: 1px solid rgba(6,182,212,0.3);
+      color: var(--cyan-light);
+    }
+    .pf-modal-badge--region {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6);
+      font-size: 10px;
+    }
+    .pf-modal-title {
+      font-size: 20px; font-weight: 800;
+      line-height: 1.35; margin-bottom: 22px;
+      color: #fff; letter-spacing: -0.01em;
+    }
+    .pf-modal-info {
+      display: flex; flex-direction: column; gap: 12px;
+      margin-bottom: 22px;
+    }
+    .pf-modal-info-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 13px;
+    }
+    .pf-modal-info-icon { color: var(--purple-light); flex-shrink: 0; margin-top: 1px; }
+    .pf-modal-info-label {
+      font-size: 10px; font-weight: 700;
+      color: rgba(255,255,255,0.35);
+      min-width: 36px; flex-shrink: 0;
+      margin-top: 2px; letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .pf-modal-info-val { color: rgba(255,255,255,0.82); line-height: 1.55; }
+    .pf-modal-divider {
+      border: none; border-top: 1px solid rgba(255,255,255,0.07);
+      margin: 0 0 18px;
+    }
+    .pf-modal-comment {
+      font-size: 13px; color: rgba(255,255,255,0.55);
+      line-height: 1.8;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 960px) {
+      .pf-modal-inner { flex-direction: column; max-height: 94vh; }
+      .pf-modal-left { width: 100%; max-height: 260px; flex-direction: row; }
+      .pf-modal-img-main { flex: 1; min-height: 200px; }
+      .pf-modal-thumbs { flex-direction: column; padding: 8px; width: auto; }
+      .pf-modal-thumb { width: 48px; height: 36px; }
+      .pf-modal-right { padding: 24px 20px 24px; }
+    }
+    @media (max-width: 900px) { .pf-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 560px) {
+      .pf-grid { grid-template-columns: 1fr; gap: 14px; }
+      .pf-filter { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+      .pf-body { padding: 0 16px 80px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ── -->
+  <nav class="nav scrolled" id="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo"><img src="images/FAIRPASS(w+Blue).png" alt="FAIRPASS" class="nav-logo-img"></a>
+      <div class="nav-links" id="navLinks">
+        <div class="nav-dropdown">
+          <button class="nav-link nav-link--dropdown" id="navDropdownBtn">
+            <span class="lang-ko">서비스</span><span class="lang-en">Services</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="nav-dropdown-menu" id="navDropdownMenu">
+            <a href="platform.html" class="nav-dropdown-item">
+              <span class="nav-dropdown-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+              <span><strong><span class="lang-ko">등록 플랫폼</span><span class="lang-en">Registration Platform</span></strong><small><span class="lang-ko">온라인 등록부터 통계까지</span><span class="lang-en">From registration to analytics</span></small></span>
+            </a>
+            <a href="kiosk.html" class="nav-dropdown-item">
+              <span class="nav-dropdown-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="14" rx="1.5"/><line x1="12" y1="16" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="9" y1="12" x2="15" y2="12"/></svg></span>
+              <span><strong><span class="lang-ko">무인발권 키오스크</span><span class="lang-en">Self-Service Kiosk</span></strong><small><span class="lang-ko">무인 체크인 · 즉석 명찰 발급</span><span class="lang-en">Self check-in · Instant badge printing</span></small></span>
+            </a>
+            <a href="badge.html" class="nav-dropdown-item">
+              <span class="nav-dropdown-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg></span>
+              <span><strong><span class="lang-ko">종이명찰</span><span class="lang-en">Paper Badge</span></strong><small><span class="lang-ko">100% 친환경 종이명찰</span><span class="lang-en">100% eco-friendly paper badge</span></small></span>
+            </a>
+          </div>
+        </div>
+        <a href="index.html#differentiators" class="nav-link"><span class="lang-ko">차별점</span><span class="lang-en">Why Us</span></a>
+        <a href="index.html#values" class="nav-link"><span class="lang-ko">우리의 가치</span><span class="lang-en">Our Values</span></a>
+        <a href="portfolio.html" class="nav-link nav-link--active"><span class="lang-ko">포트폴리오</span><span class="lang-en">Portfolio</span></a>
+        <a href="index.html#quote" class="nav-link en-hide"><span class="lang-ko">모의 견적</span><span class="lang-en">Get a Quote</span></a>
+        <div class="nav-lang-toggle">
+          <button class="nav-lang-btn active" data-lang="ko" onclick="setLang('ko')">KO</button>
+          <button class="nav-lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+        </div>
+        <a href="https://admin.fairpass.co.kr/Login" class="nav-link nav-link--login" target="_blank" rel="noopener"><span class="lang-ko">로그인</span><span class="lang-en">Log In</span></a>
+        <a href="https://admin.fairpass.co.kr/Join" class="nav-link nav-link--cta" target="_blank" rel="noopener"><span class="lang-ko">회원가입</span><span class="lang-en">Sign Up</span></a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="메뉴 열기"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="pf-hero">
+    <div class="hero-bg"><div class="gradient-blob blob-1"></div><div class="gradient-blob blob-2"></div></div>
+    <div class="container" style="position:relative;z-index:1;">
+      <div class="pf-hero-eyebrow fade-up">
+        <span class="pf-hero-eyebrow-dot"></span>
+        PORTFOLIO
+      </div>
+      <h1 class="pf-hero-title fade-up" style="--delay:0.08s">
+        <span class="lang-ko">FAIRPASS와 함께한<br><span class="gradient-text">행사 현장</span></span>
+        <span class="lang-en">Events Powered<br><span class="gradient-text">by FAIRPASS</span></span>
+      </h1>
+      <p class="pf-hero-desc fade-up" style="--delay:0.16s">
+        <span class="lang-ko">컨퍼런스, 학술대회, 전시회, 포럼 등<br>다양한 행사에서 FAIRPASS가 함께했습니다.</span>
+        <span class="lang-en">Conferences, exhibitions, forums, and more —<br>FAIRPASS has been there every step of the way.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ── MAIN CONTENT ── -->
+  <div class="pf-body">
+
+    <!-- Controls -->
+    <div class="pf-controls">
+      <!-- Type filter -->
+      <div class="pf-filter" id="pfFilter"></div>
+      <!-- Second row: International toggle + Country filter -->
+      <div class="pf-controls-row2">
+        <div class="pf-intl-toggle" id="intlToggle" onclick="toggleIntl()">
+          <div class="pf-intl-switch"></div>
+          <span class="pf-intl-label">
+            <span class="lang-ko">🌐 국제행사만 보기</span>
+            <span class="lang-en">🌐 International only</span>
+          </span>
+        </div>
+        <select class="pf-country-select" id="pfCountrySelect" onchange="setCountry(this.value)">
+          <option value="all" class="lang-ko">🌏 모든 국가</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="pf-grid" id="pfGrid">
+      <div class="pf-state">
+        <div class="pf-spinner"></div>
+        <span class="lang-ko">불러오는 중…</span>
+        <span class="lang-en">Loading…</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <a href="index.html" class="footer-logo-link"><img src="images/BlueOrigin_logo_white.png" alt="Blue Origin" class="footer-logo-img"></a>
+        <div class="footer-sns">
+          <a href="#" class="footer-sns-link footer-sns-link--fp" aria-label="FAIRPASS"><img src="images/FAIRPASS_APP(W+Blue).png" alt="FAIRPASS" class="footer-sns-fp-img"></a>
+          <a href="https://www.linkedin.com/company/fairpass" class="footer-sns-link footer-sns-link--linkedin" aria-label="LinkedIn" target="_blank" rel="noopener"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a href="https://www.instagram.com/fairpass.world/" class="footer-sns-link footer-sns-link--instagram" aria-label="Instagram" target="_blank" rel="noopener"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="https://blog.naver.com/blueorigin_cs" class="footer-sns-link footer-sns-link--naver" aria-label="Naver Blog" target="_blank" rel="noopener"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/></svg></a>
+        </div>
+      </div>
+      <nav class="footer-nav">
+        <a href="terms.html" class="footer-nav-link"><span class="lang-ko">이용약관</span><span class="lang-en">Terms of Use</span></a>
+        <button type="button" class="footer-nav-link footer-nav-btn" id="brochureBtn"><span class="lang-ko">서비스 소개서</span><span class="lang-en">Brochure</span></button>
+      </nav>
+      <div class="footer-info" id="footerInfo">
+        <p>주식회사 블루오리진 &nbsp;|&nbsp; 대표이사 전서윤 &nbsp;|&nbsp; 사업자등록번호 743-88-01384 &nbsp;|&nbsp; 통신판매업 제2020-서울강남-01673호</p>
+        <p>서울특별시 강남구 삼성로 103길 7 코닉빌딩 4-5층 &nbsp;|&nbsp; 고객센터 02-2038-8175 &nbsp;|&nbsp; fairpass@fairpass.world</p>
+      </div>
+      <div class="footer-bottom">
+        <span class="footer-copy">&copy; 2026 FAIRPASS. All rights reserved.</span>
+        <button class="footer-info-btn" id="footerInfoBtn" type="button">
+          <span class="lang-ko">사업자 정보</span><span class="lang-en">Business Info</span>
+          <svg class="footer-info-chevron" id="footerInfoChevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+      <div class="footer-legal">본 사이트 콘텐츠 일체는 관련 법령에 따라 보호됩니다. 무단 복제·배포·전송·스크래핑 등 침해 행위 적발 시 민·형사상 법적 조치를 취할 수 있습니다.</div>
+    </div>
+  </footer>
+
+  <!-- ── MODAL ── -->
+  <div class="pf-modal" id="pfModal">
+    <div class="pf-modal-inner">
+      <button class="pf-modal-close" id="pfModalClose">&times;</button>
+      <div class="pf-modal-left">
+        <div class="pf-modal-img-main" id="pfModalImgMain">
+          <img id="pfModalMainImg" src="" alt="" style="display:none">
+          <div class="pf-modal-img-placeholder" id="pfModalImgPlaceholder">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+        </div>
+        <div class="pf-modal-thumbs" id="pfModalThumbs"></div>
+      </div>
+      <div class="pf-modal-right">
+        <div class="pf-modal-badges" id="pfModalBadges"></div>
+        <div class="pf-modal-title" id="pfModalTitle"></div>
+        <div class="pf-modal-info" id="pfModalInfo"></div>
+        <hr class="pf-modal-divider" id="pfModalDivider" style="display:none">
+        <div class="pf-modal-comment" id="pfModalComment"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─────────────────────────────────────
+    // Language
+    // ─────────────────────────────────────
+    let lang = localStorage.getItem('preferredLang') || (navigator.language.startsWith('ko') ? 'ko' : 'en');
+
+    function setLang(l) {
+      lang = l;
+      localStorage.setItem('preferredLang', l);
+      document.documentElement.lang = l === 'ko' ? 'ko' : 'en';
+      document.documentElement.setAttribute('data-lang', l);
+      document.querySelectorAll('.nav-lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === l);
+      });
+      document.querySelectorAll('.lang-ko, .lang-en').forEach(el => el.style.display = '');
+      renderFilter();
+      renderGrid();
+    }
+
+    // ─────────────────────────────────────
+    // State
+    // ─────────────────────────────────────
+    let allItems = [];
+    let currentFilter = 'all';
+    let intlOnly = false;
+    let currentCountry = 'all';
+
+    const EVENT_TYPES = [
+      { ko: '컨퍼런스',    en: 'Conference' },
+      { ko: '포럼',        en: 'Forum' },
+      { ko: '세미나',      en: 'Seminar' },
+      { ko: '학술대회',    en: 'Academic Conference' },
+      { ko: '박람회',      en: 'Expo' },
+      { ko: '전시회',      en: 'Exhibition' },
+      { ko: '총회',        en: 'General Assembly' },
+      { ko: '시상식&기념식', en: 'Award & Ceremony' },
+      { ko: '시상식',      en: 'Award Ceremony' },
+      { ko: '기념식',      en: 'Ceremony' },
+      { ko: '네트워킹',    en: 'Networking' },
+      { ko: '교육',        en: 'Education' },
+      { ko: '워크숍',      en: 'Workshop' },
+      { ko: '기타',        en: 'Other' },
+    ];
+    const TYPE_EN_MAP = Object.fromEntries(EVENT_TYPES.map(t => [t.ko, t.en]));
+
+    const SCALE_EN = { '소규모': 'Small', '중규모': 'Medium', '대규모': 'Large' };
+    function getScale(item) {
+      if (!item.scale) return '';
+      return lang === 'en' ? (SCALE_EN[item.scale] || item.scale) : item.scale;
+    }
+
+    function toggleIntl() {
+      intlOnly = !intlOnly;
+      document.getElementById('intlToggle').classList.toggle('on', intlOnly);
+      renderGrid();
+    }
+
+    function setCountry(val) {
+      currentCountry = val;
+      renderGrid();
+    }
+
+    const REGION_LABELS = {
+      KR: '🇰🇷 한국 / Korea',
+      SG: '🇸🇬 싱가포르 / Singapore',
+      JP: '🇯🇵 일본 / Japan',
+      US: '🇺🇸 미국 / USA',
+    };
+
+    const REGION_NAME = {
+      KR: { ko: '한국',       en: 'Korea' },
+      SG: { ko: '싱가포르',   en: 'Singapore' },
+      JP: { ko: '일본',       en: 'Japan' },
+      US: { ko: '미국',       en: 'USA' },
+      CN: { ko: '중국',       en: 'China' },
+      TW: { ko: '대만',       en: 'Taiwan' },
+      HK: { ko: '홍콩',       en: 'Hong Kong' },
+      DE: { ko: '독일',       en: 'Germany' },
+      FR: { ko: '프랑스',     en: 'France' },
+      GB: { ko: '영국',       en: 'UK' },
+      AU: { ko: '호주',       en: 'Australia' },
+      CA: { ko: '캐나다',     en: 'Canada' },
+      TH: { ko: '태국',       en: 'Thailand' },
+      VN: { ko: '베트남',     en: 'Vietnam' },
+      MY: { ko: '말레이시아', en: 'Malaysia' },
+      ID: { ko: '인도네시아', en: 'Indonesia' },
+      PH: { ko: '필리핀',     en: 'Philippines' },
+      IN: { ko: '인도',       en: 'India' },
+      AE: { ko: '아랍에미리트', en: 'UAE' },
+      SA: { ko: '사우디아라비아', en: 'Saudi Arabia' },
+      QA: { ko: '카타르',     en: 'Qatar' },
+    };
+    function getRegionName(code) {
+      const r = REGION_NAME[code];
+      if (!r) return code || '';
+      return lang === 'en' ? r.en : r.ko;
+    }
+
+    function renderCountrySelect() {
+      const sel = document.getElementById('pfCountrySelect');
+      const regions = [...new Set(allItems.map(i => i.region).filter(Boolean))].sort();
+      const allLabel = lang === 'ko' ? '🌏 모든 국가' : '🌏 All Countries';
+      sel.innerHTML = `<option value="all">${allLabel}</option>`;
+      regions.forEach(r => {
+        const label = REGION_LABELS[r] || r;
+        const opt = document.createElement('option');
+        opt.value = r;
+        opt.textContent = label;
+        if (r === currentCountry) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    // ─────────────────────────────────────
+    // Helpers
+    // ─────────────────────────────────────
+    const getTitle   = i => (lang === 'en' && i.title_en)       ? i.title_en       : i.title_ko || '';
+    const getType    = i => {
+      if (lang === 'en') {
+        if (i.event_type_en) return i.event_type_en;
+        return TYPE_EN_MAP[i.event_type_ko] || i.event_type_ko || '';
+      }
+      return i.event_type_ko || '';
+    };
+    const getLoc     = i => (lang === 'en' && i.location_en)    ? i.location_en    : i.location_ko || '';
+    const getComment = i => (lang === 'en' && i.comment_en)     ? i.comment_en     : i.comment_ko || '';
+
+    function formatDate(s, e) {
+      if (!s) return '';
+      const fmt = d => {
+        const dt = new Date(d + 'T00:00:00');
+        return lang === 'ko'
+          ? dt.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+          : dt.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      };
+      return (e && e !== s) ? fmt(s) + ' ~ ' + fmt(e) : fmt(s);
+    }
+
+    const isIntl = item => item.is_international === true || item.region !== 'KR';
+
+    // ─────────────────────────────────────
+    // Filter
+    // ─────────────────────────────────────
+    function renderFilter() {
+      const bar = document.getElementById('pfFilter');
+      const allLabel = lang === 'ko' ? '전체' : 'All';
+      const usedKo = new Set(allItems.map(i => i.event_type_ko).filter(Boolean));
+
+      bar.innerHTML = '';
+
+      const mkBtn = (label, filterVal) => {
+        const btn = document.createElement('button');
+        btn.className = 'pf-filter-btn' + (currentFilter === filterVal ? ' active' : '');
+        btn.textContent = label;
+        btn.onclick = () => { currentFilter = filterVal; renderFilter(); renderGrid(); };
+        bar.appendChild(btn);
+      };
+
+      mkBtn(allLabel, 'all');
+      EVENT_TYPES.forEach(t => {
+        if (!usedKo.has(t.ko)) return;
+        mkBtn(lang === 'ko' ? t.ko : t.en, t.ko);
+      });
+      renderCountrySelect();
+    }
+
+    // ─────────────────────────────────────
+    // Grid
+    // ─────────────────────────────────────
+    const pinSvg  = `<svg class="pf-card-meta-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+    const calSvg  = `<svg class="pf-card-meta-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+    const placeholderSvg = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+
+    function renderGrid() {
+      const grid = document.getElementById('pfGrid');
+      grid.innerHTML = '';
+
+      let filtered = allItems;
+      if (currentFilter !== 'all') filtered = filtered.filter(i => i.event_type_ko === currentFilter);
+      if (intlOnly) filtered = filtered.filter(i => isIntl(i));
+      if (currentCountry !== 'all') filtered = filtered.filter(i => i.region === currentCountry);
+
+      if (!filtered.length) {
+        grid.innerHTML = `<div class="pf-state"><span class="lang-ko" style="display:${lang==='ko'?'':'none'}">조건에 맞는 행사가 없습니다.</span><span class="lang-en" style="display:${lang==='en'?'':'none'}">No events match your filters.</span></div>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const title   = getTitle(item);
+        const type    = getType(item);
+        const loc     = getLoc(item);
+        const dateStr = formatDate(item.date_start, item.date_end);
+        const intl    = isIntl(item);
+
+        const card = document.createElement('div');
+        card.className = 'pf-card fade-up';
+
+        card.innerHTML = `
+          <div class="pf-card-img-wrap">
+            ${item.main_image
+              ? `<img class="pf-card-img" src="${item.main_image}" alt="${title}" loading="lazy">`
+              : `<div class="pf-card-img-placeholder">${placeholderSvg}</div>`}
+          </div>
+          <div class="pf-card-body">
+            <div class="pf-card-tags">
+              <div class="pf-card-tags-left">
+                ${type ? `<span class="pf-card-type-tag">${type}</span>` : ''}
+                ${item.scale ? `<span class="pf-card-scale-tag scale-${item.scale}">${getScale(item)}</span>` : ''}
+                ${intl ? `<span class="pf-card-intl-badge">🌐 ${lang==='ko'?'국제행사':'Global'}</span>` : ''}
+              </div>
+              ${item.region ? `<span class="pf-card-country">${getRegionName(item.region)}</span>` : ''}
+            </div>
+            <div class="pf-card-title">${title}</div>
+            <div class="pf-card-meta">
+              ${loc ? `<div class="pf-card-meta-row">${pinSvg}<span>${loc}</span></div>` : ''}
+            </div>
+          </div>`;
+
+        card.onclick = () => openModal(item);
+        grid.appendChild(card);
+      });
+
+      // re-observe
+      document.querySelectorAll('.pf-card.fade-up:not(.visible)').forEach(el => observer.observe(el));
+    }
+
+    // ─────────────────────────────────────
+    // Modal
+    // ─────────────────────────────────────
+    const pinSvgLg  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+    const calSvgLg  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+    const scaleSvgLg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`;
+
+    let modalImgs = [], modalIdx = 0;
+
+    function openModal(item) {
+      const title   = getTitle(item);
+      const type    = getType(item);
+      const loc     = getLoc(item);
+      const comment = getComment(item);
+      const dateStr = formatDate(item.date_start, item.date_end);
+      const intl    = isIntl(item);
+      const subImgs = Array.isArray(item.sub_images) ? item.sub_images : [];
+      const allImgs = [item.main_image, ...subImgs].filter(Boolean);
+      modalImgs = allImgs; modalIdx = 0;
+
+      // Image
+      const mainImg = document.getElementById('pfModalMainImg');
+      const placeholder = document.getElementById('pfModalImgPlaceholder');
+      if (allImgs.length) {
+        mainImg.src = allImgs[0]; mainImg.alt = title; mainImg.style.display = 'block';
+        placeholder.style.display = 'none';
+      } else {
+        mainImg.style.display = 'none';
+        placeholder.style.display = 'flex';
+      }
+
+      // Thumbnails
+      const thumbsEl = document.getElementById('pfModalThumbs');
+      thumbsEl.innerHTML = allImgs.length > 1
+        ? allImgs.map((url, i) => `<img class="pf-modal-thumb${i===0?' active':''}" src="${url}" loading="lazy" data-idx="${i}">`).join('')
+        : '';
+      thumbsEl.querySelectorAll('.pf-modal-thumb').forEach(el => {
+        el.onclick = () => switchModalImg(Number(el.dataset.idx));
+      });
+
+      // Badges
+      const badgesEl = document.getElementById('pfModalBadges');
+      badgesEl.innerHTML = '';
+      if (type) badgesEl.innerHTML += `<span class="pf-modal-badge pf-modal-badge--type">${type}</span>`;
+      if (intl) badgesEl.innerHTML += `<span class="pf-modal-badge pf-modal-badge--intl">🌐 ${lang==='ko'?'국제행사':'International'}</span>`;
+      if (item.region && item.region !== 'KR') badgesEl.innerHTML += `<span class="pf-modal-badge pf-modal-badge--region">📍 ${item.region}</span>`;
+
+      // Title
+      document.getElementById('pfModalTitle').textContent = title;
+
+      // Info rows
+      const infoEl = document.getElementById('pfModalInfo');
+      infoEl.innerHTML = '';
+      const row = (icon, label, val) => `<div class="pf-modal-info-row"><span class="pf-modal-info-icon">${icon}</span><span class="pf-modal-info-label">${label}</span><span class="pf-modal-info-val">${val}</span></div>`;
+      if (dateStr) infoEl.innerHTML += row(calSvgLg,  lang==='ko'?'일정':'Date',     dateStr);
+      if (loc)     infoEl.innerHTML += row(pinSvgLg,  lang==='ko'?'장소':'Venue',    loc);
+      if (item.scale) infoEl.innerHTML += row(scaleSvgLg, lang==='ko'?'규모':'Scale', item.scale);
+
+      // Comment
+      const commentEl = document.getElementById('pfModalComment');
+      const divider   = document.getElementById('pfModalDivider');
+      if (comment) {
+        commentEl.textContent = comment;
+        divider.style.display = 'block';
+      } else {
+        commentEl.textContent = '';
+        divider.style.display = 'none';
+      }
+
+      document.getElementById('pfModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function switchModalImg(idx) {
+      modalIdx = idx;
+      document.getElementById('pfModalMainImg').src = modalImgs[idx];
+      document.querySelectorAll('.pf-modal-thumb').forEach((el, i) => el.classList.toggle('active', i === idx));
+    }
+
+    function closeModal() {
+      document.getElementById('pfModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('pfModalClose').onclick = closeModal;
+    document.getElementById('pfModal').onclick = e => { if (e.target === e.currentTarget) closeModal(); };
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    // ─────────────────────────────────────
+    // Data
+    // ─────────────────────────────────────
+    async function loadData() {
+      try {
+        const res = await fetch('api/portfolio');
+        allItems = await res.json();
+        if (!Array.isArray(allItems)) allItems = [];
+      } catch(e) {
+        allItems = [];
+      }
+      renderFilter();
+      renderGrid();
+    }
+
+    // ─────────────────────────────────────
+    // Intersection observer
+    // ─────────────────────────────────────
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.05 });
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // ─────────────────────────────────────
+    // Nav
+    // ─────────────────────────────────────
+    const dropBtn  = document.getElementById('navDropdownBtn');
+    const dropWrap = dropBtn ? dropBtn.closest('.nav-dropdown') : null;
+    if (dropBtn && dropWrap) {
+      dropBtn.addEventListener('click', e => { e.stopPropagation(); dropWrap.classList.toggle('open'); });
+      document.addEventListener('click', () => dropWrap.classList.remove('open'));
+    }
+    const toggle = document.getElementById('navToggle');
+    const links  = document.getElementById('navLinks');
+    if (toggle && links) toggle.addEventListener('click', () => { links.classList.toggle('open'); toggle.classList.toggle('open'); });
+
+    // ─────────────────────────────────────
+    // Footer
+    // ─────────────────────────────────────
+    const infoBtn = document.getElementById('footerInfoBtn');
+    const infoBox = document.getElementById('footerInfo');
+    const chevron = document.getElementById('footerInfoChevron');
+    if (infoBtn) infoBtn.addEventListener('click', () => {
+      infoBox.classList.toggle('open');
+      if (chevron) chevron.style.transform = infoBox.classList.contains('open') ? 'rotate(180deg)' : '';
+    });
+
+    // ─────────────────────────────────────
+    // Init
+    // ─────────────────────────────────────
+    setLang(lang);
+    loadData();
+  </script>
+</body>
+</html>

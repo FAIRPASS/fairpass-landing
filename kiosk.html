@@ -3,7 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-M17QN59ZBN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-M17QN59ZBN');
+  </script>
   <title>무인발권 키오스크 — FAIRPASS</title>
+  <meta name="title-ko" content="무인발권 키오스크 — FAIRPASS">
+  <meta name="title-en" content="Self-Service Kiosk — FAIRPASS">
   <meta name="description" content="FAIRPASS 무인발권 키오스크 - 1초 QR 체크인, 즉석 명찰 인쇄, 스폰서 광고 노출까지 무인 셀프 운영.">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="images/FAIRPASS_APP.png" type="image/png">
@@ -21,29 +31,34 @@
       <div class="nav-links" id="navLinks">
         <div class="nav-dropdown">
           <button class="nav-link nav-link--dropdown" id="navDropdownBtn">
-            서비스
+            <span class="lang-ko">서비스</span><span class="lang-en">Services</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="nav-dropdown-menu" id="navDropdownMenu">
             <a href="platform.html" class="nav-dropdown-item">
               <span class="nav-dropdown-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
-              <span><strong>등록 플랫폼</strong><small>온라인 등록부터 통계까지</small></span>
+              <span><strong><span class="lang-ko">등록 플랫폼</span><span class="lang-en">Registration Platform</span></strong><small><span class="lang-ko">온라인 등록부터 통계까지</span><span class="lang-en">From registration to analytics</span></small></span>
             </a>
             <a href="kiosk.html" class="nav-dropdown-item">
               <span class="nav-dropdown-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="14" rx="1.5"/><line x1="12" y1="16" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="9" y1="12" x2="15" y2="12"/></svg></span>
-              <span><strong>무인발권 키오스크</strong><small>무인 체크인 · 즉석 명찰 발급</small></span>
+              <span><strong><span class="lang-ko">무인발권 키오스크</span><span class="lang-en">Self-Service Kiosk</span></strong><small><span class="lang-ko">무인 체크인 · 즉석 명찰 발급</span><span class="lang-en">Self check-in · Instant badge printing</span></small></span>
             </a>
             <a href="badge.html" class="nav-dropdown-item">
               <span class="nav-dropdown-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg></span>
-              <span><strong>종이명찰</strong><small>100% 친환경 종이명찰</small></span>
+              <span><strong><span class="lang-ko">종이명찰</span><span class="lang-en">Paper Badge</span></strong><small><span class="lang-ko">100% 친환경 종이명찰</span><span class="lang-en">100% eco-friendly paper badge</span></small></span>
             </a>
           </div>
         </div>
-        <a href="index.html#differentiators" class="nav-link">차별점</a>
-        <a href="index.html#values" class="nav-link">우리의 가치</a>
-        <a href="index.html#quote" class="nav-link">모의 견적</a>
-        <a href="#" class="nav-link nav-link--login">로그인</a>
-        <a href="#" class="nav-link nav-link--cta">회원가입</a>
+        <a href="index.html#differentiators" class="nav-link"><span class="lang-ko">차별점</span><span class="lang-en">Why Us</span></a>
+        <a href="index.html#values" class="nav-link"><span class="lang-ko">우리의 가치</span><span class="lang-en">Our Values</span></a>
+        <a href="portfolio.html" class="nav-link"><span class="lang-ko">포트폴리오</span><span class="lang-en">Portfolio</span></a>
+        <a href="index.html#quote" class="nav-link en-hide"><span class="lang-ko">모의 견적</span><span class="lang-en">Get a Quote</span></a>
+        <div class="nav-lang-toggle">
+          <button class="nav-lang-btn active" data-lang="ko" onclick="setLang('ko')">KO</button>
+          <button class="nav-lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+        </div>
+        <a href="https://admin.fairpass.co.kr/Login" class="nav-link nav-link--login" target="_blank" rel="noopener"><span class="lang-ko">로그인</span><span class="lang-en">Log In</span></a>
+        <a href="https://admin.fairpass.co.kr/Join" class="nav-link nav-link--cta" target="_blank" rel="noopener"><span class="lang-ko">회원가입</span><span class="lang-en">Sign Up</span></a>
       </div>
       <button class="nav-toggle" id="navToggle" aria-label="메뉴 열기">
         <span></span><span></span><span></span>
@@ -62,32 +77,30 @@
 
       <!-- LEFT: Hooking copy -->
       <div class="kiosk-hero-text">
-        <div class="detail-hero-tag detail-hero-tag--purple fade-up">무인 체크인 솔루션</div>
+        <div class="detail-hero-tag detail-hero-tag--purple fade-up"><span class="lang-ko">무인 체크인 솔루션</span><span class="lang-en">Self-Service Check-in Solution</span></div>
         <h1 class="kiosk-hero-hook fade-up" style="--delay: 0.08s">
-          입장 경험을<br>
-          <span class="gradient-text">더 빠르고 더 깔끔하게</span>
+          <span class="lang-ko">입장 경험을 바꾸면,<br><span class="gradient-text">행사의 첫인상이 바뀝니다.</span></span><span class="lang-en" style="white-space:nowrap">Change the entry experience.<br><span class="gradient-text">Change the first impression.</span></span>
         </h1>
         <p class="kiosk-hero-sub fade-up" style="--delay: 0.16s">
-          <span class="kw-blue">현장 운영</span>의 새로운 <span class="kw-blue">패러다임</span> - FAIRPASS 키오스크<br>
-          체크인부터 명찰 발급까지, 실시간 자동화로 대규모 행사도 매끄럽게
+          <span class="lang-ko"><span class="kw-blue">현장 운영</span>의 새로운 <span class="kw-blue">패러다임</span> - FAIRPASS 키오스크<br>자리를 지키지 않아도, 줄이 없어도 — <strong>현장이 알아서 돌아갑니다.</strong></span><span class="lang-en">A new paradigm for on-site operations — <strong class="kw-blue">FAIRPASS Kiosk</strong>.<br>No staff standing by. No lines forming. <strong class="kw-blue">Your event runs itself.</strong></span>
         </p>
         <div class="kiosk-hero-stats fade-up" style="--delay: 0.22s">
           <div class="kiosk-stat">
-            <span class="kiosk-stat-num">10초</span>
-            <span class="kiosk-stat-label">체크인 완료</span>
+            <span class="kiosk-stat-num">10<span class="lang-ko">초</span><span class="lang-en">sec</span></span>
+            <span class="kiosk-stat-label"><span class="lang-ko">체크인 완료</span><span class="lang-en">Check-in Complete</span></span>
           </div>
           <div class="kiosk-stat">
-            <span class="kiosk-stat-num">0초</span>
-            <span class="kiosk-stat-label">현장등록·수정 반영</span>
+            <span class="kiosk-stat-num">0<span class="lang-ko">초</span><span class="lang-en">sec</span></span>
+            <span class="kiosk-stat-label"><span class="lang-ko">현장등록·수정 반영</span><span class="lang-en">Real-Time Data Sync</span></span>
           </div>
           <div class="kiosk-stat">
-            <span class="kiosk-stat-num">200명</span>
-            <span class="kiosk-stat-label">1hr/대 처리</span>
+            <span class="kiosk-stat-num">200<span class="lang-ko">명</span><span class="lang-en"> ppl</span></span>
+            <span class="kiosk-stat-label"><span class="lang-ko">1hr/대 처리</span><span class="lang-en">Processed / hr / unit</span></span>
           </div>
         </div>
         <div class="hero-actions fade-up" style="--delay: 0.3s">
-          <a href="#" class="btn btn-primary">무료로 시작하기</a>
-          <a href="index.html#quote" class="btn btn-secondary">1분 모의 견적</a>
+          <a href="https://admin.fairpass.co.kr/Login" class="btn btn-primary" target="_blank" rel="noopener"><span class="lang-ko">무료로 시작하기</span><span class="lang-en">Start for Free</span></a>
+          <a href="index.html#quote" class="btn btn-secondary"><span class="lang-ko">1분 모의 견적</span><span class="lang-en">Quick Quote</span></a>
         </div>
       </div>
 
@@ -111,11 +124,11 @@
   <!-- ===================== SUBNAV ===================== -->
   <nav class="subnav" id="subnav">
     <div class="subnav-inner">
-      <a href="#features" class="subnav-link">핵심기능</a>
-      <a href="#billing" class="subnav-link">정산방식</a>
-      <a href="#why" class="subnav-link">키오스크 차별성</a>
-      <a href="#specs" class="subnav-link">스펙</a>
-      <a href="#gallery" class="subnav-link">현장사례</a>
+      <a href="#features" class="subnav-link"><span class="lang-ko">핵심기능</span><span class="lang-en">Features</span></a>
+      <a href="#billing" class="subnav-link"><span class="lang-ko">정산방식</span><span class="lang-en">Billing</span></a>
+      <a href="#why" class="subnav-link"><span class="lang-ko">키오스크 차별성</span><span class="lang-en">Why Kiosk</span></a>
+      <a href="#specs" class="subnav-link"><span class="lang-ko">스펙</span><span class="lang-en">Specs</span></a>
+      <a href="#gallery" class="subnav-link"><span class="lang-ko">현장사례</span><span class="lang-en">In Action</span></a>
     </div>
   </nav>
 
@@ -123,36 +136,36 @@
   <section class="section" id="features">
     <div class="container">
       <div class="section-label fade-up">CORE FEATURES</div>
-      <h2 class="section-title fade-up">핵심 <span class="gradient-text">기능</span></h2>
-      <p class="section-desc fade-up">현장 운영의 모든 병목을 해소하는 무인 키오스크</p>
+      <h2 class="section-title fade-up"><span class="lang-ko">무인발권 키오스크, <span class="gradient-text">참가자들이 더 좋아합니다.</span></span><span class="lang-en">The self-service kiosk <span class="gradient-text">attendees actually prefer.</span></span></h2>
+      <p class="section-desc fade-up"><span class="lang-ko"><strong class="kw-blue">긴 줄</strong>도, <strong class="kw-blue">혼잡한 데스크</strong>도 없습니다.<br>어디서든 <strong class="kw-blue">즉시 체크인</strong> — 참가자가 편해지면 현장이 달라집니다.</span><span class="lang-en">No long lines. No crowded registration desks.<br><span style="white-space:nowrap">Check in anywhere, instantly — when <strong class="kw-blue">attendees are happy</strong>, the whole event feels different.</span></span></p>
       <div class="detail-features-grid">
         <div class="detail-feature-card fade-up" style="--delay: 0.1s">
           <div class="detail-feature-icon detail-feature-icon--cyan">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           </div>
-          <h3 class="detail-feature-title">실시간 데이터 반영</h3>
-          <p class="detail-feature-desc">현장 등록·수정 정보가 즉시<br>자동 반영되어, 수기 업무 없이 정확한<br>명찰이 발급됩니다.</p>
+          <h3 class="detail-feature-title"><span class="lang-ko">실시간 데이터 반영</span><span class="lang-en">Real-Time Data Updates</span></h3>
+          <p class="detail-feature-desc"><span class="lang-ko">현장 등록·수정 정보가 즉시<br>자동 반영되어, 수기 업무 없이 정확한<br>명찰이 발급됩니다.</span><span class="lang-en">On-site registrations and changes are instantly reflected — accurate badges issued with zero manual effort.</span></p>
         </div>
         <div class="detail-feature-card fade-up" style="--delay: 0.2s">
           <div class="detail-feature-icon detail-feature-icon--purple">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
           </div>
-          <h3 class="detail-feature-title">누구나, 어디서나</h3>
-          <p class="detail-feature-desc">참가자 유형이나 장소에 관계없이,<br>어느 키오스크에서든 즉시 명찰을<br>출력할 수 있습니다.</p>
+          <h3 class="detail-feature-title"><span class="lang-ko">누구나, 어디서나</span><span class="lang-en">Anyone, Anywhere</span></h3>
+          <p class="detail-feature-desc"><span class="lang-ko">참가자 유형이나 장소에 관계없이,<br>어느 키오스크에서든 즉시 명찰을<br>출력할 수 있습니다.</span><span class="lang-en">Regardless of attendee type or location,<br>badges can be printed instantly at any kiosk.</span></p>
         </div>
         <div class="detail-feature-card fade-up" style="--delay: 0.3s">
           <div class="detail-feature-icon detail-feature-icon--cyan">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           </div>
-          <h3 class="detail-feature-title">대용량 연속 발권</h3>
-          <p class="detail-feature-desc">대당 최대 2,000매 연속 발권 지원.<br>개인 발권부터 단체 일괄 발권까지<br>한 번에 처리합니다.</p>
+          <h3 class="detail-feature-title"><span class="lang-ko">대용량 연속 발권</span><span class="lang-en">High-Volume Continuous Printing</span></h3>
+          <p class="detail-feature-desc"><span class="lang-ko">대당 최대 2,000매 연속 발권 지원.<br>개인 발권부터 단체 일괄 발권까지<br>한 번에 처리합니다.</span><span class="lang-en">Up to 2,000 badges per unit, continuously.<br>Individual or bulk group printing — handled in one go.</span></p>
         </div>
         <div class="detail-feature-card fade-up" style="--delay: 0.4s">
           <div class="detail-feature-icon detail-feature-icon--pink">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
           </div>
-          <h3 class="detail-feature-title">홍보·광고 무한 노출</h3>
-          <p class="detail-feature-desc">대기 및 출력 중 스폰서 이미지·영상을 무한 반복 노출, 행사 브랜딩과 수익화를 동시에 실현합니다.</p>
+          <h3 class="detail-feature-title"><span class="lang-ko">홍보·광고 무한 노출</span><span class="lang-en">Unlimited Ad &amp; Promo Display</span></h3>
+          <p class="detail-feature-desc"><span class="lang-ko">대기 및 출력 중 스폰서 이미지·영상을 무한 반복 노출, 행사 브랜딩과 수익화를 동시에 실현합니다.</span><span class="lang-en">Sponsor images and videos loop continuously during wait and print time — event branding and monetization in one.</span></p>
         </div>
       </div>
     </div>
@@ -162,20 +175,19 @@
   <section class="section smart-billing-section" id="billing">
     <div class="container">
       <div class="section-label fade-up">SMART BILLING</div>
-      <h2 class="section-title fade-up"><span class="gradient-text">알뜰 정산</span></h2>
+      <h2 class="section-title fade-up"><span class="lang-ko"><span class="gradient-text">남는 것도, 부족한 것도</span> 없습니다.</span><span class="lang-en"><span class="gradient-text">No surplus. No shortage.</span></span></h2>
       <p class="section-desc fade-up">
-        사전 발주 없이 현장에서 실제 인쇄된 수량 그대로 —<br>
-        비용도 자원도 <span class="kw-blue">낭비가 없습니다</span>
+        <span class="lang-ko">사전 발주 없이 <strong class="kw-blue">실제 인쇄 수량 그대로</strong> 정산 — 비용도 자원도 <span class="kw-blue">낭비가 없습니다</span></span><span class="lang-en">Billed only for what's actually <strong class="kw-blue">printed on-site</strong>.<br>No pre-orders, no waste, no <strong class="kw-blue">budget overruns</strong>.</span>
       </p>
 
       <div class="billing-compare-wrap fade-up" style="--delay:0.1s">
         <div class="billing-col billing-col--old">
-          <div class="billing-col-label">기존 방식</div>
+          <div class="billing-col-label"><span class="lang-ko">기존 방식</span><span class="lang-en">Old Way</span></div>
           <ul class="billing-list">
-            <li class="billing-item billing-item--bad">카테고리별 수량 <strong>예측 필요</strong></li>
-            <li class="billing-item billing-item--bad">사전 발주로 <strong>비용 선지급</strong></li>
-            <li class="billing-item billing-item--bad">남으면 <strong>폐기</strong>, 부족하면 <strong>낭패</strong></li>
-            <li class="billing-item billing-item--bad">추가 참가자 <strong>대응 불가</strong></li>
+            <li class="billing-item billing-item--bad"><span class="lang-ko">카테고리별 수량 <strong>예측 필요</strong></span><span class="lang-en">Must <strong>estimate quantity</strong> per category</span></li>
+            <li class="billing-item billing-item--bad"><span class="lang-ko">사전 발주로 <strong>비용 선지급</strong></span><span class="lang-en"><strong>Upfront payment</strong> required before the event</span></li>
+            <li class="billing-item billing-item--bad"><span class="lang-ko">남으면 <strong>폐기</strong>, 부족하면 <strong>낭패</strong></span><span class="lang-en">Leftovers <strong>wasted</strong>, shortages cause <strong>chaos</strong></span></li>
+            <li class="billing-item billing-item--bad"><span class="lang-ko">추가 참가자 <strong>대응 불가</strong></span><span class="lang-en">Walk-in attendees <strong>cannot be accommodated</strong></span></li>
           </ul>
         </div>
 
@@ -184,25 +196,25 @@
         </div>
 
         <div class="billing-col billing-col--new">
-          <div class="billing-col-label">FAIRPASS 키오스크</div>
+          <div class="billing-col-label"><span class="lang-ko">FAIRPASS 키오스크</span><span class="lang-en">FAIRPASS Kiosk</span></div>
           <ul class="billing-list">
-            <li class="billing-item billing-item--good">현장 출력 수량 그대로 <strong>정산</strong></li>
-            <li class="billing-item billing-item--good">발주·예측 업무 <strong>완전 제로</strong></li>
-            <li class="billing-item billing-item--good">남는 것도 부족한 것도 <strong>없음</strong></li>
-            <li class="billing-item billing-item--good">추가 참가자 <strong>즉시 현장 대응</strong></li>
+            <li class="billing-item billing-item--good"><span class="lang-ko">현장 출력 수량 그대로 <strong>정산</strong></span><span class="lang-en"><strong>Billed exactly</strong> for what's printed on-site</span></li>
+            <li class="billing-item billing-item--good"><span class="lang-ko">발주·예측 업무 <strong>완전 제로</strong></span><span class="lang-en">Pre-ordering and estimation work: <strong>completely gone</strong></span></li>
+            <li class="billing-item billing-item--good"><span class="lang-ko">남는 것도 부족한 것도 <strong>없음</strong></span><span class="lang-en"><strong>No surplus, no shortage</strong> — ever</span></li>
+            <li class="billing-item billing-item--good"><span class="lang-ko">추가 참가자 <strong>즉시 현장 대응</strong></span><span class="lang-en">Walk-ins handled <strong>instantly, on the spot</strong></span></li>
           </ul>
         </div>
       </div>
 
       <div class="billing-tags fade-up" style="--delay:0.2s">
-        <span class="billing-tag">비용 절감</span>
-        <span class="billing-tag">자원 절약</span>
-        <span class="billing-tag">추가 인원 대응</span>
-        <span class="billing-tag">예측 업무 제로</span>
-        <span class="billing-tag">예산 초과 없음</span>
+        <span class="billing-tag"><span class="lang-ko">비용 절감</span><span class="lang-en">Cost Savings</span></span>
+        <span class="billing-tag"><span class="lang-ko">자원 절약</span><span class="lang-en">Zero Waste</span></span>
+        <span class="billing-tag"><span class="lang-ko">추가 인원 대응</span><span class="lang-en">Walk-In Ready</span></span>
+        <span class="billing-tag"><span class="lang-ko">예측 업무 제로</span><span class="lang-en">No Pre-Ordering</span></span>
+        <span class="billing-tag"><span class="lang-ko">예산 초과 없음</span><span class="lang-en">No Budget Overruns</span></span>
       </div>
 
-      <p class="billing-footnote fade-up" style="--delay:0.25s">* 행사 예상 인원 70% 이상 개런티 조건 적용</p>
+      <p class="billing-footnote fade-up" style="--delay:0.25s"><span class="lang-ko">* 행사 예상 인원 70% 이상 개런티 조건 적용</span><span class="lang-en">* Minimum 70% of estimated attendees guaranteed condition applies</span></p>
     </div>
   </section>
 
@@ -228,8 +240,8 @@
 
           <!-- Main heading: question small/muted, answer big/white -->
           <div class="kiosk-why2-header">
-            <p class="kiosk-why2-question">행사의 첫인상, 지금 어떻게 운영되고 있나요?</p>
-            <h2 class="kiosk-why2-answer">어느 행사장에서나,<br><span class="gradient-text">FAIRPASS 무인발권 키오스크 하나로</span></h2>
+            <p class="kiosk-why2-question"><span class="lang-ko">행사의 첫인상, 어떻게 운영되고 있나요?<br>자리를 지키는 스태프, 쌓이는 대기줄, 손으로 체크하는 명단</span><span class="lang-en">How is your event's first impression being managed right now?<br>Staff tied to a desk. Lines building up. Names checked by hand.</span></p>
+            <h2 class="kiosk-why2-answer"><span class="lang-ko"><span class="gradient-text">FAIRPASS 키오스크 하나면 그 풍경이 바뀝니다.</span></span><span class="lang-en"><span class="gradient-text">One FAIRPASS kiosk changes all of that.</span></span></h2>
           </div>
 
           <!-- Bullet points -->
@@ -237,22 +249,22 @@
             <div class="kiosk-why2-item">
               <span class="kiosk-why2-dot" style="background:#f472b6;"></span>
               <div class="kiosk-why2-content">
-                <strong class="kiosk-why2-point-title" style="color:var(--cyan-light);">자리를 지키지 않아도 됩니다</strong>
-                <p>QR 체크인부터 명찰 발급까지, 누군가 앉아 설명하지 않아도 FAIRPASS 키오스크는 <strong>알아서</strong> 운영됩니다.</p>
+                <strong class="kiosk-why2-point-title" style="color:var(--cyan-light);"><span class="lang-ko">자리를 지키지 않아도 됩니다</span><span class="lang-en">No staff needs to stand by</span></strong>
+                <p><span class="lang-ko">QR 체크인부터 명찰 발급까지, 누군가 앉아 설명하지 않아도 FAIRPASS 키오스크는 <strong>알아서</strong> 운영됩니다.</span><span class="lang-en">From QR check-in to badge printing, the FAIRPASS kiosk <strong>runs itself</strong> — no one needs to sit and explain.</span></p>
               </div>
             </div>
             <div class="kiosk-why2-item">
               <span class="kiosk-why2-dot" style="background:#a855f7;"></span>
               <div class="kiosk-why2-content">
-                <strong class="kiosk-why2-point-title" style="color:var(--cyan-light);">좁을수록 더 강력합니다</strong>
-                <p><strong>단 1평</strong>이면 충분합니다.<br>비싼 목공 부스, 혼잡한 케이블과 등록 물품들, 지저분한 키오스크 뒷면 — 정말 최선이었을까요?<br>효율적인 공간 운영과 빠른 체크인으로 주최사와 참가자 모두의 만족을 드립니다.</p>
+                <strong class="kiosk-why2-point-title" style="color:var(--cyan-light);"><span class="lang-ko">좁을수록 더 강력합니다</span><span class="lang-en">Smaller footprint, bigger impact</span></strong>
+                <p><span class="lang-ko"><strong>단 1평</strong>이면 충분합니다.<br>비싼 목공 부스, 혼잡한 케이블과 등록 물품들, 지저분한 키오스크 뒷면 — 정말 최선이었을까요?<br>효율적인 공간 운영과 빠른 체크인으로 주최사와 참가자 모두의 만족을 드립니다.</span><span class="lang-en">Just <strong>3 square feet</strong> is all it takes.<br>Expensive custom booths, tangled cables, messy registration tables — was that really the best option?<br>Efficient space use and fast check-in — satisfaction for both organizers and attendees.</span></p>
               </div>
             </div>
             <div class="kiosk-why2-item">
               <span class="kiosk-why2-dot" style="background:#22d3ee;"></span>
               <div class="kiosk-why2-content">
-                <strong class="kiosk-why2-point-title" style="color:var(--cyan-light);">대기 중에도 쉬지 않습니다</strong>
-                <p>출력 대기 화면에 홍보·안내 이미지와 영상을 자동 노출합니다.<br><strong>자판기</strong>처럼 입구마다 배치해 가장 가까운 곳에서 바로 체크인, 대기 <strong>병목</strong>도 <strong>해소</strong>됩니다.</p>
+                <strong class="kiosk-why2-point-title" style="color:var(--cyan-light);"><span class="lang-ko">대기 중에도 쉬지 않습니다</span><span class="lang-en">Never idle, even during wait time</span></strong>
+                <p><span class="lang-ko">출력 대기 화면에 홍보·안내 이미지와 영상을 자동 노출합니다.<br><strong>자판기</strong>처럼 입구마다 배치해 가장 가까운 곳에서 바로 체크인, 대기 <strong>병목</strong>도 <strong>해소</strong>됩니다.</span><span class="lang-en">Promo and info content plays automatically on the display during wait time.<br>Place them at every entrance like a <strong>vending machine</strong> — check in right away, and <strong>bottlenecks vanish</strong>.</span></p>
               </div>
             </div>
           </div>
@@ -269,8 +281,8 @@
   <section class="section" id="specs">
     <div class="container">
       <div class="section-label fade-up">SPECIFICATIONS</div>
-      <h2 class="section-title fade-up">상세 <span class="gradient-text">스펙</span></h2>
-      <p class="section-desc fade-up">현장에서 검증된 안정적인 하드웨어 + 소프트웨어</p>
+      <h2 class="section-title fade-up"><span class="lang-ko">상세 <span class="gradient-text">스펙</span></span><span class="lang-en">Detailed <span class="gradient-text">Specifications</span></span></h2>
+      <p class="section-desc fade-up"><span class="lang-ko">현장에서 검증된 안정적인 하드웨어 + 소프트웨어</span><span class="lang-en">Reliable hardware + software, field-tested and proven</span></p>
       <div class="kiosk-specs-grid fade-up" style="--delay: 0.15s">
         <!-- LEFT: Image carousel (4fr) -->
         <div class="kiosk-specs-visual">
@@ -289,10 +301,10 @@
             </div>
             <div class="kiosk-specs-color-sel" id="specsColorSel">
               <button class="kiosk-specs-color-btn active" data-color="beige">
-                <span class="kiosk-color-swatch" style="background:#e8ddd0;"></span>베이지
+                <span class="kiosk-color-swatch" style="background:#e8ddd0;"></span><span class="lang-ko">베이지</span><span class="lang-en">Beige</span>
               </button>
               <button class="kiosk-specs-color-btn" data-color="gray">
-                <span class="kiosk-color-swatch" style="background:#4b5563;"></span>다크그레이
+                <span class="kiosk-color-swatch" style="background:#4b5563;"></span><span class="lang-ko">다크그레이</span><span class="lang-en">Dark Gray</span>
               </button>
             </div>
           </div>
@@ -300,36 +312,36 @@
         <!-- RIGHT: Specs table (7fr) -->
         <div class="kiosk-specs-table">
           <div class="kiosk-spec-row">
-            <span class="kiosk-spec-label">크기</span>
+            <span class="kiosk-spec-label"><span class="lang-ko">크기</span><span class="lang-en">Size</span></span>
             <span class="kiosk-spec-value">W40 × L45 × H174.5 cm</span>
           </div>
           <div class="kiosk-spec-row">
-            <span class="kiosk-spec-label">모니터</span>
-            <span class="kiosk-spec-value">27인치 터치스크린</span>
+            <span class="kiosk-spec-label"><span class="lang-ko">모니터</span><span class="lang-en">Monitor</span></span>
+            <span class="kiosk-spec-value"><span class="lang-ko">27인치 터치스크린</span><span class="lang-en">27" Touchscreen</span></span>
           </div>
           <div class="kiosk-spec-row">
-            <span class="kiosk-spec-label">전원</span>
+            <span class="kiosk-spec-label"><span class="lang-ko">전원</span><span class="lang-en">Power</span></span>
             <span class="kiosk-spec-value">220V / 70W</span>
           </div>
           <div class="kiosk-spec-row">
-            <span class="kiosk-spec-label">무게</span>
+            <span class="kiosk-spec-label"><span class="lang-ko">무게</span><span class="lang-en">Weight</span></span>
             <span class="kiosk-spec-value">80 kg</span>
           </div>
           <div class="kiosk-spec-row">
-            <span class="kiosk-spec-label">출력</span>
-            <span class="kiosk-spec-value">양면 컬러 인쇄</span>
+            <span class="kiosk-spec-label"><span class="lang-ko">출력</span><span class="lang-en">Print</span></span>
+            <span class="kiosk-spec-value"><span class="lang-ko">양면 컬러 인쇄</span><span class="lang-en">Duplex Full-Color Print</span></span>
           </div>
           <div class="kiosk-spec-row">
-            <span class="kiosk-spec-label">색상</span>
-            <span class="kiosk-spec-value">베이지 / 다크그레이</span>
+            <span class="kiosk-spec-label"><span class="lang-ko">색상</span><span class="lang-en">Color</span></span>
+            <span class="kiosk-spec-value"><span class="lang-ko">베이지 / 다크그레이</span><span class="lang-en">Beige / Dark Gray</span></span>
           </div>
           <div class="kiosk-spec-row">
             <span class="kiosk-spec-label">OS</span>
-            <span class="kiosk-spec-value">윈도우 기반 자체 개발 운영 프로세스</span>
+            <span class="kiosk-spec-value"><span class="lang-ko">윈도우 기반 자체 개발 운영 프로세스</span><span class="lang-en">Windows-based proprietary OS</span></span>
           </div>
           <div class="kiosk-spec-row">
-            <span class="kiosk-spec-label">구성품</span>
-            <span class="kiosk-spec-value">전원·인터넷 케이블, 이동 레일, QR 스캐너</span>
+            <span class="kiosk-spec-label"><span class="lang-ko">구성품</span><span class="lang-en">Includes</span></span>
+            <span class="kiosk-spec-value"><span class="lang-ko">전원·인터넷 케이블, 이동 레일, QR 스캐너</span><span class="lang-en">Power & internet cables, caster wheels, QR scanner</span></span>
           </div>
         </div>
       </div>
@@ -340,8 +352,8 @@
   <section class="section" id="gallery">
     <div class="container">
       <div class="section-label fade-up">IN ACTION</div>
-      <h2 class="section-title fade-up">현장에서 <span class="gradient-text">검증된 솔루션</span></h2>
-      <p class="section-desc fade-up">어떤 행사든, FAIRPASS 무인발권 키오스크로 첫인상부터 달라집니다.</p>
+      <h2 class="section-title fade-up"><span class="lang-ko">현장에서 <span class="gradient-text">검증된 솔루션</span></span><span class="lang-en">A Solution <span class="gradient-text">Proven in the Field</span></span></h2>
+      <p class="section-desc fade-up"><span class="lang-ko">어떤 행사든, FAIRPASS 무인발권 키오스크로 첫인상부터 달라집니다.</span><span class="lang-en" style="white-space:nowrap">Any event, any scale — the first impression changes the moment FAIRPASS Kiosk arrives.</span></p>
       <div class="kiosk-gallery-wrap fade-up" style="--delay: 0.2s;">
         <div class="kiosk-gallery-row">
           <button class="kiosk-gallery-arrow kiosk-gallery-arrow--prev" id="kioskGalleryPrev" aria-label="이전">
@@ -383,11 +395,11 @@
   <section class="section section--alt">
     <div class="container detail-cta">
       <p class="kiosk-cta-elevate fade-up">Elevate Every Event</p>
-      <h2 class="section-title fade-up">키오스크 도입, <span class="gradient-text">견적</span>부터</h2>
-      <p class="section-desc fade-up">상시로 설치 가능한 무인발권 키오스크, 대여·구매로 보다 유연하게 이용해보세요.</p>
+      <h2 class="section-title fade-up"><span class="lang-ko">키오스크 도입, <span class="gradient-text">견적</span>부터</span><span class="lang-en">Ready to deploy? Start with a <span class="gradient-text">quote.</span></span></h2>
+      <p class="section-desc fade-up"><span class="lang-ko">상시로 설치 가능한 무인발권 키오스크, 대여·구매로 보다 유연하게 이용해보세요.</span><span class="lang-en">Available for rental or purchase — flexible options for any event.</span></p>
       <div class="detail-cta-actions fade-up" style="--delay: 0.2s">
-        <button class="btn btn-primary btn-lg" id="kioskInquiryBtnCta">키오스크 도입 문의하기</button>
-        <a href="index.html#quote" class="btn btn-secondary btn-lg">1분 모의 견적</a>
+        <button class="btn btn-primary btn-lg" id="kioskInquiryBtnCta"><span class="lang-ko">키오스크 도입 문의하기</span><span class="lang-en">Inquire About Kiosk</span></button>
+        <a href="index.html#quote" class="btn btn-secondary btn-lg"><span class="lang-ko">1분 모의 견적</span><span class="lang-en">Quick Quote</span></a>
       </div>
     </div>
   </section>
@@ -399,7 +411,7 @@
       <!-- Top: BlueOrigin Logo + SNS -->
       <div class="footer-top">
         <a href="#" class="footer-logo-link" target="_blank" rel="noopener">
-          <img src="images/Blue origin(W).png" alt="Blue Origin" class="footer-logo-img">
+          <img src="images/BlueOrigin_logo_white.png" alt="Blue Origin" class="footer-logo-img">
         </a>
         <div class="footer-sns">
           <a href="#" class="footer-sns-link footer-sns-link--fp" aria-label="FAIRPASS">
@@ -419,8 +431,8 @@
 
       <!-- Nav links -->
       <nav class="footer-nav">
-        <a href="terms.html" class="footer-nav-link">이용약관</a>
-        <button type="button" class="footer-nav-link footer-nav-btn" id="brochureBtn">서비스 소개서</button>
+        <a href="terms.html" class="footer-nav-link"><span class="lang-ko">이용약관</span><span class="lang-en">Terms of Use</span></a>
+        <button type="button" class="footer-nav-link footer-nav-btn" id="brochureBtn"><span class="lang-ko">서비스 소개서</span><span class="lang-en">Brochure</span></button>
       </nav>
 
       <!-- 사업자 정보 -->
@@ -433,7 +445,7 @@
       <div class="footer-bottom">
         <span class="footer-copy">&copy; 2026 FAIRPASS. All rights reserved.</span>
         <button class="footer-info-btn" id="footerInfoBtn" type="button">
-          사업자 정보
+          <span class="lang-ko">사업자 정보</span><span class="lang-en">Business Info</span>
           <svg class="footer-info-chevron" id="footerInfoChevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </div>
@@ -455,7 +467,7 @@
       <form id="brochureForm">
         <label class="form-label">
           <span>성함 <span style="color:var(--cyan-light)">*</span></span>
-          <input type="text" name="name" class="form-input" placeholder="홍길동" required>
+          <input type="text" name="name" class="form-input" placeholder="홍길동" data-ph-ko="홍길동" data-ph-en="John Doe" required>
         </label>
         <label class="form-label">
           <span>소속 <span style="color:var(--cyan-light)">*</span></span>
@@ -774,7 +786,7 @@
       <form id="kioskInquiryForm">
         <label class="form-label">
           <span>성함 <span style="color:var(--cyan-light)">*</span></span>
-          <input type="text" name="name" class="form-input" placeholder="홍길동" required>
+          <input type="text" name="name" class="form-input" placeholder="홍길동" data-ph-ko="홍길동" data-ph-en="John Doe" required>
         </label>
         <label class="form-label">
           <span>회사명 <span style="color:var(--cyan-light)">*</span></span>

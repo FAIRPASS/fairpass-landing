@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>포트폴리오 DB 초기화</title>
+<style>
+body { font-family: sans-serif; max-width: 560px; margin: 80px auto; padding: 24px; background: #111; color: #eee; }
+h2 { margin-bottom: 8px; }
+p { color: #aaa; font-size: 14px; margin-bottom: 24px; }
+input { width: 100%; box-sizing: border-box; padding: 12px; margin-bottom: 12px; background: #222; border: 1px solid #444; color: #eee; border-radius: 8px; font-size: 15px; }
+button { width: 100%; padding: 14px; background: #7c3aed; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; }
+button:hover { background: #6d28d9; }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+#log { margin-top: 20px; background: #1a1a1a; padding: 16px; border-radius: 8px; font-size: 13px; line-height: 2; min-height: 60px; display: none; }
+.ok  { color: #34d399; display: block; }
+.err { color: #f87171; display: block; }
+.info{ color: #93c5fd; display: block; }
+</style>
+</head>
+<body>
+<h2>포트폴리오 DB 초기화</h2>
+<p>기존 중복 데이터를 모두 삭제하고 엑셀 기준 60개 항목(국영문)을 새로 입력합니다.</p>
+<input type="password" id="pw" placeholder="관리자 비밀번호">
+<button id="runBtn">초기화 실행</button>
+<div id="log"></div>
+<script>
+document.getElementById('runBtn').addEventListener('click', async function() {
+  var pw = document.getElementById('pw').value.trim();
+  if (!pw) { alert('비밀번호를 입력해주세요.'); return; }
+  var btn = document.getElementById('runBtn');
+  var logEl = document.getElementById('log');
+  logEl.style.display = 'block';
+  logEl.innerHTML = '';
+  btn.disabled = true;
+  function addLog(msg, cls) {
+    var s = document.createElement('span');
+    s.className = cls;
+    s.textContent = msg;
+    logEl.appendChild(s);
+  }
+  addLog('초기화 요청 중...', 'info');
+  try {
+    var res = await fetch('/api/seed-portfolio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    var data = await res.json();
+    if (data.ok) {
+      addLog('완료! ' + data.count + '개 항목이 DB에 저장되었습니다.', 'ok');
+      addLog('포트폴리오 페이지에서 확인하세요.', 'ok');
+    } else {
+      addLog('오류: ' + (data.error || JSON.stringify(data)), 'err');
+    }
+  } catch(e) {
+    addLog('네트워크 오류: ' + e.message, 'err');
+  }
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>

@@ -1,1 +1,8 @@
-{}
+{
+  "redirects": [
+    { "source": "/en", "destination": "/?lang=en", "permanent": false },
+    { "source": "/en/(.*)", "destination": "/$1?lang=en", "permanent": false },
+    { "source": "/ko", "destination": "/?lang=ko", "permanent": false },
+    { "source": "/ko/(.*)", "destination": "/$1?lang=ko", "permanent": false }
+  ]
+}

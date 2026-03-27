@@ -495,7 +495,12 @@
       $("#sumTotal").textContent = formatKRW(res.total);
     }
 
+    var _quoteStarted = false;
     quoteForm.addEventListener("input", () => {
+      if (!_quoteStarted) {
+        _quoteStarted = true;
+        if (typeof gtag === 'function') gtag('event', 'quote_start', { event_category: 'engagement', event_label: '모의견적 입력 시작' });
+      }
       render();
     });
     quoteForm.addEventListener("change", () => {
@@ -719,6 +724,7 @@
     if (emailBtn) {
       emailBtn.addEventListener("click", function () {
         if (!checkConsent()) return;
+        if (typeof gtag === 'function') gtag('event', 'quote_email_click', { event_category: 'conversion', event_label: '견적서 이메일 받기 클릭' });
         resetEmailModal();
         openEmailModal();
       });
@@ -763,6 +769,7 @@
           });
 
           if (res.ok) {
+            if (typeof gtag === 'function') gtag('event', 'quote_submit', { event_category: 'conversion', event_label: '견적서 발송 성공' });
             emailForm.style.display = "none";
             emailSuccess.style.display = "";
             setTimeout(closeEmailModal, 2500);
@@ -1026,6 +1033,7 @@
   if (!btn || !modal) return;
 
   btn.addEventListener('click', function() {
+    if (typeof gtag === 'function') gtag('event', 'brochure_open', { event_category: 'engagement', event_label: '소개서 모달 열기' });
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
   });
@@ -1061,6 +1069,7 @@
     .then(function(res) { return res.json(); })
     .then(function(json) {
       if (json.success) {
+        if (typeof gtag === 'function') gtag('event', 'brochure_submit', { event_category: 'conversion', event_label: '소개서 발송 성공' });
         form.style.display = 'none';
         success.style.display = 'flex';
       } else {
@@ -1077,6 +1086,103 @@
   });
 })();
 
+// EN Waitlist Modal
+(function() {
+  var btn = document.getElementById('enWaitlistBtn');
+  var modal = document.getElementById('enWaitlistModal');
+  var closeBtn = document.getElementById('enWaitlistModalClose');
+  var form = document.getElementById('enWaitlistForm');
+  var success = document.getElementById('enWaitlistSuccess');
+  if (!btn || !modal) return;
+
+  btn.addEventListener('click', function() {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  });
+  function closeModal() {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var consent = document.getElementById('enWaitlistConsent');
+    if (!consent || !consent.checked) {
+      alert('Please agree to the collection and use of personal information.');
+      return;
+    }
+    var submitBtn = document.getElementById('enWaitlistSubmitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    var data = {
+      email: form.email.value.trim(),
+      company: form.company.value.trim(),
+      timestamp: new Date().toISOString()
+    };
+    fetch('/api/en-waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(json) {
+      if (json.success) {
+        form.style.display = 'none';
+        success.style.display = 'flex';
+      } else {
+        alert('Something went wrong. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send inquiry';
+      }
+    })
+    .catch(function() {
+      alert('Something went wrong. Please try again.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send inquiry';
+    });
+  });
+})();
+
+// Language switcher
+window.setLang = function(l) {
+  localStorage.setItem('preferredLang', l);
+  document.documentElement.setAttribute('data-lang', l);
+  var enTitle = document.querySelector('meta[name="title-en"]');
+  if (enTitle) {
+    var koTitle = document.querySelector('meta[name="title-ko"]');
+    document.title = (l === 'en') ? enTitle.getAttribute('content') : (koTitle ? koTitle.getAttribute('content') : document.title);
+  }
+  document.querySelectorAll('.nav-lang-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === l);
+  });
+  document.querySelectorAll('[data-ph-ko]').forEach(function(el) {
+    el.placeholder = l === 'en' ? (el.getAttribute('data-ph-en') || el.placeholder) : el.getAttribute('data-ph-ko');
+  });
+};
+(function() {
+  var urlLang = new URLSearchParams(window.location.search).get('lang');
+  if (urlLang === 'en' || urlLang === 'ko') { localStorage.setItem('preferredLang', urlLang); }
+  var lang = localStorage.getItem('preferredLang') ||
+             (navigator.language.startsWith('ko') ? 'ko' : 'en');
+  document.documentElement.setAttribute('data-lang', lang);
+  var _enTitle = document.querySelector('meta[name="title-en"]');
+  var _koTitle = document.querySelector('meta[name="title-ko"]');
+  if (_enTitle && lang === 'en') document.title = _enTitle.getAttribute('content');
+  else if (_koTitle && lang === 'ko') document.title = _koTitle.getAttribute('content');
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.nav-lang-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+    });
+    if (lang === 'en') {
+      document.querySelectorAll('[data-ph-ko]').forEach(function(el) {
+        el.placeholder = el.getAttribute('data-ph-en') || el.placeholder;
+      });
+    }
+  });
+})();
+
 // Footer company info accordion
 (function() {
   const btn = document.getElementById('footerInfoBtn');
@@ -1086,5 +1192,24 @@
   btn.addEventListener('click', function() {
     info.classList.toggle('open');
     chevron.classList.toggle('open');
+  });
+})();
+
+// ── GA4 CTA 이벤트 ──
+(function() {
+  if (typeof gtag !== 'function') return;
+  document.addEventListener('DOMContentLoaded', function() {
+    // 무료로 시작하기
+    document.querySelectorAll('a[href*="admin.fairpass.co.kr/Join"], a[href*="admin.fairpass.co.kr/Login"]').forEach(function(el) {
+      el.addEventListener('click', function() {
+        gtag('event', 'cta_signup_click', { event_category: 'conversion', event_label: el.textContent.trim() });
+      });
+    });
+    // 1분 모의 견적 버튼
+    document.querySelectorAll('a[href="#quote"]').forEach(function(el) {
+      el.addEventListener('click', function() {
+        gtag('event', 'cta_quote_click', { event_category: 'engagement', event_label: '모의견적 버튼 클릭' });
+      });
+    });
   });
 })();
