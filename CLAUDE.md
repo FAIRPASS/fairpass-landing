@@ -2,7 +2,7 @@
 
 ## 배포
 - 수정 후 반드시 즉시 배포: `vercel --prod`
-- URL: https://fairpass-landing.vercel.app
+- URL: https://fairpass.world
 
 ## 필수 규칙
 - 사용자가 요청한 것만 수정할 것
