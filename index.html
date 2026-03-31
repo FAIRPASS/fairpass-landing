@@ -25,6 +25,72 @@
   <link rel="alternate" hreflang="ko" href="https://fairpass.world/" />
   <link rel="alternate" hreflang="en" href="https://fairpass.world/" />
   <link rel="canonical" href="https://fairpass.world/" />
+
+  <!-- Open Graph / SNS 공유 -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://fairpass.world/" />
+  <meta property="og:site_name" content="FAIRPASS" />
+  <meta property="og:title" content="FAIRPASS — 지속가능한 친환경 행사 운영" />
+  <meta property="og:description" content="등록, 체크인, 명찰, 통계까지. 행사 운영을 하나의 시스템으로 통합합니다. 친환경 종이 명찰·키오스크·플랫폼을 한 번에." />
+  <meta property="og:image" content="https://fairpass.world/images/hero_image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="ko_KR" />
+  <meta property="og:locale:alternate" content="en_US" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="FAIRPASS — 지속가능한 친환경 행사 운영" />
+  <meta name="twitter:description" content="등록, 체크인, 명찰, 통계까지. 행사 운영을 하나의 시스템으로 통합합니다." />
+  <meta name="twitter:image" content="https://fairpass.world/images/hero_image.png" />
+
+  <!-- Schema.org 구조화 데이터 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://fairpass.world/#organization",
+        "name": "FAIRPASS",
+        "url": "https://fairpass.world",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://fairpass.world/images/FAIRPASS.png"
+        },
+        "description": "행사 등록·체크인·친환경 명찰·무인발권 키오스크를 하나의 시스템으로 통합하는 행사 운영 솔루션",
+        "email": "fairpass@fairpass.world",
+        "areaServed": ["KR", "SG"],
+        "knowsLanguage": ["ko", "en"],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "fairpass@fairpass.world",
+          "contactType": "customer service",
+          "availableLanguage": ["Korean", "English"]
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://fairpass.world/#website",
+        "url": "https://fairpass.world",
+        "name": "FAIRPASS",
+        "publisher": { "@id": "https://fairpass.world/#organization" },
+        "inLanguage": ["ko", "en"]
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://fairpass.world/#webpage",
+        "url": "https://fairpass.world",
+        "name": "FAIRPASS — 지속가능한 친환경 행사 운영",
+        "description": "등록, 체크인, 명찰, 통계까지. 행사 운영을 하나의 시스템으로 통합합니다.",
+        "isPartOf": { "@id": "https://fairpass.world/#website" },
+        "about": { "@id": "https://fairpass.world/#organization" },
+        "inLanguage": ["ko", "en"]
+      }
+    ]
+  }
+  </script>
+
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
   <link rel="stylesheet" href="css/style.css">
