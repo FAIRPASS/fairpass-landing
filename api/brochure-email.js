@@ -6,18 +6,49 @@
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
 
+const ALLOWED_ORIGINS = [
+  "https://fairpass.world",
+  "https://www.fairpass.world",
+  "https://fairpass.co.kr",
+  "https://www.fairpass.co.kr",
+];
+
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const origin = req.headers.origin;
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+  res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    const { name, company, position, email, timestamp } = req.body;
+    const { name, company, position, email, timestamp, website, turnstileToken } = req.body;
+
+    // Honeypot: 봇은 hidden 필드를 채움
+    if (website) return res.status(200).json({ success: true });
 
     if (!email || !name) {
       return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Cloudflare Turnstile 검증
+    if (!turnstileToken) {
+      return res.status(400).json({ error: "Missing verification token" });
+    }
+    const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v1/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        secret: process.env.TURNSTILE_SECRET_KEY,
+        response: turnstileToken,
+        remoteip: req.headers["x-forwarded-for"] || req.socket?.remoteAddress,
+      }),
+    });
+    const verifyData = await verifyRes.json();
+    if (!verifyData.success) {
+      return res.status(403).json({ error: "Bot verification failed" });
     }
 
     // DB 저장

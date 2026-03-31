@@ -755,6 +755,8 @@
           quoteText: buildExportText(quoteData),
           quoteTotal: formatKRW(quoteData.total),
           timestamp: new Date().toISOString(),
+          website: formData.get("website") || "",
+          turnstileToken: formData.get("cf-turnstile-response") || "",
         };
 
         var submitBtn = $("#emailSubmitBtn");
@@ -1059,7 +1061,9 @@
       company: form.company.value.trim(),
       position: form.position.value.trim(),
       email: form.email.value.trim(),
-      timestamp: new Date().toLocaleString('ko-KR')
+      timestamp: new Date().toLocaleString('ko-KR'),
+      website: (form.website ? form.website.value : "") || "",
+      turnstileToken: (form.querySelector('[name="cf-turnstile-response"]') ? form.querySelector('[name="cf-turnstile-response"]').value : "") || "",
     };
     fetch('/api/brochure-email', {
       method: 'POST',

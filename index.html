@@ -18,9 +18,14 @@
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="images/FAIRPASS_APP.png" type="image/png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="alternate" hreflang="x-default" href="https://fairpass.world/" />
+  <link rel="alternate" hreflang="ko" href="https://fairpass.world/" />
+  <link rel="alternate" hreflang="en" href="https://fairpass.world/" />
+  <link rel="canonical" href="https://fairpass.world/" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://challenges.cloudflare.com/turnstile/v1/api.js" async defer></script>
 </head>
 <body>
 
@@ -891,6 +896,8 @@
       <h3 class="modal-title">서비스 소개서 요청</h3>
       <p class="modal-desc">아래 정보를 입력하시면 서비스 소개서가 자동 발송됩니다.</p>
       <form id="brochureForm">
+        <!-- 봇 차단용 honeypot -->
+        <input type="text" name="website" style="display:none;visibility:hidden;" tabindex="-1" autocomplete="off" aria-hidden="true">
         <label class="form-label">
           <span>성함 <span style="color:var(--cyan-light)">*</span></span>
           <input type="text" name="name" class="form-input" placeholder="홍길동" data-ph-ko="홍길동" data-ph-en="John Doe" required>
@@ -911,6 +918,7 @@
           <input type="checkbox" id="brochureConsent" style="margin-top:3px;flex-shrink:0;accent-color:var(--cyan-light);" required>
           <span style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.6;">소개서 발송을 위한 <strong style="color:var(--text);">개인정보 수집·이용</strong>에 동의합니다. <span style="color:var(--cyan-light)">*</span></span>
         </label>
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAACyOcW8tfusEzahN" data-theme="dark" style="margin-bottom:12px;"></div>
         <button type="submit" class="btn btn-primary btn-full" id="brochureSubmitBtn">소개서 요청하기</button>
       </form>
       <div class="email-success" id="brochureSuccess" style="display:none;">
@@ -927,10 +935,13 @@
       <h3 class="modal-title">모의 견적서 이메일 발송</h3>
       <p class="modal-desc">견적서를 받을 이메일 주소를 입력해주세요.</p>
       <form id="emailForm">
+        <!-- 봇 차단용 honeypot -->
+        <input type="text" name="website" style="display:none;visibility:hidden;" tabindex="-1" autocomplete="off" aria-hidden="true">
         <label class="form-label">
           <span>이메일</span>
           <input type="email" name="email" class="form-input" placeholder="example@company.com" required>
         </label>
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAACyOcW8tfusEzahN" data-theme="dark" style="margin-bottom:12px;"></div>
         <button type="submit" class="btn btn-primary btn-full" id="emailSubmitBtn">발송하기</button>
       </form>
       <div class="email-success" id="emailSuccess" style="display:none;">
