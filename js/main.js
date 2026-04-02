@@ -1164,6 +1164,13 @@ window.setLang = function(l) {
     var koTitle = document.querySelector('meta[name="title-ko"]');
     document.title = (l === 'en') ? enTitle.getAttribute('content') : (koTitle ? koTitle.getAttribute('content') : document.title);
   }
+  var descMeta = document.querySelector('meta[name="description"]');
+  if (descMeta) {
+    var enDesc = document.querySelector('meta[name="description-en"]');
+    var koDesc = document.querySelector('meta[name="description-ko"]');
+    if (l === 'en' && enDesc) descMeta.setAttribute('content', enDesc.getAttribute('content'));
+    else if (l === 'ko' && koDesc) descMeta.setAttribute('content', koDesc.getAttribute('content'));
+  }
   document.querySelectorAll('.nav-lang-btn').forEach(function(btn) {
     btn.classList.toggle('active', btn.getAttribute('data-lang') === l);
   });

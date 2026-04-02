@@ -4,5 +4,11 @@
     { "source": "/en/(.*)", "destination": "/$1?lang=en", "permanent": false },
     { "source": "/ko", "destination": "/?lang=ko", "permanent": false },
     { "source": "/ko/(.*)", "destination": "/$1?lang=ko", "permanent": false }
+  ],
+  "crons": [
+    {
+      "path": "/api/followup-cron",
+      "schedule": "0 1 * * *"
+    }
   ]
 }
