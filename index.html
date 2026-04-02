@@ -53,15 +53,23 @@
         "@type": "Organization",
         "@id": "https://fairpass.world/#organization",
         "name": "FAIRPASS",
+        "alternateName": "페어패스",
         "url": "https://fairpass.world",
         "logo": {
           "@type": "ImageObject",
           "url": "https://fairpass.world/images/FAIRPASS.png"
         },
-        "description": "행사 등록·체크인·친환경 명찰·무인발권 키오스크를 하나의 시스템으로 통합하는 행사 운영 솔루션",
+        "description": "행사 등록·체크인·친환경 명찰·무인발권 키오스크를 하나의 시스템으로 통합하는 행사 운영 솔루션. Event registration, check-in, eco-friendly badge printing, and self-service kiosk platform for events in Korea and Singapore.",
         "email": "fairpass@fairpass.world",
         "areaServed": ["KR", "SG"],
         "knowsLanguage": ["ko", "en"],
+        "foundingDate": "2020",
+        "sameAs": [
+          "https://www.linkedin.com/company/fairpass",
+          "https://www.instagram.com/fairpass.world/",
+          "https://blog.naver.com/blueorigin_cs",
+          "https://www.instagram.com/fairpass_official"
+        ],
         "contactPoint": {
           "@type": "ContactPoint",
           "email": "fairpass@fairpass.world",
@@ -86,6 +94,60 @@
         "isPartOf": { "@id": "https://fairpass.world/#website" },
         "about": { "@id": "https://fairpass.world/#organization" },
         "inLanguage": ["ko", "en"]
+      },
+      {
+        "@type": "Service",
+        "@id": "https://fairpass.world/platform.html#service",
+        "name": "FAIRPASS 행사 등록 플랫폼",
+        "alternateName": "FAIRPASS Registration Platform",
+        "provider": { "@id": "https://fairpass.world/#organization" },
+        "url": "https://fairpass.world/platform.html",
+        "description": "온라인 행사 등록, 참가자 DB 관리, 자동 안내 발송, 실시간 통계까지 하나의 SaaS에서 운영. 무료로 시작 가능.",
+        "serviceType": "Event Registration Software",
+        "areaServed": ["KR", "SG"],
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "KRW",
+          "price": "0",
+          "description": "기본 기능 무료 제공. 유료 행사 결제 및 키오스크는 별도 견적."
+        }
+      },
+      {
+        "@type": "Service",
+        "@id": "https://fairpass.world/kiosk.html#service",
+        "name": "FAIRPASS 무인발권 키오스크",
+        "alternateName": "FAIRPASS Self-Service Kiosk",
+        "provider": { "@id": "https://fairpass.world/#organization" },
+        "url": "https://fairpass.world/kiosk.html",
+        "description": "QR 코드로 10~14초 안에 현장 체크인 및 즉석 명찰 출력. 대여/구매 모두 가능한 무인 행사 운영 키오스크.",
+        "serviceType": "Event Check-in Kiosk",
+        "areaServed": ["KR", "SG"]
+      },
+      {
+        "@type": "Service",
+        "@id": "https://fairpass.world/badge.html#service",
+        "name": "FAIRPASS 종이명찰",
+        "alternateName": "FAIRPASS All-Paper Badge",
+        "provider": { "@id": "https://fairpass.world/#organization" },
+        "url": "https://fairpass.world/badge.html",
+        "description": "내지·커넥터·목걸이줄 전체 종이 소재. FSC 인증 용지 사용. 행사 후 통째로 종이 분리수거 가능한 국내 최초 All-Paper 명찰.",
+        "serviceType": "Eco-friendly Event Badge",
+        "areaServed": ["KR", "SG"]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://fairpass.world/#faq",
+        "mainEntity": [
+          {"@type":"Question","name":"FAIRPASS는 어떤 서비스인가요?","acceptedAnswer":{"@type":"Answer","text":"FAIRPASS는 온라인 행사 등록, 현장 QR 체크인, 즉석 명찰 출력, 참가자 데이터 관리까지 하나로 연결하는 행사 운영 플랫폼입니다. 등록 플랫폼, 무인 체크인 키오스크, 100% 종이명찰을 필요에 따라 단독 또는 통합으로 사용할 수 있습니다."}},
+          {"@type":"Question","name":"What is FAIRPASS?","acceptedAnswer":{"@type":"Answer","text":"FAIRPASS is an event operations platform that connects online registration, on-site QR check-in, instant badge printing, and attendee data management in one system. Available in Korea and Singapore."}},
+          {"@type":"Question","name":"FAIRPASS는 어떤 행사에 적합한가요?","acceptedAnswer":{"@type":"Answer","text":"기업행사, 컨퍼런스, 전시회, 세미나, 포럼, 학술대회, 채용박람회, 주주총회 등 참가자 등록과 현장 체크인이 필요한 모든 행사에 이용 가능합니다."}},
+          {"@type":"Question","name":"가격은 어떻게 정해지나요?","acceptedAnswer":{"@type":"Answer","text":"FAIRPASS 비용은 행사 규모, 운영 기간, 등록 플랫폼 사용 범위, 키오스크 수량, 명찰 구성 등에 따라 달라집니다. 무료 계정으로 시작할 수 있으며, 모의 견적을 통해 맞춤 제안을 받을 수 있습니다."}},
+          {"@type":"Question","name":"How is FAIRPASS priced?","acceptedAnswer":{"@type":"Answer","text":"FAIRPASS offers a free account to get started. Pricing for paid events, kiosks, and badges depends on event size, duration, and configuration. Request a quick quote on the website."}},
+          {"@type":"Question","name":"키오스크는 구매인가요, 대여인가요?","acceptedAnswer":{"@type":"Answer","text":"FAIRPASS 키오스크는 구매와 대여 모두 가능합니다. 단발성 행사에는 대여를, 상설 운영이나 정기적으로 행사를 진행하는 기관에는 구매를 추천드립니다."}},
+          {"@type":"Question","name":"FAIRPASS 종이명찰은 정말 플라스틱이 없나요?","acceptedAnswer":{"@type":"Answer","text":"FAIRPASS의 종이명찰은 내지, 커넥터, 목걸이줄까지 종이 소재로 구성된 All-Paper Badge 옵션을 제공합니다. FSC 인증 용지를 사용하며, 행사 후 통째로 종이 분리수거가 가능합니다."}},
+          {"@type":"Question","name":"싱가포르에서도 서비스를 받을 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"네, FAIRPASS는 싱가포르 법인을 운영 중입니다. 현지 행사 지원 및 상담이 가능합니다."}},
+          {"@type":"Question","name":"Can FAIRPASS be used for events in Singapore?","acceptedAnswer":{"@type":"Answer","text":"Yes. FAIRPASS operates a Singapore entity and supports international events with English platform UI, multilingual registration pages, and international payment via Eximbay."}}
+        ]
       }
     ]
   }
