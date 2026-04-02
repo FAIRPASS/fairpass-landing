@@ -25,6 +25,7 @@ export default async function handler(req, res) {
 
   try {
     const { name, company, position, email, timestamp, website, turnstileToken } = req.body;
+    const ip = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket?.remoteAddress || "unknown";
 
     // Honeypot: 봇은 hidden 필드를 채움
     if (website) return res.status(200).json({ success: true });
@@ -51,18 +52,44 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: "Bot verification failed" });
     }
 
+    // 최소 제출 시간 검증 (5초 미만 = 봇 속도)
+    if (timestamp) {
+      const elapsed = Date.now() - new Date(timestamp).getTime();
+      if (elapsed < 5000) {
+        return res.status(200).json({ success: true });
+      }
+    }
+
+    // Supabase 클라이언트
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SECRET_KEY
+    );
+
+    // IP 기반 Rate Limiting (10분간 3회 초과 시 차단)
+    try {
+      const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+      const { count } = await supabase
+        .from("inquiries")
+        .select("*", { count: "exact", head: true })
+        .eq("ip", ip)
+        .gte("created_at", tenMinutesAgo);
+      if (count >= 3) {
+        return res.status(200).json({ success: true });
+      }
+    } catch (rateLimitErr) {
+      console.error("Rate limit check:", rateLimitErr);
+    }
+
     // DB 저장
     try {
-      const supabase = createClient(
-        process.env.SUPABASE_URL,
-        process.env.SUPABASE_SECRET_KEY
-      );
       await supabase.from("inquiries").insert({
         type: "brochure",
         name: name || "",
         company: company || "",
         position: position || "",
         email: email || "",
+        ip: ip,
       });
     } catch (dbErr) {
       console.error("DB save error:", dbErr);

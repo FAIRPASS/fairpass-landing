@@ -725,6 +725,7 @@
       emailBtn.addEventListener("click", function () {
         if (!checkConsent()) return;
         if (typeof gtag === 'function') gtag('event', 'quote_email_click', { event_category: 'conversion', event_label: '견적서 이메일 받기 클릭' });
+        window._quoteEmailModalOpenTime = new Date().toISOString();
         resetEmailModal();
         openEmailModal();
       });
@@ -754,7 +755,7 @@
           email: formData.get("email"),
           quoteText: buildExportText(quoteData),
           quoteTotal: formatKRW(quoteData.total),
-          timestamp: new Date().toISOString(),
+          timestamp: window._quoteEmailModalOpenTime || new Date().toISOString(),
           website: formData.get("website") || "",
           turnstileToken: formData.get("cf-turnstile-response") || "",
         };
@@ -1036,6 +1037,7 @@
 
   btn.addEventListener('click', function() {
     if (typeof gtag === 'function') gtag('event', 'brochure_open', { event_category: 'engagement', event_label: '소개서 모달 열기' });
+    window._brochureModalOpenTime = new Date().toISOString();
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
   });
@@ -1061,7 +1063,7 @@
       company: form.company.value.trim(),
       position: form.position.value.trim(),
       email: form.email.value.trim(),
-      timestamp: new Date().toLocaleString('ko-KR'),
+      timestamp: window._brochureModalOpenTime || new Date().toISOString(),
       website: (form.website ? form.website.value : "") || "",
       turnstileToken: (form.querySelector('[name="cf-turnstile-response"]') ? form.querySelector('[name="cf-turnstile-response"]').value : "") || "",
     };
@@ -1120,10 +1122,14 @@
     var submitBtn = document.getElementById('enWaitlistSubmitBtn');
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending...';
+    var turnstileEl = form.querySelector('[name="cf-turnstile-response"]');
+    var turnstileToken = turnstileEl ? turnstileEl.value : '';
     var data = {
       email: form.email.value.trim(),
       company: form.company.value.trim(),
-      timestamp: new Date().toISOString()
+      website: form.website ? form.website.value : '',
+      timestamp: new Date().toISOString(),
+      turnstileToken: turnstileToken
     };
     fetch('/api/en-waitlist', {
       method: 'POST',
@@ -1164,6 +1170,13 @@ window.setLang = function(l) {
   document.querySelectorAll('[data-ph-ko]').forEach(function(el) {
     el.placeholder = l === 'en' ? (el.getAttribute('data-ph-en') || el.placeholder) : el.getAttribute('data-ph-ko');
   });
+  document.querySelectorAll('video.lang-video').forEach(function(vid) {
+    var newSrc = l === 'en' ? vid.getAttribute('data-src-en') : vid.getAttribute('data-src-ko');
+    if (newSrc && vid.getAttribute('src') !== newSrc) {
+      vid.src = newSrc;
+      vid.load();
+    }
+  });
 };
 (function() {
   var urlLang = new URLSearchParams(window.location.search).get('lang');
@@ -1182,6 +1195,13 @@ window.setLang = function(l) {
     if (lang === 'en') {
       document.querySelectorAll('[data-ph-ko]').forEach(function(el) {
         el.placeholder = el.getAttribute('data-ph-en') || el.placeholder;
+      });
+      document.querySelectorAll('video.lang-video').forEach(function(vid) {
+        var newSrc = vid.getAttribute('data-src-en');
+        if (newSrc && vid.getAttribute('src') !== newSrc) {
+          vid.src = newSrc;
+          vid.load();
+        }
       });
     }
   });

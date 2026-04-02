@@ -141,6 +141,7 @@
         <a href="#differentiators" class="nav-link"><span class="lang-ko">차별점</span><span class="lang-en">Why Us</span></a>
         <a href="#values" class="nav-link"><span class="lang-ko">우리의 가치</span><span class="lang-en">Our Values</span></a>
         <a href="portfolio.html" class="nav-link"><span class="lang-ko">포트폴리오</span><span class="lang-en">Portfolio</span></a>
+        <a href="faq.html" class="nav-link">FAQ</a>
         <a href="#quote" class="nav-link en-hide"><span class="lang-ko">모의 견적</span><span class="lang-en">Get a Quote</span></a>
         <div class="nav-lang-toggle">
           <button class="nav-lang-btn active" data-lang="ko" onclick="setLang('ko')">KO</button>
@@ -868,10 +869,13 @@
           <span>Company</span>
           <input type="text" name="company" class="form-input" placeholder="Your company or organization">
         </label>
+        <!-- 봇 차단용 honeypot -->
+        <input type="text" name="website" style="display:none;visibility:hidden;" tabindex="-1" autocomplete="off" aria-hidden="true">
         <label style="display:flex;align-items:flex-start;gap:10px;margin:12px 0 16px;cursor:pointer;">
           <input type="checkbox" id="enWaitlistConsent" style="margin-top:3px;flex-shrink:0;accent-color:var(--cyan-light);" required>
           <span style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.6;">I agree to the <strong style="color:var(--text);">collection and use of my personal information</strong> for the purpose of inquiry response. <span style="color:var(--cyan-light)">*</span></span>
         </label>
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAACyOcW8tfusEzahN" data-theme="dark" style="margin-bottom:12px;"></div>
         <button type="submit" class="btn btn-primary btn-full" id="enWaitlistSubmitBtn">Send inquiry</button>
       </form>
       <div class="email-success" id="enWaitlistSuccess" style="display:none;">
