@@ -1,0 +1,53 @@
+# FAIRPASS
+
+> FAIRPASS is a B2B event management platform that integrates online registration, on-site QR check-in, instant badge printing, and attendee data management into a single system. Headquartered in Korea with operations in Singapore.
+
+## What FAIRPASS Does
+
+FAIRPASS provides three core products for event organizers:
+
+- **Registration Platform (SaaS)**: Custom registration forms, payment processing, attendee statistics, automated notifications — all in one platform.
+- **Self-Service Kiosk (Hardware)**: QR-based check-in, on-demand badge printing, sponsor ad display — fully automated, no staff required.
+- **Paper Badge (Eco Product)**: Korea's first 100% all-paper badge. Zero plastic. FSC-certified. Biodegradable. Patent-registered.
+
+## Key Facts
+
+- 800+ client organizations across Korea and internationally
+- 1,700+ events managed
+- Clients include: LG Electronics, Hyundai Motor Company, Samsung Life Insurance, POSCO, ADB, APEC, UNWTO, Seoul National University, Yonsei University, Korea University, COEX, BEXCO, Korea Tourism Organization
+- Client categories: corporations, government & public institutions, PCO/event planning agencies, universities & academic societies, international organizations
+- 6,840 kg+ of plastic reduced through paper badge adoption
+- Equivalent to planting 1,240+ trees (CO₂ absorption basis)
+- 2 eco-technology patents registered
+- 100% FSC-certified paper used
+
+## Services
+
+### Registration Platform
+Custom online registration for events of any size. Features: form builder, payment gateway integration, real-time attendee dashboard, automated email/SMS notifications, QR code generation.
+
+### Self-Service Kiosk
+On-site hardware kiosk for events. Attendees scan QR code → badge prints instantly. Eliminates registration queues. Supports sponsor branding display.
+
+### Paper Badge (페패 / FAIRPASS Badge)
+All-paper name badge system — lanyard, connector, and inner card all made from paper. Water-resistant. Fully recyclable as paper after the event. Available for purchase individually via Naver Smart Store.
+
+## Coverage
+
+- Primary market: Korea (Seoul, Busan, Incheon, nationwide)
+- International: Singapore (incorporated), global events support
+- Event types: conferences, academic congresses, AGMs, trade fairs, forums, seminars, product launches, government ceremonies
+
+## Contact & Links
+
+- Website: https://fairpass.world
+- Registration Platform: https://fairpass.world/platform.html
+- Kiosk: https://fairpass.world/kiosk.html
+- Paper Badge: https://fairpass.world/badge.html
+- Portfolio: https://fairpass.world/portfolio.html
+- Smart Store (badge purchase): https://smartstore.naver.com/bluemoon_livestudio
+
+## Optional
+
+- For media, partnership, and enterprise inquiries: contact form available at https://fairpass.world
+- Quote requests and brochure downloads available on the main site
