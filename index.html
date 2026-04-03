@@ -623,6 +623,170 @@
     </div>
   </section>
 
+  <!-- ===================== 8. OUR CLIENTS ===================== -->
+  <section id="clients" class="section">
+    <div class="container">
+      <div class="section-label fade-up">OUR CLIENTS</div>
+      <h2 class="clients-title fade-up">
+        <span class="lang-ko">다양한 분야의 <span class="kw-blue">800개</span> 고객사들과<br>1,700개 이상의 행사를 함께했습니다</span>
+        <span class="lang-en">Partnered with <span class="kw-blue">800+</span> clients across every industry,<br>through 1,700+ events together</span>
+      </h2>
+      <p class="clients-sub fade-up">
+        <span class="lang-ko">컨퍼런스, 학술대회, 총회, 박람회, 포럼, 세미나 — 어떤 행사든</span>
+        <span class="lang-en">Conferences, academic forums, AGMs, exhibitions, summits, seminars — any event</span>
+      </p>
+
+      <div class="clients-tab-bar fade-up">
+        <button class="clients-tab active" onclick="clientFilter('all',this)">
+          <span class="lang-ko">전체</span><span class="lang-en">All</span>
+        </button>
+        <button class="clients-tab" onclick="clientFilter('pco',this)">
+          <span class="lang-ko">PCO · 기획사</span><span class="lang-en">PCO · Planners</span>
+        </button>
+        <button class="clients-tab" onclick="clientFilter('corp',this)">
+          <span class="lang-ko">기업</span><span class="lang-en">Corporate</span>
+        </button>
+        <button class="clients-tab" onclick="clientFilter('gov',this)">
+          <span class="lang-ko">정부 · 공공</span><span class="lang-en">Government</span>
+        </button>
+        <button class="clients-tab" onclick="clientFilter('edu',this)">
+          <span class="lang-ko">대학 · 학회</span><span class="lang-en">Academia</span>
+        </button>
+        <button class="clients-tab" onclick="clientFilter('intl',this)">
+          <span class="lang-ko">국제기구</span><span class="lang-en">International</span>
+        </button>
+      </div>
+
+      <div class="clients-grid-outer fade-up">
+        <div class="clients-grid collapsed" id="clientsGrid"></div>
+        <div class="clients-fade-mask" id="clientsMask"></div>
+      </div>
+
+      <div class="clients-expand-row">
+        <button class="clients-expand-btn" onclick="clientsToggle()">
+          <span class="clients-btn-ko lang-ko">더 보기</span>
+          <span class="clients-btn-en lang-en">Show more</span>
+          <span class="clients-arrow" id="clientsArrow">▼</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+  (function() {
+    var clientsList = [
+      { name: 'LG전자', cat: 'corp' },
+      { name: '삼성생명', cat: 'corp' },
+      { name: 'LG CNS', cat: 'corp' },
+      { name: 'BC카드', cat: 'corp' },
+      { name: '삼성화재', cat: 'corp' },
+      { name: '삼성자산운용', cat: 'corp' },
+      { name: '밀본코리아', cat: 'corp' },
+      { name: '마이다스아이티', cat: 'corp' },
+      { name: 'TÜV Rheinland', cat: 'corp' },
+      { name: '현대자동차', cat: 'corp' },
+      { name: 'KT', cat: 'corp' },
+      { name: '래어달 메디컬', cat: 'corp' },
+      { name: '코엑스', cat: 'gov' },
+      { name: '수원시청', cat: 'gov' },
+      { name: '한국관광공사', cat: 'gov' },
+      { name: '인천광역시교육청', cat: 'gov' },
+      { name: '한국탄소산업진흥원', cat: 'gov' },
+      { name: '농촌경제연구원', cat: 'gov' },
+      { name: '벡스코', cat: 'gov' },
+      { name: '아산나눔재단', cat: 'gov' },
+      { name: '엠앤씨커뮤니케이션즈', cat: 'pco' },
+      { name: '멥스인터내셔널', cat: 'pco' },
+      { name: '탑플래너스', cat: 'pco' },
+      { name: '위드바톤', cat: 'pco' },
+      { name: '더클라우드', cat: 'pco' },
+      { name: 'MW 네트웍스', cat: 'pco' },
+      { name: '플랜두씨', cat: 'pco' },
+      { name: '닷플래너', cat: 'pco' },
+      { name: 'CPMG Corea', cat: 'pco' },
+      { name: '커뮤니스타', cat: 'pco' },
+      { name: '이오컨벡스', cat: 'pco' },
+      { name: '메씨인터내셔널', cat: 'pco' },
+      { name: '스피언스', cat: 'pco' },
+      { name: '키멕스', cat: 'pco' },
+      { name: '오프너', cat: 'pco' },
+      { name: '서울대학교', cat: 'edu' },
+      { name: '연세대학교', cat: 'edu' },
+      { name: '고려대학교', cat: 'edu' },
+      { name: '성균관대학교', cat: 'edu' },
+      { name: '한국외국어대학교', cat: 'edu' },
+      { name: '서울시립대학교', cat: 'edu' },
+      { name: '포항공과대학교', cat: 'edu' },
+      { name: '인하대학교', cat: 'edu' },
+      { name: '가톨릭대학교', cat: 'edu' },
+      { name: '강원대학교', cat: 'edu' },
+      { name: '고등과학원', cat: 'edu' },
+      { name: '대한토목학회', cat: 'edu' },
+      { name: '환경보건학회', cat: 'edu' },
+      { name: '서울시치과기공사회', cat: 'edu' },
+      { name: '한국동물보건사협회', cat: 'edu' },
+      { name: 'ADB (아시아개발은행)', cat: 'intl' },
+      { name: 'ABU (아시아태평양방송연합)', cat: 'intl' },
+      { name: 'WFD (세계농아인연맹)', cat: 'intl' },
+      { name: 'UNWTO', cat: 'intl' },
+      { name: 'AFLAS CONGRESS', cat: 'intl' },
+      { name: 'APEC', cat: 'intl' },
+      { name: 'GCIM', cat: 'intl' },
+      { name: 'QUANTUM KOREA', cat: 'intl' },
+    ];
+
+    var clientsCurrentCat = 'all';
+    var clientsExpanded = false;
+
+    window.clientFilter = function(cat, el) {
+      clientsCurrentCat = cat;
+      document.querySelectorAll('.clients-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      clientsExpanded = false;
+      var grid = document.getElementById('clientsGrid');
+      grid.classList.remove('expanded');
+      grid.classList.add('collapsed');
+      document.getElementById('clientsMask').classList.remove('hidden');
+      document.getElementById('clientsArrow').classList.remove('up');
+      document.querySelectorAll('.clients-btn-ko').forEach(function(el) { el.textContent = '더 보기'; });
+      document.querySelectorAll('.clients-btn-en').forEach(function(el) { el.textContent = 'Show more'; });
+      clientsRender();
+    };
+
+    window.clientsToggle = function() {
+      clientsExpanded = !clientsExpanded;
+      var grid = document.getElementById('clientsGrid');
+      var mask = document.getElementById('clientsMask');
+      var arrow = document.getElementById('clientsArrow');
+      if (clientsExpanded) {
+        grid.classList.remove('collapsed');
+        grid.classList.add('expanded');
+        mask.classList.add('hidden');
+        arrow.classList.add('up');
+        document.querySelectorAll('.clients-btn-ko').forEach(function(el) { el.textContent = '접기'; });
+        document.querySelectorAll('.clients-btn-en').forEach(function(el) { el.textContent = 'Collapse'; });
+      } else {
+        grid.classList.remove('expanded');
+        grid.classList.add('collapsed');
+        mask.classList.remove('hidden');
+        arrow.classList.remove('up');
+        document.querySelectorAll('.clients-btn-ko').forEach(function(el) { el.textContent = '더 보기'; });
+        document.querySelectorAll('.clients-btn-en').forEach(function(el) { el.textContent = 'Show more'; });
+      }
+    };
+
+    function clientsRender() {
+      var grid = document.getElementById('clientsGrid');
+      var filtered = clientsCurrentCat === 'all' ? clientsList : clientsList.filter(function(c) { return c.cat === clientsCurrentCat; });
+      grid.innerHTML = filtered.map(function(c) {
+        return '<div class="clients-chip">' + c.name + '</div>';
+      }).join('');
+    }
+
+    clientsRender();
+  })();
+  </script>
+
   <!-- ===================== SUSTAINABILITY ===================== -->
   <section class="section sustain-section" id="sustainability">
     <div class="container" style="position:relative;z-index:1;">
