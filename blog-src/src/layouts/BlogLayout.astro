@@ -1,0 +1,294 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  pubDate?: Date;
+  updatedDate?: Date;
+  image?: string;
+  lang: 'ko' | 'en';
+  canonicalURL?: string;
+  hreflangKo?: string;
+  hreflangEn?: string;
+  faq?: { q: string; a: string }[];
+  type?: 'article' | 'website';
+}
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  image,
+  lang,
+  canonicalURL,
+  hreflangKo,
+  hreflangEn,
+  faq,
+  type = 'website',
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL; // '/blog'
+const site = 'https://fairpass.world';
+const ogImage = image || `${site}/images/hero_image.png`;
+const canonical = canonicalURL || `${site}${Astro.url.pathname}`;
+
+const faqSchema = faq && faq.length > 0 ? {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+} : null;
+
+const articleSchema = type === 'article' && pubDate ? {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  image: ogImage,
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate || pubDate).toISOString(),
+  publisher: {
+    '@type': 'Organization',
+    name: 'FAIRPASS',
+    url: site,
+    logo: { '@type': 'ImageObject', url: `${site}/images/FAIRPASS.png` },
+  },
+  author: { '@type': 'Organization', name: 'FAIRPASS' },
+} : null;
+
+const ui = {
+  ko: {
+    backToMain: '메인으로',
+    backToBlog: '블로그',
+    lang: '한국어',
+    otherLang: 'English',
+    otherHref: hreflangEn,
+    readMore: '더 읽기',
+    newsletter: '뉴스레터 구독',
+    newsletterSub: '행사 운영 인사이트를 이메일로 받아보세요.',
+    footerCopy: '© 2026 FAIRPASS. All rights reserved.',
+  },
+  en: {
+    backToMain: 'Main Site',
+    backToBlog: 'Blog',
+    lang: 'English',
+    otherLang: '한국어',
+    otherHref: hreflangKo,
+    readMore: 'Read more',
+    newsletter: 'Subscribe',
+    newsletterSub: 'Get event management insights in your inbox.',
+    footerCopy: '© 2026 FAIRPASS. All rights reserved.',
+  },
+}[lang];
+---
+
+<!DOCTYPE html>
+<html lang={lang === 'ko' ? 'ko' : 'en'}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} | FAIRPASS Blog</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+
+  <!-- hreflang -->
+  {hreflangKo && <link rel="alternate" hreflang="ko" href={hreflangKo} />}
+  {hreflangEn && <link rel="alternate" hreflang="en" href={hreflangEn} />}
+  <link rel="alternate" hreflang="x-default" href={hreflangEn || hreflangKo || canonical} />
+
+  <!-- OG / Social -->
+  <meta property="og:type" content={type} />
+  <meta property="og:title" content={`${title} | FAIRPASS Blog`} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:site_name" content="FAIRPASS" />
+  <meta property="og:locale" content={lang === 'ko' ? 'ko_KR' : 'en_US'} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preload" as="style"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript>
+    <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  </noscript>
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+  <!-- Structured Data -->
+  {articleSchema && (
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  )}
+  {faqSchema && (
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  )}
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-M17QN59ZBN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-M17QN59ZBN');
+  </script>
+
+  <!-- Microsoft Clarity -->
+  <script>
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window,document,"clarity","script","w5t5q8s6h0");
+  </script>
+</head>
+
+<body class="bg-fp-bg text-fp-text font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- NAV -->
+  <nav class="sticky top-0 z-50 border-b border-fp-border bg-fp-bg/90 backdrop-blur-md">
+    <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+      <!-- Logo / Breadcrumb -->
+      <div class="flex items-center gap-2 text-sm text-fp-muted min-w-0">
+        <a href="https://fairpass.world/" class="hover:text-fp-text transition-colors shrink-0">
+          <img src="/images/FAIRPASS.png" alt="FAIRPASS" class="h-6 w-auto" loading="eager" />
+        </a>
+        <span class="shrink-0">/</span>
+        <a href={`${base}/`} class="hover:text-fp-text transition-colors shrink-0">Blog</a>
+        <slot name="breadcrumb" />
+      </div>
+
+      <!-- Right: lang toggle + CTA -->
+      <div class="flex items-center gap-3 shrink-0">
+        {ui.otherHref && (
+          <a
+            href={ui.otherHref}
+            class="text-xs px-3 py-1.5 rounded-full border border-fp-border text-fp-muted hover:border-fp-purple hover:text-fp-text transition-all"
+          >
+            {ui.otherLang}
+          </a>
+        )}
+        <a
+          href="https://fairpass.world/#contact"
+          class="hidden sm:block text-xs px-4 py-2 rounded-full bg-fp-gradient text-white font-medium hover:opacity-90 transition-opacity"
+        >
+          {lang === 'ko' ? '무료 상담' : 'Get a quote'}
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1">
+    <slot />
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-fp-border mt-16">
+    <div class="max-w-5xl mx-auto px-6 py-12">
+      <div class="grid sm:grid-cols-2 gap-10 mb-10">
+        <!-- Brand -->
+        <div>
+          <a href="https://fairpass.world/">
+            <img src="/images/FAIRPASS.png" alt="FAIRPASS" class="h-7 w-auto mb-4" />
+          </a>
+          <p class="text-sm text-fp-muted leading-relaxed max-w-xs">
+            {lang === 'ko'
+              ? '행사 접수·현장 체크인·명찰 출력을 하나로 통합한 B2B 이벤트 플랫폼'
+              : 'The all-in-one B2B event platform for registration, check-in, and badge printing.'}
+          </p>
+        </div>
+
+        <!-- Newsletter -->
+        <div>
+          <h3 class="text-sm font-semibold text-fp-text mb-2">{ui.newsletter}</h3>
+          <p class="text-xs text-fp-muted mb-4">{ui.newsletterSub}</p>
+          <form
+            id="newsletter-form"
+            class="flex gap-2"
+            data-lang={lang}
+          >
+            <input
+              type="email"
+              name="email"
+              placeholder={lang === 'ko' ? '이메일 주소' : 'Email address'}
+              required
+              class="flex-1 text-sm px-4 py-2 rounded-fp-xs bg-fp-surface border border-fp-border text-fp-text placeholder-fp-muted focus:outline-none focus:border-fp-purple transition-colors"
+            />
+            <button
+              type="submit"
+              class="text-sm px-5 py-2 rounded-fp-xs bg-fp-purple text-white font-medium hover:bg-fp-purple-light transition-colors whitespace-nowrap"
+            >
+              {lang === 'ko' ? '구독' : 'Subscribe'}
+            </button>
+          </form>
+          <p id="newsletter-msg" class="text-xs mt-2 hidden"></p>
+        </div>
+      </div>
+
+      <!-- Bottom bar -->
+      <div class="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-fp-border text-xs text-fp-muted">
+        <span>{ui.footerCopy}</span>
+        <div class="flex gap-4">
+          <a href="https://fairpass.world/" class="hover:text-fp-text transition-colors">
+            {lang === 'ko' ? '메인 사이트' : 'Main Site'}
+          </a>
+          <a href={`${base}/ko/`} class="hover:text-fp-text transition-colors">한국어</a>
+          <a href={`${base}/en/`} class="hover:text-fp-text transition-colors">English</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Newsletter JS -->
+  <script>
+    const form = document.getElementById('newsletter-form') as HTMLFormElement;
+    const msg = document.getElementById('newsletter-msg') as HTMLElement;
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+      const lang = form.dataset.lang || 'ko';
+      const btn = form.querySelector('button') as HTMLButtonElement;
+
+      btn.disabled = true;
+      btn.textContent = '...';
+
+      try {
+        const res = await fetch('/api/newsletter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, lang, source: 'blog' }),
+        });
+        const data = await res.json();
+        msg.classList.remove('hidden');
+        if (res.ok) {
+          msg.className = 'text-xs mt-2 text-fp-green';
+          msg.textContent = lang === 'ko' ? '구독해 주셔서 감사합니다!' : 'Thank you for subscribing!';
+          form.reset();
+        } else {
+          msg.className = 'text-xs mt-2 text-fp-pink';
+          msg.textContent = data.error || (lang === 'ko' ? '오류가 발생했습니다.' : 'An error occurred.');
+        }
+      } catch {
+        msg.classList.remove('hidden');
+        msg.className = 'text-xs mt-2 text-fp-pink';
+        msg.textContent = lang === 'ko' ? '네트워크 오류입니다.' : 'Network error.';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = lang === 'ko' ? '구독' : 'Subscribe';
+      }
+    });
+  </script>
+</body>
+</html>

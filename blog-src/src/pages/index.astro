@@ -1,0 +1,101 @@
+---
+import { getCollection } from 'astro:content';
+import BlogLayout from '../layouts/BlogLayout.astro';
+import BlogCard from '../components/BlogCard.astro';
+
+const base = import.meta.env.BASE_URL;
+const site = 'https://fairpass.world';
+
+const koRaw = await getCollection('blog-ko', ({ data }) => !data.draft);
+const enRaw = await getCollection('blog-en', ({ data }) => !data.draft);
+
+const koPosts = koRaw.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
+const enPosts = enRaw.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
+---
+
+<BlogLayout
+  title="이벤트 운영 인사이트 | Event Management Insights"
+  description="행사 접수·현장 운영·명찰 등 이벤트 인사이트를 FAIRPASS가 전합니다. Event management insights from FAIRPASS."
+  lang="ko"
+  hreflangKo={`${site}${base}/ko/`}
+  hreflangEn={`${site}${base}/en/`}
+  canonicalURL={`${site}${base}/`}
+  type="website"
+>
+  <div class="max-w-5xl mx-auto px-6 py-16">
+    <!-- Hero -->
+    <div class="text-center mb-16">
+      <h1 class="text-3xl sm:text-4xl font-bold text-fp-text mb-4">
+        <span class="bg-gradient-to-r from-fp-purple-light to-fp-cyan-light bg-clip-text text-transparent">
+          FAIRPASS Blog
+        </span>
+      </h1>
+      <p class="text-fp-muted max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+        행사 접수·현장 운영·친환경 명찰에 관한 실무 인사이트<br class="hidden sm:block" />
+        <span class="text-fp-secondary text-xs sm:text-sm">Event registration, on-site operations, and eco badge insights</span>
+      </p>
+
+      <!-- Language Toggle -->
+      <div class="flex justify-center gap-3 mt-8">
+        <a
+          href={`${base}/ko/`}
+          class="px-6 py-2.5 rounded-full bg-fp-purple text-white text-sm font-medium hover:bg-fp-purple-light transition-colors"
+        >
+          한국어 블로그
+        </a>
+        <a
+          href={`${base}/en/`}
+          class="px-6 py-2.5 rounded-full border border-fp-border text-fp-muted text-sm font-medium hover:border-fp-cyan hover:text-fp-text transition-all"
+        >
+          English Blog
+        </a>
+      </div>
+    </div>
+
+    <!-- Korean Posts -->
+    {koPosts.length > 0 && (
+      <section class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold text-fp-text">최신 한국어 포스트</h2>
+          <a href={`${base}/ko/`} class="text-xs text-fp-muted hover:text-fp-purple-light transition-colors">전체 보기 →</a>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {koPosts.map(post => (
+            <BlogCard
+              title={post.data.title}
+              description={post.data.description}
+              slug={post.slug}
+              pubDate={post.data.pubDate}
+              category={post.data.category}
+              tags={post.data.tags}
+              lang="ko"
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- English Posts -->
+    {enPosts.length > 0 && (
+      <section>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold text-fp-text">Latest in English</h2>
+          <a href={`${base}/en/`} class="text-xs text-fp-muted hover:text-fp-cyan-light transition-colors">View all →</a>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {enPosts.map(post => (
+            <BlogCard
+              title={post.data.title}
+              description={post.data.description}
+              slug={post.slug}
+              pubDate={post.data.pubDate}
+              category={post.data.category}
+              tags={post.data.tags}
+              lang="en"
+            />
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+</BlogLayout>

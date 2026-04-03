@@ -1,4 +1,6 @@
 {
+  "buildCommand": "cd blog-src && npm ci && npm run build",
+  "outputDirectory": ".",
   "redirects": [
     { "source": "/en", "destination": "/?lang=en", "permanent": false },
     { "source": "/en/(.*)", "destination": "/$1?lang=en", "permanent": false },

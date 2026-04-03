@@ -1,0 +1,52 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  slug: string;
+  pubDate: Date;
+  category: string;
+  tags?: string[];
+  lang: 'ko' | 'en';
+}
+
+const { title, description, slug, pubDate, category, tags = [], lang } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const href = `${base}/${lang}/${slug}/`;
+
+const dateStr = pubDate.toLocaleDateString(lang === 'ko' ? 'ko-KR' : 'en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<article class="group block rounded-fp border border-fp-border bg-fp-surface hover:border-fp-purple/40 hover:bg-white/[0.06] transition-all duration-300 overflow-hidden">
+  <a href={href} class="block p-6">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-xs px-2.5 py-1 rounded-full bg-fp-purple/20 text-fp-purple-light font-medium">
+        {category}
+      </span>
+      <time class="text-xs text-fp-muted" datetime={pubDate.toISOString()}>
+        {dateStr}
+      </time>
+    </div>
+
+    <h2 class="text-base font-semibold text-fp-text group-hover:text-fp-purple-light transition-colors mb-2 line-clamp-2">
+      {title}
+    </h2>
+
+    <p class="text-sm text-fp-muted line-clamp-3 mb-4">
+      {description}
+    </p>
+
+    {tags.length > 0 && (
+      <div class="flex flex-wrap gap-1.5">
+        {tags.slice(0, 3).map(tag => (
+          <span class="text-xs text-fp-muted border border-fp-border px-2 py-0.5 rounded-full">
+            #{tag}
+          </span>
+        ))}
+      </div>
+    )}
+  </a>
+</article>

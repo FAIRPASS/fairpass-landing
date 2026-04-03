@@ -2,6 +2,10 @@
   "name": "fairpass-landing",
   "private": true,
   "version": "1.0.0",
+  "scripts": {
+    "blog:dev": "cd blog-src && npm run dev",
+    "blog:build": "cd blog-src && npm ci && npm run build"
+  },
   "dependencies": {
     "@google-analytics/data": "^4.0.0",
     "@supabase/supabase-js": "^2.0.0",

@@ -1,0 +1,170 @@
+---
+import { getCollection } from 'astro:content';
+import BlogLayout from '../../layouts/BlogLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog-en', ({ data }) => !data.draft);
+  return posts.map(post => ({ params: { slug: post.slug }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+const base = import.meta.env.BASE_URL;
+const site = 'https://fairpass.world';
+
+const canonical = `${site}${base}/en/${post.slug}/`;
+
+const koPosts = await getCollection('blog-ko', ({ data }) => !data.draft);
+const koMatch = koPosts.find(p => p.slug === post.slug);
+const hreflangKo = koMatch ? `${site}${base}/ko/${post.slug}/` : `${site}${base}/ko/`;
+
+const dateStr = post.data.pubDate.toLocaleDateString('en-US', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+---
+
+<BlogLayout
+  title={post.data.title}
+  description={post.data.description}
+  pubDate={post.data.pubDate}
+  updatedDate={post.data.updatedDate}
+  image={post.data.image}
+  lang="en"
+  canonicalURL={canonical}
+  hreflangKo={hreflangKo}
+  hreflangEn={canonical}
+  faq={post.data.faq}
+  type="article"
+>
+  <Fragment slot="breadcrumb">
+    <span>/</span>
+    <a href={`${base}/en/`} class="hover:text-fp-text transition-colors">English</a>
+    <span>/</span>
+    <span class="text-fp-text truncate max-w-32 sm:max-w-xs">{post.data.title}</span>
+  </Fragment>
+
+  <article class="max-w-2xl mx-auto px-6 py-12">
+    <header class="mb-10">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-xs px-2.5 py-1 rounded-full bg-fp-purple/20 text-fp-purple-light font-medium">
+          {post.data.category}
+        </span>
+        <time class="text-xs text-fp-muted" datetime={post.data.pubDate.toISOString()}>
+          {dateStr}
+        </time>
+      </div>
+
+      <h1 class="text-2xl sm:text-3xl font-bold text-fp-text leading-tight mb-4">
+        {post.data.title}
+      </h1>
+
+      <p class="text-fp-muted leading-relaxed">
+        {post.data.description}
+      </p>
+
+      {post.data.tags && post.data.tags.length > 0 && (
+        <div class="flex flex-wrap gap-1.5 mt-4">
+          {post.data.tags.map(tag => (
+            <span class="text-xs text-fp-muted border border-fp-border px-2 py-0.5 rounded-full">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <hr class="border-fp-border mt-8" />
+    </header>
+
+    <div class="prose-blog">
+      <Content />
+    </div>
+
+    <!-- CTA -->
+    <div class="mt-14 p-6 rounded-fp border border-fp-border bg-fp-surface">
+      <h3 class="font-semibold text-fp-text mb-2">Ready to streamline your next event?</h3>
+      <p class="text-sm text-fp-muted mb-4">Get a free consultation — no commitment required.</p>
+      <a
+        href="https://fairpass.world/#contact"
+        class="inline-block text-sm px-5 py-2.5 rounded-fp-xs bg-fp-gradient text-white font-medium hover:opacity-90 transition-opacity"
+      >
+        Get a free quote →
+      </a>
+    </div>
+  </article>
+</BlogLayout>
+
+<style is:global>
+  .prose-blog {
+    color: rgba(255,255,255,0.80);
+    font-size: 0.9375rem;
+    line-height: 1.8;
+  }
+  .prose-blog h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+  }
+  .prose-blog h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-blog p { margin-bottom: 1.25rem; }
+  .prose-blog ul, .prose-blog ol {
+    margin-bottom: 1.25rem;
+    padding-left: 1.5rem;
+  }
+  .prose-blog ul { list-style: disc; }
+  .prose-blog ol { list-style: decimal; }
+  .prose-blog li { margin-bottom: 0.4rem; }
+  .prose-blog strong { color: #fff; font-weight: 600; }
+  .prose-blog a {
+    color: #a855f7;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-blog a:hover { color: #22d3ee; }
+  .prose-blog blockquote {
+    border-left: 3px solid #8b5cf6;
+    padding-left: 1rem;
+    color: rgba(255,255,255,0.60);
+    font-style: italic;
+    margin: 1.5rem 0;
+  }
+  .prose-blog code {
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+    font-size: 0.875em;
+  }
+  .prose-blog table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  .prose-blog th {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    background: rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    color: #fff;
+    font-weight: 600;
+  }
+  .prose-blog td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .prose-blog hr {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.10);
+    margin: 2rem 0;
+  }
+</style>
