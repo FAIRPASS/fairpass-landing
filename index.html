@@ -695,68 +695,68 @@
   <script>
   (function() {
     var clientsList = [
-      { name: 'LG전자', cat: 'corp' },
-      { name: '삼성생명', cat: 'corp' },
-      { name: 'LG CNS', cat: 'corp' },
-      { name: 'BC카드', cat: 'corp' },
-      { name: '삼성화재', cat: 'corp' },
-      { name: '삼성자산운용', cat: 'corp' },
-      { name: '밀본코리아', cat: 'corp' },
-      { name: '마이다스아이티', cat: 'corp' },
-      { name: 'TÜV Rheinland', cat: 'corp' },
-      { name: '현대자동차', cat: 'corp' },
-      { name: 'KT', cat: 'corp' },
-      { name: '래어달 메디컬', cat: 'corp' },
-      { name: '포스코', cat: 'corp' },
-      { name: '코엑스', cat: 'gov' },
-      { name: '수원시청', cat: 'gov' },
-      { name: '한국관광공사', cat: 'gov' },
-      { name: '인천광역시교육청', cat: 'gov' },
-      { name: '한국탄소산업진흥원', cat: 'gov' },
-      { name: '농촌경제연구원', cat: 'gov' },
-      { name: '벡스코', cat: 'gov' },
-      { name: '아산나눔재단', cat: 'gov' },
-      { name: '엠앤씨커뮤니케이션즈', cat: 'pco' },
-      { name: '멥스인터내셔널', cat: 'pco' },
-      { name: '탑플래너스', cat: 'pco' },
-      { name: '위드바톤', cat: 'pco' },
-      { name: '더클라우드', cat: 'pco' },
-      { name: 'MW 네트웍스', cat: 'pco' },
-      { name: '플랜두씨', cat: 'pco' },
-      { name: '닷플래너', cat: 'pco' },
-      { name: 'CPMG Corea', cat: 'pco' },
-      { name: '커뮤니스타', cat: 'pco' },
-      { name: '이오컨벡스', cat: 'pco' },
-      { name: '메씨인터내셔널', cat: 'pco' },
-      { name: '스피언스', cat: 'pco' },
-      { name: '키멕스', cat: 'pco' },
-      { name: '오프너', cat: 'pco' },
-      { name: '보다컴퍼니', cat: 'pco' },
-      { name: '서울대학교', cat: 'edu' },
-      { name: '연세대학교', cat: 'edu' },
-      { name: '고려대학교', cat: 'edu' },
-      { name: '성균관대학교', cat: 'edu' },
-      { name: '한국외국어대학교', cat: 'edu' },
-      { name: '서울시립대학교', cat: 'edu' },
-      { name: '포항공과대학교', cat: 'edu' },
-      { name: '인하대학교', cat: 'edu' },
-      { name: '가톨릭대학교', cat: 'edu' },
-      { name: '강원대학교', cat: 'edu' },
-      { name: '고등과학원', cat: 'edu' },
-      { name: '대한토목학회', cat: 'edu' },
-      { name: '환경보건학회', cat: 'edu' },
-      { name: '서울시치과기공사회', cat: 'edu' },
-      { name: '한국동물보건사협회', cat: 'edu' },
-      { name: '전국대학산학협력단협의회', cat: 'edu' },
-      { name: '반디학회', cat: 'edu' },
-      { name: 'ADB (아시아개발은행)', cat: 'intl' },
-      { name: 'ABU (아시아태평양방송연합)', cat: 'intl' },
-      { name: 'WFD (세계농아인연맹)', cat: 'intl' },
-      { name: 'UNWTO', cat: 'intl' },
-      { name: 'AFLAS CONGRESS', cat: 'intl' },
-      { name: 'APEC', cat: 'intl' },
-      { name: 'GCIM', cat: 'intl' },
-      { name: 'QUANTUM KOREA', cat: 'intl' },
+      { name: 'LG전자', nameEn: 'LG Electronics', cat: 'corp' },
+      { name: '삼성생명', nameEn: 'Samsung Life Insurance', cat: 'corp' },
+      { name: 'LG CNS', nameEn: 'LG CNS', cat: 'corp' },
+      { name: 'BC카드', nameEn: 'BC Card', cat: 'corp' },
+      { name: '삼성화재', nameEn: 'Samsung Fire & Marine Insurance', cat: 'corp' },
+      { name: '삼성자산운용', nameEn: 'Samsung Asset Management', cat: 'corp' },
+      { name: '밀본코리아', nameEn: 'Milbon Korea', cat: 'corp' },
+      { name: '마이다스아이티', nameEn: 'Midas IT', cat: 'corp' },
+      { name: 'TÜV Rheinland', nameEn: 'TÜV Rheinland', cat: 'corp' },
+      { name: '현대자동차', nameEn: 'Hyundai Motor Company', cat: 'corp' },
+      { name: 'KT', nameEn: 'KT Corporation', cat: 'corp' },
+      { name: '래어달 메디컬', nameEn: 'Laerdal Medical', cat: 'corp' },
+      { name: '포스코', nameEn: 'POSCO', cat: 'corp' },
+      { name: '코엑스', nameEn: 'COEX', cat: 'gov' },
+      { name: '수원시청', nameEn: 'Suwon City Hall', cat: 'gov' },
+      { name: '한국관광공사', nameEn: 'Korea Tourism Organization (KTO)', cat: 'gov' },
+      { name: '인천광역시교육청', nameEn: 'Incheon Metropolitan Office of Education', cat: 'gov' },
+      { name: '한국탄소산업진흥원', nameEn: 'Korea Carbon Industry Promotion Agency', cat: 'gov' },
+      { name: '농촌경제연구원', nameEn: 'Korea Rural Economic Institute (KREI)', cat: 'gov' },
+      { name: '벡스코', nameEn: 'BEXCO', cat: 'gov' },
+      { name: '아산나눔재단', nameEn: 'Asan Nanum Foundation', cat: 'gov' },
+      { name: '엠앤씨커뮤니케이션즈', nameEn: 'M&C Communications', cat: 'pco' },
+      { name: '멥스인터내셔널', nameEn: 'MEPS International', cat: 'pco' },
+      { name: '탑플래너스', nameEn: 'Top Planners', cat: 'pco' },
+      { name: '위드바톤', nameEn: 'With Baton', cat: 'pco' },
+      { name: '더클라우드', nameEn: 'The Cloud', cat: 'pco' },
+      { name: 'MW 네트웍스', nameEn: 'MW Networks', cat: 'pco' },
+      { name: '플랜두씨', nameEn: 'Plan Do See', cat: 'pco' },
+      { name: '닷플래너', nameEn: 'Dot Planner', cat: 'pco' },
+      { name: 'CPMG Corea', nameEn: 'CPMG Corea', cat: 'pco' },
+      { name: '커뮤니스타', nameEn: 'Communista', cat: 'pco' },
+      { name: '이오컨벡스', nameEn: 'EO Convex', cat: 'pco' },
+      { name: '메씨인터내셔널', nameEn: 'MECI International', cat: 'pco' },
+      { name: '스피언스', nameEn: 'Spiance', cat: 'pco' },
+      { name: '키멕스', nameEn: 'KYMEX', cat: 'pco' },
+      { name: '오프너', nameEn: 'Opener', cat: 'pco' },
+      { name: '보다컴퍼니', nameEn: 'Boda Company', cat: 'pco' },
+      { name: '서울대학교', nameEn: 'Seoul National University', cat: 'edu' },
+      { name: '연세대학교', nameEn: 'Yonsei University', cat: 'edu' },
+      { name: '고려대학교', nameEn: 'Korea University', cat: 'edu' },
+      { name: '성균관대학교', nameEn: 'Sungkyunkwan University', cat: 'edu' },
+      { name: '한국외국어대학교', nameEn: 'Hankuk University of Foreign Studies', cat: 'edu' },
+      { name: '서울시립대학교', nameEn: 'University of Seoul', cat: 'edu' },
+      { name: '포항공과대학교', nameEn: 'POSTECH', cat: 'edu' },
+      { name: '인하대학교', nameEn: 'Inha University', cat: 'edu' },
+      { name: '가톨릭대학교', nameEn: 'Catholic University of Korea', cat: 'edu' },
+      { name: '강원대학교', nameEn: 'Kangwon National University', cat: 'edu' },
+      { name: '고등과학원', nameEn: 'Korea Institute for Advanced Study (KIAS)', cat: 'edu' },
+      { name: '대한토목학회', nameEn: 'Korean Society of Civil Engineers (KSCE)', cat: 'edu' },
+      { name: '환경보건학회', nameEn: 'Korean Society of Environmental Health', cat: 'edu' },
+      { name: '서울시치과기공사회', nameEn: 'Seoul Dental Technicians Association', cat: 'edu' },
+      { name: '한국동물보건사협회', nameEn: 'Korea Veterinary Technician Association', cat: 'edu' },
+      { name: '전국대학산학협력단협의회', nameEn: 'Korea University Industry Cooperation Foundation Council', cat: 'edu' },
+      { name: '반디학회', nameEn: 'Bandi Society', cat: 'edu' },
+      { name: 'ADB (아시아개발은행)', nameEn: 'Asian Development Bank (ADB)', cat: 'intl' },
+      { name: 'ABU (아시아태평양방송연합)', nameEn: 'Asia-Pacific Broadcasting Union (ABU)', cat: 'intl' },
+      { name: 'WFD (세계농아인연맹)', nameEn: 'World Federation of the Deaf (WFD)', cat: 'intl' },
+      { name: 'UNWTO', nameEn: 'UN World Tourism Organization (UNWTO)', cat: 'intl' },
+      { name: 'AFLAS CONGRESS', nameEn: 'AFLAS Congress', cat: 'intl' },
+      { name: 'APEC', nameEn: 'Asia-Pacific Economic Cooperation (APEC)', cat: 'intl' },
+      { name: 'GCIM', nameEn: 'Global Congress on Integrative Medicine (GCIM)', cat: 'intl' },
+      { name: 'QUANTUM KOREA', nameEn: 'Quantum Korea', cat: 'intl' },
     ];
 
     var clientsCurrentCat = 'all';
@@ -802,14 +802,21 @@
     function clientsRender() {
       var grid = document.getElementById('clientsGrid');
       var note = document.getElementById('clientsMoreNote');
+      var lang = document.documentElement.getAttribute('data-lang') || 'ko';
       var filtered = clientsCurrentCat === 'all' ? clientsList : clientsList.filter(function(c) { return c.cat === clientsCurrentCat; });
       grid.innerHTML = filtered.map(function(c) {
-        return '<div class="clients-chip clients-chip-' + c.cat + '">' + c.name + '</div>';
+        var display = (lang === 'en' && c.nameEn) ? c.nameEn : c.name;
+        return '<div class="clients-chip clients-chip-' + c.cat + '">' + display + '</div>';
       }).join('');
       if (note) {
-        note.textContent = clientsCurrentCat === 'all' ? '이 외에도 500개 이상의 고객사와 함께했습니다.' : '';
+        note.textContent = clientsCurrentCat === 'all'
+          ? (lang === 'en' ? 'Plus 500+ more clients.' : '이 외에도 500개 이상의 고객사와 함께했습니다.')
+          : '';
       }
     }
+
+    new MutationObserver(function() { clientsRender(); })
+      .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
 
     clientsRender();
   })();
