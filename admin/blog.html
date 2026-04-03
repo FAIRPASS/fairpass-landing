@@ -257,10 +257,16 @@
         <!-- Image upload -->
         <div class="img-upload-row">
           <label class="img-upload-label" for="imgFileInput">
-            🖼️ 이미지 업로드
+            🖼️ 이미지 업로드 (여러 장 가능)
           </label>
-          <input type="file" id="imgFileInput" accept="image/*" onchange="uploadImage(this)" />
-          <span id="imgUploadStatus">업로드 후 마크다운에 자동 삽입됩니다</span>
+          <input type="file" id="imgFileInput" accept="image/*" multiple onchange="uploadImages(this)" />
+          <span id="imgUploadStatus">여러 장 선택 가능 · 업로드 후 마크다운에 자동 삽입</span>
+        </div>
+        <div id="imgProgress" style="display:none;margin-bottom:12px;">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;" id="imgProgressText"></div>
+          <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+            <div id="imgProgressBar" style="height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));width:0%;transition:width 0.3s;"></div>
+          </div>
         </div>
 
         <!-- Markdown editor -->
@@ -594,19 +600,34 @@ ${body}`;
     }
   }
 
-  // ── Image upload ──
-  async function uploadImage(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const statusEl = document.getElementById('imgUploadStatus');
-    statusEl.textContent = '업로드 중...';
-    statusEl.style.color = 'var(--muted)';
+  // ── Image upload (multiple) ──
+  async function uploadImages(input) {
+    const files = Array.from(input.files);
+    if (!files.length) return;
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const base64 = e.target.result.split(',')[1];
-      const filename = `${Date.now()}_${file.name}`;
+    const statusEl = document.getElementById('imgUploadStatus');
+    const progressEl = document.getElementById('imgProgress');
+    const progressText = document.getElementById('imgProgressText');
+    const progressBar = document.getElementById('imgProgressBar');
+
+    progressEl.style.display = 'block';
+    statusEl.textContent = '';
+    let done = 0;
+
+    const readAsBase64 = (file) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const results = [];
+    for (const file of files) {
+      progressText.textContent = `업로드 중 ${done + 1} / ${files.length} — ${file.name}`;
+      progressBar.style.width = `${(done / files.length) * 100}%`;
       try {
+        const base64 = await readAsBase64(file);
+        const filename = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
         const r = await fetch('/api/blog-admin', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -614,21 +635,30 @@ ${body}`;
         });
         const data = await r.json();
         if (r.ok) {
-          const mdImg = `![${file.name}](${data.url})`;
-          const current = easyMDE.value();
-          easyMDE.value(current + '\n' + mdImg);
-          statusEl.textContent = `✓ 업로드 완료 (빌드 후 표시됨): ${data.url}`;
-          statusEl.style.color = 'var(--green)';
+          results.push({ name: file.name, url: data.url, ok: true });
         } else {
-          throw new Error(data.error);
+          results.push({ name: file.name, error: data.error, ok: false });
         }
       } catch (err) {
-        statusEl.textContent = `업로드 실패: ${err.message}`;
-        statusEl.style.color = 'var(--red)';
+        results.push({ name: file.name, error: err.message, ok: false });
       }
-      input.value = '';
-    };
-    reader.readAsDataURL(file);
+      done++;
+    }
+
+    // Insert all successful images into editor
+    const mdImages = results.filter(r => r.ok).map(r => `![${r.name}](${r.url})`).join('\n');
+    if (mdImages) {
+      easyMDE.value(easyMDE.value() + '\n\n' + mdImages);
+    }
+
+    progressBar.style.width = '100%';
+    const okCount = results.filter(r => r.ok).length;
+    const failCount = results.filter(r => !r.ok).length;
+    progressText.textContent = `완료: ${okCount}개 성공${failCount ? ` / ${failCount}개 실패` : ''} (빌드 후 사이트에 표시됩니다)`;
+    statusEl.style.color = failCount ? 'var(--red)' : 'var(--green)';
+
+    setTimeout(() => { progressEl.style.display = 'none'; }, 5000);
+    input.value = '';
   }
 
   // ── Frontmatter helpers ──
