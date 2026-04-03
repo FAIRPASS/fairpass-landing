@@ -5584,17 +5584,6 @@ select.form-input option {
   margin: 40px auto 0;
   max-width: 900px;
 }
-.store-cta-img-wrap {
-  background: #fff;
-  border-radius: 10px;
-  padding: 10px 18px;
-  flex-shrink: 0;
-}
-.store-cta-img {
-  height: 44px;
-  width: auto;
-  display: block;
-}
 .store-cta-text { flex: 1; min-width: 0; }
 .store-cta-eyebrow {
   font-size: 13px;
