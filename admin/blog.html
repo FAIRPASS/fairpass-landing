@@ -9,6 +9,8 @@
   <!-- EasyMDE Markdown Editor -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js"></script>
+  <!-- Marked.js for preview rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
 
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -141,6 +143,38 @@
     .empty { text-align: center; padding: 48px; color: var(--muted2); font-size: 14px; }
     .divider { height: 1px; background: var(--border); margin: 20px 0; }
     .slug-hint { font-size: 11px; color: var(--muted2); margin-top: 4px; }
+
+    /* ── Preview Modal ── */
+    #previewModal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+    #previewModal.open { display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px; overflow-y: auto; }
+    .preview-box { background: #0e0e1a; border: 1px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 760px; overflow: hidden; }
+    .preview-box-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .preview-box-header span { font-size: 14px; font-weight: 700; }
+    .preview-content { padding: 32px 36px; color: rgba(255,255,255,0.82); font-size: 15px; line-height: 1.8; }
+    .preview-content h1 { font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .preview-content h2 { font-size: 1.2rem; font-weight: 700; color: #fff; margin: 2rem 0 0.8rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    .preview-content h3 { font-size: 1.05rem; font-weight: 600; color: #fff; margin: 1.5rem 0 0.6rem; }
+    .preview-content p { margin-bottom: 1.1rem; }
+    .preview-content ul, .preview-content ol { padding-left: 1.5rem; margin-bottom: 1.1rem; }
+    .preview-content ul { list-style: disc; }
+    .preview-content ol { list-style: decimal; }
+    .preview-content li { margin-bottom: 0.3rem; }
+    .preview-content strong { color: #fff; font-weight: 600; }
+    .preview-content a { color: var(--purple-light); text-decoration: underline; }
+    .preview-content blockquote { border-left: 3px solid var(--purple); padding-left: 1rem; color: var(--muted); font-style: italic; margin: 1.2rem 0; }
+    .preview-content code { background: rgba(255,255,255,0.08); border-radius: 4px; padding: 0.1em 0.4em; font-size: 0.875em; }
+    .preview-content table { width: 100%; border-collapse: collapse; margin-bottom: 1.2rem; font-size: 0.875rem; }
+    .preview-content th { padding: 0.6rem 0.75rem; background: rgba(255,255,255,0.06); border-bottom: 1px solid var(--border); color: #fff; font-weight: 600; text-align: left; }
+    .preview-content td { padding: 0.6rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .preview-content img { max-width: 100%; border-radius: var(--radius-sm); margin: 0.5rem 0; }
+    .preview-content hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+    /* ── Autosave indicator ── */
+    .autosave-bar { display: flex; align-items: center; gap: 8px; padding: 6px 0 10px; font-size: 12px; color: var(--muted2); }
+    .autosave-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted2); flex-shrink: 0; }
+    .autosave-dot.saved { background: var(--green); }
+    .autosave-dot.saving { background: var(--cyan); animation: pulse 0.8s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   </style>
 </head>
 <body>
@@ -269,6 +303,15 @@
           </div>
         </div>
 
+        <!-- Editor toolbar -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" onclick="openPreview()">👁️ 미리보기</button>
+          <div class="autosave-bar">
+            <div class="autosave-dot" id="autosaveDot"></div>
+            <span id="autosaveLabel">임시저장 대기 중</span>
+          </div>
+        </div>
+
         <!-- Markdown editor -->
         <div class="editor-wrapper">
           <textarea id="mdEditor"></textarea>
@@ -286,6 +329,17 @@
       </div>
 
     </main>
+  </div>
+</div>
+
+<!-- ── PREVIEW MODAL ── -->
+<div id="previewModal">
+  <div class="preview-box">
+    <div class="preview-box-header">
+      <span>📄 미리보기</span>
+      <button class="btn btn-ghost btn-sm" onclick="closePreview()">✕ 닫기</button>
+    </div>
+    <div class="preview-content" id="previewContent"></div>
   </div>
 </div>
 
@@ -339,6 +393,7 @@
   // ── Init ──
   function initApp() {
     initEditor();
+    startAutosave();
     loadList();
 
     document.getElementById('fDraft').addEventListener('change', function() {
@@ -467,6 +522,8 @@
     easyMDE.value('');
     document.getElementById('listView').style.display = 'none';
     document.getElementById('editorPanel').classList.add('open');
+    // Restore draft if exists
+    setTimeout(() => restoreDraft('new'), 100);
   }
 
   async function openEdit(path, sha) {
@@ -562,6 +619,7 @@ ${body}`;
         document.getElementById('deleteBtn').style.display = '';
         document.getElementById('saveStatus').className = 'save-status ok';
         document.getElementById('saveStatus').textContent = '✓ 저장 완료 — Vercel이 자동 빌드합니다';
+        clearDraft();
       } else {
         throw new Error(data.error || 'Save failed');
       }
@@ -659,6 +717,100 @@ ${body}`;
 
     setTimeout(() => { progressEl.style.display = 'none'; }, 5000);
     input.value = '';
+  }
+
+  // ── Preview ──
+  function openPreview() {
+    const title = document.getElementById('fTitle').value || '(제목 없음)';
+    const body = easyMDE.value();
+    const html = marked.parse(body);
+    document.getElementById('previewContent').innerHTML =
+      `<h1>${title}</h1><hr style="margin:16px 0 24px;border-color:rgba(255,255,255,0.1);">` + html;
+    document.getElementById('previewModal').classList.add('open');
+  }
+
+  function closePreview() {
+    document.getElementById('previewModal').classList.remove('open');
+  }
+
+  document.getElementById('previewModal').addEventListener('click', function(e) {
+    if (e.target === this) closePreview();
+  });
+
+  // ── Autosave (localStorage) ──
+  const DRAFT_KEY = () => `fp-blog-draft-${currentLang}-${document.getElementById('fSlug').value || 'new'}`;
+
+  function autosaveState() {
+    return {
+      title: document.getElementById('fTitle').value,
+      desc: document.getElementById('fDesc').value,
+      slug: document.getElementById('fSlug').value,
+      category: document.getElementById('fCategory').value,
+      tags: document.getElementById('fTags').value,
+      date: document.getElementById('fDate').value,
+      draft: document.getElementById('fDraft').checked,
+      body: easyMDE ? easyMDE.value() : '',
+      lang: currentLang,
+      path: currentPath,
+      sha: currentSha,
+      savedAt: new Date().toISOString(),
+    };
+  }
+
+  function doAutosave() {
+    if (!easyMDE) return;
+    const dot = document.getElementById('autosaveDot');
+    const label = document.getElementById('autosaveLabel');
+    dot.className = 'autosave-dot saving';
+    label.textContent = '임시저장 중...';
+    try {
+      localStorage.setItem(DRAFT_KEY(), JSON.stringify(autosaveState()));
+      dot.className = 'autosave-dot saved';
+      const t = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+      label.textContent = `임시저장 완료 ${t}`;
+    } catch {
+      dot.className = 'autosave-dot';
+      label.textContent = '임시저장 실패';
+    }
+  }
+
+  function restoreDraft(slug) {
+    const key = `fp-blog-draft-${currentLang}-${slug || 'new'}`;
+    const raw = localStorage.getItem(key);
+    if (!raw) return false;
+    try {
+      const d = JSON.parse(raw);
+      const savedAt = new Date(d.savedAt).toLocaleString('ko-KR');
+      if (!confirm(`임시저장된 내용이 있습니다 (${savedAt}).\n불러올까요?`)) return false;
+      document.getElementById('fTitle').value = d.title || '';
+      document.getElementById('fDesc').value = d.desc || '';
+      document.getElementById('fSlug').value = d.slug || '';
+      document.getElementById('fCategory').value = d.category || '접수 운영';
+      document.getElementById('fTags').value = d.tags || '';
+      document.getElementById('fDate').value = d.date || '';
+      document.getElementById('fDraft').checked = d.draft ?? true;
+      easyMDE.value(d.body || '');
+      if (d.path) currentPath = d.path;
+      if (d.sha) currentSha = d.sha;
+      return true;
+    } catch { return false; }
+  }
+
+  function clearDraft() {
+    try { localStorage.removeItem(DRAFT_KEY()); } catch {}
+  }
+
+  // Start autosave timer after editor init
+  let autosaveTimer = null;
+  function startAutosave() {
+    if (autosaveTimer) clearInterval(autosaveTimer);
+    autosaveTimer = setInterval(doAutosave, 30000); // every 30s
+    if (easyMDE) {
+      easyMDE.codemirror.on('change', () => {
+        clearTimeout(window._asDebounce);
+        window._asDebounce = setTimeout(doAutosave, 5000); // 5s after stop typing
+      });
+    }
   }
 
   // ── Frontmatter helpers ──
