@@ -5630,20 +5630,6 @@ select.form-input option {
 }
 
 /* ===================== OUR CLIENTS ===================== */
-.clients-title {
-  font-size: clamp(20px, 3vw, 28px);
-  font-weight: 500;
-  color: #fff;
-  text-align: center;
-  line-height: 1.55;
-  margin-bottom: 8px;
-}
-.clients-sub {
-  text-align: center;
-  font-size: 14px;
-  color: rgba(255,255,255,0.45);
-  margin-bottom: 32px;
-}
 .clients-tab-bar {
   display: flex;
   justify-content: center;
