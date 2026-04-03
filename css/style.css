@@ -5572,6 +5572,63 @@ select.form-input option {
   .subnav-link { padding: 12px 12px; font-size: 12px; }
 }
 
+/* ===================== STORE CTA BANNER ===================== */
+.store-cta {
+  background: rgba(255,255,255,0.03);
+  border: 0.5px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 24px 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 40px auto 0;
+  max-width: 900px;
+}
+.store-cta-img-wrap {
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 18px;
+  flex-shrink: 0;
+}
+.store-cta-img {
+  height: 44px;
+  width: auto;
+  display: block;
+}
+.store-cta-text { flex: 1; min-width: 0; }
+.store-cta-eyebrow {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  margin: 0 0 4px;
+  letter-spacing: 0.02em;
+}
+.store-cta-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #fff;
+  margin: 0;
+}
+.store-cta-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #03C75A;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 12px 22px;
+  border-radius: 999px;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+.store-cta-btn:hover { opacity: 0.85; }
+@media (max-width: 768px) {
+  .store-cta { flex-wrap: wrap; padding: 20px 24px; }
+  .store-cta-btn { align-self: stretch; justify-content: center; }
+}
+
 /* ===================== OUR CLIENTS ===================== */
 .clients-title {
   font-size: clamp(20px, 3vw, 28px);
