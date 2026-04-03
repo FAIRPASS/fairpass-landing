@@ -78,8 +78,9 @@
     .post-item-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
     .post-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
     .badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
-    .badge-draft { background: rgba(239,68,68,0.2); color: #f87171; }
-    .badge-pub { background: rgba(16,185,129,0.2); color: #34d399; }
+    .badge-draft   { background: rgba(239,68,68,0.2);   color: #f87171; }
+    .badge-writing { background: rgba(251,191,36,0.2);  color: #fbbf24; }
+    .badge-pub     { background: rgba(16,185,129,0.2);  color: #34d399; }
 
     /* ── Buttons ── */
     .btn { padding: 8px 16px; border-radius: var(--radius-xs); font-size: 13px; font-weight: 600; border: none; transition: all 0.15s; }
@@ -276,15 +277,13 @@
             <label class="form-label">게시일 (pubDate)</label>
             <input class="form-input" id="fDate" type="date" />
           </div>
-          <div class="form-group" style="justify-content:flex-end;padding-bottom:4px;">
-            <label class="form-label">초안 (draft)</label>
-            <div class="toggle-row" style="margin-top:4px;">
-              <label class="toggle">
-                <input type="checkbox" id="fDraft" />
-                <span class="toggle-slider"></span>
-              </label>
-              <span style="font-size:13px;color:var(--muted);" id="draftLabel">비공개 (초안)</span>
-            </div>
+          <div class="form-group">
+            <label class="form-label">진행 상태</label>
+            <select class="form-select" id="fStatus" onchange="onStatusChange()">
+              <option value="draft">🔴 초안</option>
+              <option value="writing">🟡 작성 중</option>
+              <option value="published">🟢 배포 완료</option>
+            </select>
           </div>
         </div>
 
@@ -396,10 +395,7 @@
     startAutosave();
     loadList();
 
-    document.getElementById('fDraft').addEventListener('change', function() {
-      document.getElementById('draftLabel').textContent = this.checked ? '비공개 (초안)' : '공개 (발행)';
-      document.getElementById('saveBtn').textContent = this.checked ? '저장 (초안)' : '저장 (발행)';
-    });
+    // status change handler already on select element
 
     document.getElementById('fSlug').addEventListener('input', function() {
       document.getElementById('slugHint').textContent = this.value
@@ -486,10 +482,8 @@
             const titleEl = item.querySelector('.post-item-title');
             if (fm.title) titleEl.textContent = fm.title;
             const meta = item.querySelector('.post-item-meta');
-            const draftBadge = fm.draft === 'true' || fm.draft === true
-              ? '<span class="badge badge-draft">초안</span>'
-              : '<span class="badge badge-pub">발행</span>';
-            meta.innerHTML = `${draftBadge} <span style="color:var(--muted2);font-size:11px;">${fm.pubDate || ''}</span>`;
+            const badge = statusBadgeHtml(fm.status || (fm.draft === 'true' || fm.draft === true ? 'draft' : 'published'));
+            meta.innerHTML = `${badge} <span style="color:var(--muted2);font-size:11px;">${fm.pubDate || ''} · ${fm.category || ''}</span>`;
           }
         }
       } catch {}
@@ -514,9 +508,8 @@
     document.getElementById('fSlug').value = '';
     document.getElementById('fTags').value = '';
     document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
-    document.getElementById('fDraft').checked = true;
-    document.getElementById('draftLabel').textContent = '비공개 (초안)';
-    document.getElementById('saveBtn').textContent = '저장 (초안)';
+    document.getElementById('fStatus').value = 'draft';
+    onStatusChange();
     document.getElementById('deleteBtn').style.display = 'none';
     document.getElementById('saveStatus').textContent = '';
     easyMDE.value('');
@@ -551,10 +544,8 @@
       document.getElementById('fCategory').value = fm.category || '접수 운영';
       document.getElementById('fTags').value = (fm.tags || '').replace(/[\[\]"]/g, '');
       document.getElementById('fDate').value = fm.pubDate || new Date().toISOString().split('T')[0];
-      const isDraft = fm.draft === 'true' || fm.draft === true;
-      document.getElementById('fDraft').checked = isDraft;
-      document.getElementById('draftLabel').textContent = isDraft ? '비공개 (초안)' : '공개 (발행)';
-      document.getElementById('saveBtn').textContent = isDraft ? '저장 (초안)' : '저장 (발행)';
+      document.getElementById('fStatus').value = fm.status || (fm.draft === 'false' ? 'published' : 'draft');
+      onStatusChange();
       easyMDE.value(body);
       document.getElementById('saveStatus').textContent = '';
     } catch (e) {
@@ -571,7 +562,11 @@
     const category = document.getElementById('fCategory').value;
     const tags = document.getElementById('fTags').value.split(',').map(t => t.trim()).filter(Boolean);
     const date = document.getElementById('fDate').value;
-    const draft = document.getElementById('fDraft').checked;
+    const status = document.getElementById('fStatus').value;
+    // Auto-promote: draft → writing on first save
+    const finalStatus = (status === 'draft' && !isNew) ? 'writing' : status;
+    if (finalStatus !== status) document.getElementById('fStatus').value = finalStatus;
+    const draft = finalStatus !== 'published';
     const body = easyMDE.value();
 
     if (!title || !slug) {
@@ -589,6 +584,7 @@ category: "${category}"
 ${tagsYaml}
 author: "FAIRPASS ${currentLang === 'ko' ? '팀' : 'Team'}"
 draft: ${draft}
+status: ${finalStatus}
 ---
 
 ${body}`;
@@ -717,6 +713,31 @@ ${body}`;
 
     setTimeout(() => { progressEl.style.display = 'none'; }, 5000);
     input.value = '';
+  }
+
+  // ── Status helpers ──
+  function onStatusChange() {
+    const status = document.getElementById('fStatus').value;
+    const saveBtn = document.getElementById('saveBtn');
+    if (status === 'published') {
+      saveBtn.textContent = '저장 (배포)';
+      saveBtn.style.background = 'linear-gradient(135deg,#10b981,#06b6d4)';
+    } else if (status === 'writing') {
+      saveBtn.textContent = '저장 (작성 중)';
+      saveBtn.style.background = '';
+    } else {
+      saveBtn.textContent = '저장 (초안)';
+      saveBtn.style.background = '';
+    }
+  }
+
+  function statusBadgeHtml(status) {
+    const map = {
+      draft:     '<span class="badge badge-draft">초안</span>',
+      writing:   '<span class="badge badge-writing">작성 중</span>',
+      published: '<span class="badge badge-pub">배포 완료</span>',
+    };
+    return map[status] || map.draft;
   }
 
   // ── Preview ──

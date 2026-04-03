@@ -10,6 +10,7 @@ const postSchema = z.object({
   author: z.string().default('FAIRPASS 팀'),
   image: z.string().optional(),
   draft: z.boolean().default(false),
+  status: z.enum(['draft', 'writing', 'published']).default('draft'),
   faq: z.array(z.object({ q: z.string(), a: z.string() })).optional(),
 });
 
