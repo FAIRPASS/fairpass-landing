@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd blog-src && npm ci && npm run build",
+  "buildCommand": "cd blog-src && npm install && npm run build",
   "outputDirectory": ".",
   "redirects": [
     { "source": "/en", "destination": "/?lang=en", "permanent": false },
