@@ -642,8 +642,8 @@
     <div class="container">
       <div class="section-label fade-up">OUR CLIENTS</div>
       <h2 class="section-title fade-up">
-        <span class="lang-ko">다양한 분야의 <span class="gradient-text">+ 800개</span> 고객사들과<br><span class="gradient-text">+ 1,700개</span> 이상의 행사를 함께했습니다.</span>
-        <span class="lang-en">Partnered with <span class="gradient-text">800+</span> clients,<br>across <span class="gradient-text">1,700+</span> events together.</span>
+        <span class="lang-ko">다양한 분야의 <span class="gradient-text">+800개 고객사</span>들과 함께 하였습니다.</span>
+        <span class="lang-en">Partnered with <span class="gradient-text">800+ clients</span> across diverse industries.</span>
       </h2>
       <p class="section-desc fade-up" style="--delay: 0.08s; max-width: 600px;">
         <span class="lang-ko">작은 세미나부터 국제 총회까지 — 행사가 있는 곳에 FAIRPASS가 있습니다.</span>
@@ -654,32 +654,29 @@
         <button class="clients-tab active" onclick="clientFilter('all',this)">
           <span class="lang-ko">전체</span><span class="lang-en">All</span>
         </button>
-        <button class="clients-tab" onclick="clientFilter('pco',this)">
-          <span class="lang-ko">PCO · 기획사</span><span class="lang-en">PCO · Planners</span>
-        </button>
         <button class="clients-tab" onclick="clientFilter('corp',this)">
+          <span class="clients-tab-dot" style="background:#10b981;"></span>
           <span class="lang-ko">기업</span><span class="lang-en">Corporate</span>
         </button>
         <button class="clients-tab" onclick="clientFilter('gov',this)">
+          <span class="clients-tab-dot" style="background:#06b6d4;"></span>
           <span class="lang-ko">정부 · 공공</span><span class="lang-en">Government</span>
         </button>
-        <button class="clients-tab" onclick="clientFilter('edu',this)">
-          <span class="lang-ko">대학 · 학회</span><span class="lang-en">Academia</span>
+        <button class="clients-tab" onclick="clientFilter('pco',this)">
+          <span class="clients-tab-dot" style="background:#8b5cf6;"></span>
+          <span class="lang-ko">PCO · 기획사</span><span class="lang-en">PCO · Planners</span>
         </button>
         <button class="clients-tab" onclick="clientFilter('intl',this)">
+          <span class="clients-tab-dot" style="background:#ec4899;"></span>
           <span class="lang-ko">국제기구</span><span class="lang-en">International</span>
+        </button>
+        <button class="clients-tab" onclick="clientFilter('edu',this)">
+          <span class="clients-tab-dot" style="background:#f59e0b;"></span>
+          <span class="lang-ko">대학 · 학회</span><span class="lang-en">Academia</span>
         </button>
       </div>
 
-      <div class="clients-legend fade-up lang-ko" style="--delay: 0.16s">
-        <div class="clients-legend-item"><div class="clients-ldot" style="background:#8b5cf6;"></div>PCO · 기획사</div>
-        <div class="clients-legend-item"><div class="clients-ldot" style="background:#10b981;"></div>기업</div>
-        <div class="clients-legend-item"><div class="clients-ldot" style="background:#06b6d4;"></div>정부 · 공공</div>
-        <div class="clients-legend-item"><div class="clients-ldot" style="background:#f59e0b;"></div>대학 · 학회</div>
-        <div class="clients-legend-item"><div class="clients-ldot" style="background:#ec4899;"></div>국제기구</div>
-      </div>
-
-      <div class="clients-grid-outer fade-up" style="--delay: 0.2s">
+      <div class="clients-grid-outer fade-up" style="--delay: 0.16s">
         <div class="clients-grid collapsed" id="clientsGrid"></div>
         <div class="clients-fade-mask" id="clientsMask"></div>
       </div>
