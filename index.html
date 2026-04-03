@@ -827,6 +827,15 @@
   })();
   </script>
 
+  <script>
+  window.toggleFaqP = function(btn) {
+    var item = btn.closest('.faqp-item');
+    var isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faqp-item.open').forEach(function(el) { el.classList.remove('open'); });
+    if (!isOpen) item.classList.add('open');
+  };
+  </script>
+
   <!-- ===================== SUSTAINABILITY ===================== -->
   <section class="section sustain-section" id="sustainability">
     <div class="container" style="position:relative;z-index:1;">
@@ -900,6 +909,76 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FAQ 미리보기 (기업 타겟 AEO) ===================== -->
+  <section id="faq-preview" class="section lang-ko">
+    <div class="container">
+      <div class="section-label fade-up">FAQ</div>
+      <h2 class="section-title fade-up">기업 행사 담당자가 <span class="gradient-text">가장 많이 묻는</span> 질문</h2>
+      <p class="section-desc fade-up" style="--delay:0.08s; max-width:560px;">도입 전 가장 많이 나오는 질문들을 정리했습니다.</p>
+
+      <div class="faqp-list fade-up" style="--delay:0.14s; max-width:760px; margin:0 auto;">
+
+        <div class="faqp-item">
+          <button class="faqp-q" onclick="toggleFaqP(this)">
+            어떤 기업 행사에 적합한가요?
+            <span class="faqp-icon">+</span>
+          </button>
+          <div class="faqp-a">
+            <p>컨퍼런스, 신제품 발표회, 채용박람회, 임직원 총회, 파트너 데이, 세미나 등 참가자 등록과 현장 체크인이 필요한 모든 기업 행사에 적용할 수 있습니다. 50명 소규모부터 수천 명 규모까지 행사 규모에 제한이 없습니다.</p>
+          </div>
+        </div>
+
+        <div class="faqp-item">
+          <button class="faqp-q" onclick="toggleFaqP(this)">
+            키오스크는 구매와 대여 중 어떤 게 유리한가요?
+            <span class="faqp-icon">+</span>
+          </button>
+          <div class="faqp-a">
+            <p>단발성 행사나 연 1~2회 행사라면 대여가 유리합니다. 분기·반기별로 정기 행사를 운영하거나 상설 전시장이 있는 경우라면 구매가 장기적으로 비용 효율적입니다. 모의 견적을 통해 예상 비용을 먼저 확인해보실 수 있습니다.</p>
+          </div>
+        </div>
+
+        <div class="faqp-item">
+          <button class="faqp-q" onclick="toggleFaqP(this)">
+            등록 플랫폼·키오스크·명찰을 각각 따로 쓸 수 있나요?
+            <span class="faqp-icon">+</span>
+          </button>
+          <div class="faqp-a">
+            <p>네. 세 가지 모두 단독으로도 사용 가능하고, 하나의 시스템으로 통합해서 운영할 수도 있습니다. 기존 등록 시스템이 있는 경우 키오스크만 도입하거나, 명찰만 별도 주문하는 것도 가능합니다.</p>
+          </div>
+        </div>
+
+        <div class="faqp-item">
+          <button class="faqp-q" onclick="toggleFaqP(this)">
+            행사 후 참가자 데이터를 받을 수 있나요?
+            <span class="faqp-icon">+</span>
+          </button>
+          <div class="faqp-a">
+            <p>네. 행사 종료 후 체크인 현황, 참석율, 등록 데이터를 확인하고 내보낼 수 있습니다. 데이터는 행사 목적에 따라 후속 운영 및 보고서 작성에 활용할 수 있습니다.</p>
+          </div>
+        </div>
+
+        <div class="faqp-item">
+          <button class="faqp-q" onclick="toggleFaqP(this)">
+            도입까지 얼마나 걸리나요?
+            <span class="faqp-icon">+</span>
+          </button>
+          <div class="faqp-a">
+            <p>등록 플랫폼은 가입 후 당일 세팅이 가능합니다. 키오스크 대여는 행사 일정 확인 후 준비가 진행되므로 최소 1~2주 전 문의를 권장합니다. 명찰 단독 주문은 제작 기간을 포함해 사전에 여유를 두고 진행해주세요.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="faqp-more fade-up" style="--delay:0.2s">
+        <a href="faq.html" class="faqp-more-link">
+          더 많은 질문 보기
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
       </div>
     </div>
   </section>

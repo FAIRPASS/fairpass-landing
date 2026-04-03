@@ -5572,6 +5572,71 @@ select.form-input option {
   .subnav-link { padding: 12px 12px; font-size: 12px; }
 }
 
+/* ===================== FAQ PREVIEW (index.html) ===================== */
+.faqp-list { border-top: 0.5px solid rgba(255,255,255,0.1); }
+.faqp-item { border-bottom: 0.5px solid rgba(255,255,255,0.1); }
+.faqp-q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 4px;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.85);
+  font-size: 16px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.faqp-q:hover { color: #fff; }
+.faqp-item.open .faqp-q { color: #fff; }
+.faqp-icon {
+  font-size: 20px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.4);
+  flex-shrink: 0;
+  transition: transform 0.25s, color 0.15s;
+  line-height: 1;
+}
+.faqp-item.open .faqp-icon {
+  transform: rotate(45deg);
+  color: var(--cyan-light);
+}
+.faqp-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.faqp-item.open .faqp-a { max-height: 300px; }
+.faqp-a p {
+  padding: 0 4px 20px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.85;
+  margin: 0;
+}
+.faqp-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 36px;
+}
+.faqp-more-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--cyan-light);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
+  padding-bottom: 2px;
+}
+.faqp-more-link:hover { border-color: var(--cyan-light); }
+
 /* ===================== STORE CTA BANNER ===================== */
 .store-cta {
   background: rgba(255,255,255,0.03);
