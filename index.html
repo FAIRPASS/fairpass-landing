@@ -161,7 +161,8 @@
   </script>
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
+  <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css"></noscript>
   <link rel="stylesheet" href="css/style.css">
   <script src="https://challenges.cloudflare.com/turnstile/v1/api.js" async defer></script>
 </head>
@@ -170,7 +171,7 @@
   <!-- ===================== NAVIGATION ===================== -->
   <nav class="nav" id="nav">
     <div class="nav-inner">
-      <a href="#hero" class="nav-logo"><img src="images/FAIRPASS(w+Blue).png" alt="FAIRPASS" class="nav-logo-img"></a>
+      <a href="#hero" class="nav-logo"><img src="images/FAIRPASS(w+Blue).png" alt="FAIRPASS" class="nav-logo-img" width="120" height="28" loading="eager"></a>
       <div class="nav-links" id="navLinks">
         <div class="nav-dropdown">
           <button class="nav-link nav-link--dropdown" id="navDropdownBtn">
@@ -579,7 +580,7 @@
         <p class="badge-story-intro"><span class="lang-ko">글로벌 행사부터 작은 규모의 세미나까지, 사람이 모이는 모든 자리에서<br>명찰은 본인 확인·소통·보안의 이유로 필요합니다.<br><br>참가자는 누구나 <strong>'등록'</strong>이라는 절차를 거치게 됩니다.<br>주최사의 간편하고 정확한 업무와 참가자의 빠르고 편리한 경험을 위해 &mdash; <span class="kw-blue">FAIRPASS는 새로운 등록의 표준을 만듭니다.</span></span><span class="lang-en">From global events to small seminars — wherever people gather, badges are needed for identity, communication, and security.<br><br>Every attendee goes through <strong>registration</strong>.<br>For organizers who need speed and accuracy, and attendees who deserve a seamless experience — <span class="kw-blue">FAIRPASS is setting the new standard for registration.</span></span></p>
 
         <div class="badge-why-wrap">
-          <img src="images/image_badge_why_plastic.jpg" alt="플라스틱 명찰" class="badge-why-img">
+          <img src="images/image_badge_why_plastic.jpg" alt="플라스틱 명찰" class="badge-why-img" width="360" height="240" loading="lazy">
           <div class="badge-why-text">
             <h3 class="badge-story-heading"><span class="lang-ko">FAIRPASS는 왜 종이명찰을 만들었을까요?</span><span class="lang-en">Why did FAIRPASS create paper badges?</span></h3>
             <p class="badge-story-sustain"><span class="lang-ko"><strong style="color:#fff">단 몇시간</strong> 사용되고 폐기되는 플라스틱 명찰,<br>매일 전세계 각 도시에서 개최되는 다양한 행사에서 버려져 심각한 탄소 배출을 늘리고 있습니다.<br><br>FAIRPASS는 <span class="kw-blue">재활용 가능한 종이명찰</span>과 <span class="kw-blue">반영구 키오스크</span>로,<br>더 <span class="kw-blue">지속가능한 행사 운영</span>을 만들어갑니다.</span><span class="lang-en">Plastic badges used for <strong style="color:#fff">just a few hours</strong> are thrown away at events around the world every day — adding to serious carbon emissions.<br><br>FAIRPASS is building <span class="kw-blue">more sustainable events</span> with <span class="kw-blue">recyclable paper badges</span> and <span class="kw-blue">semi-permanent kiosks</span>.</span></p>
@@ -1258,12 +1259,12 @@
       <!-- Top: BlueOrigin Logo + SNS -->
       <div class="footer-top">
         <a href="#" class="footer-logo-link" target="_blank" rel="noopener">
-          <img src="images/BlueOrigin_logo_white.png" alt="Blue Origin" class="footer-logo-img">
+          <img src="images/BlueOrigin_logo_white.png" alt="Blue Origin" class="footer-logo-img" width="120" height="28" loading="lazy">
         </a>
         <div class="footer-sns">
           <!-- FP 원형 로고 (맨 좌측) -->
           <a href="#" class="footer-sns-link footer-sns-link--fp" aria-label="FAIRPASS">
-            <img src="images/FAIRPASS_APP(W+Blue).png" alt="FAIRPASS" class="footer-sns-fp-img">
+            <img src="images/FAIRPASS_APP(W+Blue).png" alt="FAIRPASS" class="footer-sns-fp-img" width="32" height="32" loading="lazy">
           </a>
           <!-- LinkedIn -->
           <a href="https://www.linkedin.com/company/fairpass" class="footer-sns-link footer-sns-link--linkedin" aria-label="LinkedIn" target="_blank" rel="noopener">
