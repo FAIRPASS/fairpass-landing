@@ -645,12 +645,12 @@
         <span class="lang-ko">다양한 분야의 <span class="gradient-text">+ 800개</span> 고객사들과<br><span class="gradient-text">+ 1,700개</span> 이상의 행사를 함께했습니다.</span>
         <span class="lang-en">Partnered with <span class="gradient-text">800+</span> clients,<br>across <span class="gradient-text">1,700+</span> events together.</span>
       </h2>
-      <p class="section-desc fade-up" style="--delay: 0.08s">
-        <span class="lang-ko">컨퍼런스, 학술대회, 총회, 박람회, 포럼, 세미나 — 어떤 행사든</span>
-        <span class="lang-en">Conferences, academic forums, AGMs, exhibitions, summits, seminars — any event</span>
+      <p class="section-desc fade-up" style="--delay: 0.08s; max-width: 600px;">
+        <span class="lang-ko">작은 세미나부터 국제 총회까지 — 행사가 있는 곳에 FAIRPASS가 있습니다.</span>
+        <span class="lang-en">From small seminars to international congresses — wherever events happen, FAIRPASS is there.</span>
       </p>
 
-      <div class="clients-tab-bar fade-up">
+      <div class="clients-tab-bar fade-up" style="--delay: 0.12s">
         <button class="clients-tab active" onclick="clientFilter('all',this)">
           <span class="lang-ko">전체</span><span class="lang-en">All</span>
         </button>
@@ -671,7 +671,15 @@
         </button>
       </div>
 
-      <div class="clients-grid-outer fade-up">
+      <div class="clients-legend fade-up lang-ko" style="--delay: 0.16s">
+        <div class="clients-legend-item"><div class="clients-ldot" style="background:#8b5cf6;"></div>PCO · 기획사</div>
+        <div class="clients-legend-item"><div class="clients-ldot" style="background:#10b981;"></div>기업</div>
+        <div class="clients-legend-item"><div class="clients-ldot" style="background:#06b6d4;"></div>정부 · 공공</div>
+        <div class="clients-legend-item"><div class="clients-ldot" style="background:#f59e0b;"></div>대학 · 학회</div>
+        <div class="clients-legend-item"><div class="clients-ldot" style="background:#ec4899;"></div>국제기구</div>
+      </div>
+
+      <div class="clients-grid-outer fade-up" style="--delay: 0.2s">
         <div class="clients-grid collapsed" id="clientsGrid"></div>
         <div class="clients-fade-mask" id="clientsMask"></div>
       </div>
@@ -682,6 +690,7 @@
           <span class="clients-btn-en lang-en">Show more</span>
           <span class="clients-arrow" id="clientsArrow">▼</span>
         </button>
+        <p class="clients-more-note lang-ko" id="clientsMoreNote"></p>
       </div>
     </div>
   </section>
@@ -701,6 +710,7 @@
       { name: '현대자동차', cat: 'corp' },
       { name: 'KT', cat: 'corp' },
       { name: '래어달 메디컬', cat: 'corp' },
+      { name: '포스코', cat: 'corp' },
       { name: '코엑스', cat: 'gov' },
       { name: '수원시청', cat: 'gov' },
       { name: '한국관광공사', cat: 'gov' },
@@ -724,6 +734,7 @@
       { name: '스피언스', cat: 'pco' },
       { name: '키멕스', cat: 'pco' },
       { name: '오프너', cat: 'pco' },
+      { name: '보다컴퍼니', cat: 'pco' },
       { name: '서울대학교', cat: 'edu' },
       { name: '연세대학교', cat: 'edu' },
       { name: '고려대학교', cat: 'edu' },
@@ -739,6 +750,8 @@
       { name: '환경보건학회', cat: 'edu' },
       { name: '서울시치과기공사회', cat: 'edu' },
       { name: '한국동물보건사협회', cat: 'edu' },
+      { name: '전국대학산학협력단협의회', cat: 'edu' },
+      { name: '반디학회', cat: 'edu' },
       { name: 'ADB (아시아개발은행)', cat: 'intl' },
       { name: 'ABU (아시아태평양방송연합)', cat: 'intl' },
       { name: 'WFD (세계농아인연맹)', cat: 'intl' },
@@ -762,8 +775,8 @@
       grid.classList.add('collapsed');
       document.getElementById('clientsMask').classList.remove('hidden');
       document.getElementById('clientsArrow').classList.remove('up');
-      document.querySelectorAll('.clients-btn-ko').forEach(function(el) { el.textContent = '더 보기'; });
-      document.querySelectorAll('.clients-btn-en').forEach(function(el) { el.textContent = 'Show more'; });
+      document.querySelectorAll('.clients-btn-ko').forEach(function(e) { e.textContent = '더 보기'; });
+      document.querySelectorAll('.clients-btn-en').forEach(function(e) { e.textContent = 'Show more'; });
       clientsRender();
     };
 
@@ -777,24 +790,28 @@
         grid.classList.add('expanded');
         mask.classList.add('hidden');
         arrow.classList.add('up');
-        document.querySelectorAll('.clients-btn-ko').forEach(function(el) { el.textContent = '접기'; });
-        document.querySelectorAll('.clients-btn-en').forEach(function(el) { el.textContent = 'Collapse'; });
+        document.querySelectorAll('.clients-btn-ko').forEach(function(e) { e.textContent = '접기'; });
+        document.querySelectorAll('.clients-btn-en').forEach(function(e) { e.textContent = 'Collapse'; });
       } else {
         grid.classList.remove('expanded');
         grid.classList.add('collapsed');
         mask.classList.remove('hidden');
         arrow.classList.remove('up');
-        document.querySelectorAll('.clients-btn-ko').forEach(function(el) { el.textContent = '더 보기'; });
-        document.querySelectorAll('.clients-btn-en').forEach(function(el) { el.textContent = 'Show more'; });
+        document.querySelectorAll('.clients-btn-ko').forEach(function(e) { e.textContent = '더 보기'; });
+        document.querySelectorAll('.clients-btn-en').forEach(function(e) { e.textContent = 'Show more'; });
       }
     };
 
     function clientsRender() {
       var grid = document.getElementById('clientsGrid');
+      var note = document.getElementById('clientsMoreNote');
       var filtered = clientsCurrentCat === 'all' ? clientsList : clientsList.filter(function(c) { return c.cat === clientsCurrentCat; });
       grid.innerHTML = filtered.map(function(c) {
-        return '<div class="clients-chip">' + c.name + '</div>';
+        return '<div class="clients-chip clients-chip-' + c.cat + '">' + c.name + '</div>';
       }).join('');
+      if (note) {
+        note.textContent = clientsCurrentCat === 'all' ? '이 외에도 500개 이상의 고객사와 함께했습니다.' : '';
+      }
     }
 
     clientsRender();
