@@ -202,6 +202,24 @@
     .slug-hint { font-size: 11px; color: var(--muted2); margin-top: 4px; }
     .section-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
 
+    /* ── Import Modal ── */
+    #importModal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+    #importModal.open { display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px; overflow-y: auto; }
+    .import-box { background: #0e0e1a; border: 1px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 720px; overflow: hidden; }
+    .import-box-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .import-box-header span { font-size: 14px; font-weight: 700; }
+    .import-body { padding: 24px; }
+    .import-result { display: none; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; margin-top: 20px; }
+    .import-result.open { display: block; }
+    .import-result-header { padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; color: var(--muted); }
+    .import-result-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 14px; border-bottom: 1px solid var(--border); }
+    .import-meta-item { font-size: 12px; }
+    .import-meta-label { color: var(--muted); margin-bottom: 2px; font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em; }
+    .import-meta-val { color: var(--text); }
+    .import-preview-body { padding: 14px; max-height: 300px; overflow-y: auto; }
+    .import-preview-body pre { white-space: pre-wrap; font-size: 12px; color: rgba(255,255,255,0.7); font-family: monospace; line-height: 1.6; }
+    .import-actions { display: flex; gap: 8px; justify-content: flex-end; padding: 14px; border-top: 1px solid var(--border); }
+
     /* ── Preview Modal ── */
     #previewModal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
     #previewModal.open { display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px; overflow-y: auto; }
@@ -275,6 +293,7 @@
           <h1 class="page-title">저널 관리</h1>
           <div style="display:flex;gap:8px;">
             <button class="btn btn-ghost btn-sm" onclick="loadList()">↺ 새로고침</button>
+            <button class="btn btn-ghost btn-sm" onclick="openImportModal()">📥 가져오기</button>
             <button class="btn btn-primary" onclick="openNew()">+ 새 포스트</button>
           </div>
         </div>
@@ -506,6 +525,71 @@
       </div>
 
     </main>
+  </div>
+</div>
+
+<!-- ── IMPORT MODAL ── -->
+<div id="importModal">
+  <div class="import-box">
+    <div class="import-box-header">
+      <span>📥 기존 글 가져오기 — AI 정리</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeImportModal()">✕ 닫기</button>
+    </div>
+    <div class="import-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;">
+        네이버 블로그·카카오·다른 플랫폼에서 복사한 텍스트를 붙여넣으세요.<br>
+        AI가 마크다운으로 재편집하고, 제목·카테고리·태그도 자동 추출합니다.
+      </p>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label class="form-label">카테고리 힌트 (선택)</label>
+        <select class="form-select" id="importCategory">
+          <option value="">자동 판단</option>
+          <option value="FAIRPASS 이야기">FAIRPASS 이야기</option>
+          <option value="FAIRPASS 활용법">FAIRPASS 활용법</option>
+          <option value="운영 사례">운영 사례</option>
+          <option value="지속가능한 행사">지속가능한 행사</option>
+          <option value="업계 트렌드">업계 트렌드</option>
+          <option value="FAIRPASS 소식">FAIRPASS 소식</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label class="form-label">원문 텍스트 붙여넣기</label>
+        <textarea class="form-textarea" id="importRawText" rows="10" placeholder="네이버 블로그, 카카오, 워드 문서 등에서 복사한 텍스트를 여기에 붙여넣으세요..."></textarea>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="btn btn-primary" id="importConvertBtn" onclick="runImportConvert()">✨ AI 정리</button>
+        <span id="importLoading" style="font-size:12px;color:var(--cyan);display:none;">AI가 정리 중...</span>
+      </div>
+
+      <div class="import-result" id="importResult">
+        <div class="import-result-header">✅ AI 정리 결과 — 에디터에 적용하기 전에 확인하세요</div>
+        <div class="import-result-meta">
+          <div class="import-meta-item">
+            <div class="import-meta-label">제목</div>
+            <div class="import-meta-val" id="importResTitle">—</div>
+          </div>
+          <div class="import-meta-item">
+            <div class="import-meta-label">카테고리</div>
+            <div class="import-meta-val" id="importResCategory">—</div>
+          </div>
+          <div class="import-meta-item" style="grid-column:span 2;">
+            <div class="import-meta-label">설명 (description)</div>
+            <div class="import-meta-val" id="importResDesc">—</div>
+          </div>
+          <div class="import-meta-item" style="grid-column:span 2;">
+            <div class="import-meta-label">태그</div>
+            <div class="import-meta-val" id="importResTags">—</div>
+          </div>
+        </div>
+        <div class="import-preview-body">
+          <pre id="importResBody"></pre>
+        </div>
+        <div class="import-actions">
+          <button class="btn btn-ghost btn-sm" onclick="closeImportModal()">취소</button>
+          <button class="btn btn-primary btn-sm" onclick="applyImportToEditor()">에디터에 적용 →</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1157,10 +1241,10 @@ ${body}`;
     loadingEl.style.display = 'inline';
 
     try {
-      const r = await fetch('/api/journal-sns', {
+      const r = await fetch('/api/journal-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, body, slug, lang: currentLang, password: pw }),
+        body: JSON.stringify({ action: 'sns', title, body, slug, lang: currentLang, password: pw }),
       });
       const data = await r.json();
       if (r.ok) {
@@ -1252,10 +1336,10 @@ snsCopy:
     btn.disabled = true;
 
     try {
-      const r = await fetch('/api/journal-translate', {
+      const r = await fetch('/api/journal-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description: desc, body, category, tags, slug, password: pw }),
+        body: JSON.stringify({ action: 'translate', title, description: desc, body, category, tags, slug, password: pw }),
       });
       const data = await r.json();
       if (r.ok) {
@@ -1436,6 +1520,107 @@ snsCopy:
   function startAutosave() {
     if (autosaveTimer) clearInterval(autosaveTimer);
     autosaveTimer = setInterval(doAutosave, 30000);
+  }
+
+  // ── Import Modal ──
+  let _importData = null;
+
+  function openImportModal() {
+    document.getElementById('importRawText').value = '';
+    document.getElementById('importCategory').value = '';
+    document.getElementById('importResult').classList.remove('open');
+    document.getElementById('importLoading').style.display = 'none';
+    document.getElementById('importConvertBtn').disabled = false;
+    _importData = null;
+    document.getElementById('importModal').classList.add('open');
+  }
+
+  function closeImportModal() {
+    document.getElementById('importModal').classList.remove('open');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('importModal').addEventListener('click', function(e) {
+      if (e.target === this) closeImportModal();
+    });
+  });
+
+  async function runImportConvert() {
+    const rawText = document.getElementById('importRawText').value.trim();
+    if (rawText.length < 50) {
+      alert('최소 50자 이상의 텍스트를 붙여넣어 주세요.');
+      return;
+    }
+    const category = document.getElementById('importCategory').value;
+    const btn = document.getElementById('importConvertBtn');
+    const loading = document.getElementById('importLoading');
+
+    btn.disabled = true;
+    loading.style.display = 'inline';
+    document.getElementById('importResult').classList.remove('open');
+
+    try {
+      const r = await fetch('/api/journal-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'import', rawText, category, password: pw }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || '변환 실패');
+
+      _importData = data;
+      document.getElementById('importResTitle').textContent    = data.title || '—';
+      document.getElementById('importResDesc').textContent     = data.description || '—';
+      document.getElementById('importResCategory').textContent = data.category || '—';
+      document.getElementById('importResTags').textContent     = (data.tags || []).join(', ') || '—';
+      document.getElementById('importResBody').textContent     = data.body || '';
+      document.getElementById('importResult').classList.add('open');
+    } catch (e) {
+      alert('AI 정리 실패: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      loading.style.display = 'none';
+    }
+  }
+
+  function applyImportToEditor() {
+    if (!_importData) return;
+    closeImportModal();
+    // Open new post editor
+    isNew = true;
+    currentSha = null;
+    currentPath = null;
+    document.getElementById('editorTitle').textContent = '새 포스트';
+    document.getElementById('editorLangBadge').textContent = '🇰🇷 한국어';
+    document.getElementById('fTitle').value = _importData.title || '';
+    document.getElementById('fDesc').value  = _importData.description || '';
+    document.getElementById('fSlug').value  = '';
+    document.getElementById('slugHint').textContent = '';
+    populateCategorySelect('ko');
+    const cats = KO_CATEGORIES;
+    if (_importData.category && cats.includes(_importData.category)) {
+      document.getElementById('fCategory').value = _importData.category;
+    }
+    document.getElementById('fAuthor').value = '전서윤';
+    document.getElementById('fAuthorTitle').value = AUTHOR_TITLES['전서윤'];
+    document.getElementById('fTags').value = (_importData.tags || []).join(', ');
+    document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('fStatus').value = 'draft';
+    onStatusChange();
+    document.getElementById('deleteBtn').style.display = 'none';
+    document.getElementById('saveStatus').textContent = '';
+    clearSnsFields();
+    closeTranslateResult();
+    currentLang = 'ko';
+    updateTranslateVisibility();
+    easyMDE.value(_importData.body || '');
+    document.getElementById('listView').style.display = 'none';
+    document.getElementById('generateView').style.display = 'none';
+    document.getElementById('editorPanel').classList.add('open');
+    document.getElementById('navJournal').classList.add('active');
+    document.getElementById('navGenerate').classList.remove('active');
+    // Scroll to top
+    window.scrollTo(0, 0);
   }
 
   // ── Utility ──
