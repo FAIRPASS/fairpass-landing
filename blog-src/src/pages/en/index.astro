@@ -6,14 +6,14 @@ import BlogCard from '../../components/BlogCard.astro';
 const base = import.meta.env.BASE_URL;
 const site = 'https://fairpass.world';
 
-const allPosts = await getCollection('blog-en', ({ data }) => !data.draft);
+const allPosts = await getCollection('journal-en', ({ data }) => !data.draft && data.status === 'published');
 const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
 const categories = [...new Set(posts.map(p => p.data.category))];
 ---
 
 <BlogLayout
-  title="English Blog — Event Management Insights"
+  title="FAIRPASS Journal — Event Management Insights"
   description="Practical guides for event managers: registration automation, self-service check-in kiosks, and eco-friendly name badges. By FAIRPASS."
   lang="en"
   hreflangKo={`${site}${base}/ko/`}

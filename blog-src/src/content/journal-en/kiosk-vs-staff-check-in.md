@@ -5,6 +5,7 @@ pubDate: 2026-03-17
 category: "On-Site Operations"
 tags: ["kiosk", "check-in", "event-operations", "self-service", "QR-code"]
 author: "FAIRPASS Team"
+status: published
 faq:
   - q: "How does a self-service check-in kiosk work?"
     a: "Attendees scan the QR code they received at registration. Within 1–2 seconds, their identity is verified and a personalized badge prints automatically — no staff required."

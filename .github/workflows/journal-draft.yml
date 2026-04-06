@@ -1,0 +1,102 @@
+name: Weekly Journal Draft Generator
+
+on:
+  schedule:
+    # Tuesday 9:00 AM KST = Monday 00:00 UTC
+    - cron: '0 0 * * 2'
+    # Thursday 9:00 AM KST = Wednesday 00:00 UTC
+    - cron: '0 0 * * 4'
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: '저널 주제 힌트 (선택)'
+        required: false
+        default: ''
+      category:
+        description: '카테고리 선택'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - FAIRPASS 이야기
+          - FAIRPASS 활용법
+          - 운영 사례
+          - 지속가능한 행사
+          - 업계 트렌드
+          - FAIRPASS 소식
+
+jobs:
+  generate-draft:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate journal draft via Claude API
+        id: generate
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TOPIC_HINT: ${{ github.event.inputs.topic || '' }}
+          CATEGORY_HINT: ${{ github.event.inputs.category || 'auto' }}
+          # Tuesday = category rotation A (활용법/운영 사례), Thursday = rotation B (이야기/트렌드/지속가능)
+          DAY_OF_WEEK: ${{ github.run_attempt }}
+        run: |
+          node .github/scripts/generate-journal-draft.mjs
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'draft: auto-generated journal post'
+          branch: journal-draft/${{ github.run_number }}
+          title: '📝 [초안] FAIRPASS Journal 자동 생성 #${{ github.run_number }}'
+          body: |
+            ## 자동 생성 저널 초안
+
+            Claude API(claude-sonnet-4-6)가 생성한 국문 초안입니다.
+            검토·수정 후 status를 `approved` → `published`로 변경하여 merge해주세요.
+
+            ### 워크플로우
+            - [ ] 내용 검토 및 수정 (전서윤/최윤지)
+            - [ ] 제목·설명 SEO 최적화
+            - [ ] FAQ 확인 (AEO 대응)
+            - [ ] 카테고리·태그 확인
+            - [ ] status → `approved` 변경
+            - [ ] 관리자 페이지에서 영문 번역 생성
+            - [ ] 관리자 페이지에서 SNS 콘텐츠 생성
+            - [ ] status → `published` 후 merge
+
+            > 관리자 페이지: https://fairpass.world/admin/journal.html
+            > 이 PR은 GitHub Actions에 의해 자동 생성되었습니다.
+          labels: 'journal-draft,auto-generated'
+          draft: true
+
+      - name: Send email notification
+        if: success()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL || 'fairpass@fairpass.world' }}
+        run: |
+          node -e "
+          const body = JSON.stringify({
+            from: 'FAIRPASS Journal <noreply@fairpass.world>',
+            to: [process.env.NOTIFY_EMAIL],
+            subject: '[FAIRPASS Journal] 이번 주 초안이 준비됐습니다',
+            html: '<p>FAIRPASS Journal 자동 초안이 생성되었습니다.</p><p>관리자 페이지에서 검토해 주세요: <a href=\"https://fairpass.world/admin/journal.html\">journal.html</a></p>'
+          });
+          fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + process.env.RESEND_API_KEY, 'Content-Type': 'application/json' },
+            body
+          }).then(r => r.json()).then(d => console.log('Email sent:', d)).catch(e => console.log('Email skipped:', e.message));
+          "

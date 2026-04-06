@@ -44,65 +44,65 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- Blog -->
+  <!-- Journal -->
   <url>
-    <loc>https://fairpass.world/blog/</loc>
-    <lastmod>2026-04-03</lastmod>
+    <loc>https://fairpass.world/journal/</loc>
+    <lastmod>2026-04-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://fairpass.world/blog/ko/</loc>
-    <lastmod>2026-04-03</lastmod>
+    <loc>https://fairpass.world/journal/ko/</loc>
+    <lastmod>2026-04-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://fairpass.world/blog/en/</loc>
-    <lastmod>2026-04-03</lastmod>
+    <loc>https://fairpass.world/journal/en/</loc>
+    <lastmod>2026-04-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://fairpass.world/blog/ko/event-registration-automation/</loc>
+    <loc>https://fairpass.world/journal/ko/event-registration-automation/</loc>
     <lastmod>2026-03-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://fairpass.world/blog/ko/kiosk-vs-staff-check-in/</loc>
+    <loc>https://fairpass.world/journal/ko/kiosk-vs-staff-check-in/</loc>
     <lastmod>2026-03-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://fairpass.world/blog/ko/paper-badge-esg/</loc>
+    <loc>https://fairpass.world/journal/ko/paper-badge-esg/</loc>
     <lastmod>2026-03-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://fairpass.world/blog/en/event-registration-automation/</loc>
+    <loc>https://fairpass.world/journal/en/event-registration-automation/</loc>
     <lastmod>2026-03-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://fairpass.world/blog/en/kiosk-vs-staff-check-in/</loc>
+    <loc>https://fairpass.world/journal/en/kiosk-vs-staff-check-in/</loc>
     <lastmod>2026-03-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://fairpass.world/blog/en/paper-badge-esg/</loc>
+    <loc>https://fairpass.world/journal/en/paper-badge-esg/</loc>
     <lastmod>2026-03-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

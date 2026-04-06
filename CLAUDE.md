@@ -46,6 +46,20 @@
 - 언어 전환 시 `js/main.js`의 `setLang()` 함수에서 `video.lang-video` 클래스 대상으로 src 자동 교체
 - video 태그에 `data-src-ko` / `data-src-en` 속성으로 소스 지정
 
+## Journal (구 Blog) — 2026-04-06 업데이트
+- 명칭: "FAIRPASS Journal" (이전: FAIRPASS Blog)
+- URL: `/journal/` (이전: `/blog/`)
+- Astro 소스: `blog-src/` (base: `/journal`, outDir: `../journal`)
+- 콘텐츠 컬렉션: `journal-ko` / `journal-en` (이전: `blog-ko` / `blog-en`)
+- 관리자 페이지: `/admin/journal.html` (이전: `/admin/blog.html`)
+- API: `/api/journal-admin` (이전: `/api/blog-admin`)
+- SNS 생성: `/api/journal-sns` (Claude API 연동)
+- 영문 번역: `/api/journal-translate` (Claude API 연동)
+- GitHub Actions: `.github/workflows/journal-draft.yml` (화/목 주 2회 자동 초안)
+- 카테고리 6개: FAIRPASS 이야기/Our Story, FAIRPASS 활용법/How It Works, 운영 사례/In the Field, 지속가능한 행사/Sustainable Events, 업계 트렌드/Industry Trends, FAIRPASS 소식/FAIRPASS News
+- Status 4단계: draft → review → approved → published
+- 빌드: `blog-src/` 에서 `npm run build` → `journal/` 폴더 출력 → git push → Vercel 자동 배포
+
 ## 필수 규칙
 - 사용자가 요청한 것만 수정할 것
 - 실행 여부를 묻지 말고 바로 수행할 것

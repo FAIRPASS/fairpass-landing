@@ -5,6 +5,7 @@ pubDate: 2026-03-24
 category: "Sustainability"
 tags: ["ESG", "paper-badge", "sustainable-events", "eco-friendly", "name-badge"]
 author: "FAIRPASS Team"
+status: published
 faq:
   - q: "Are paper name badges durable enough for multi-day events?"
     a: "FAIRPASS paper badges use water-resistant FSC-certified paper. They hold up through typical indoor conditions for 1–3 day events. The paper cord is tested to the same tensile strength as standard polyester lanyards."

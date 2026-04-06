@@ -5,6 +5,7 @@ pubDate: 2026-03-24
 category: "친환경 운영"
 tags: ["ESG", "종이명찰", "친환경행사", "지속가능성", "페패"]
 author: "FAIRPASS 팀"
+status: published
 faq:
   - q: "종이 명찰은 내구성이 약하지 않나요?"
     a: "FAIRPASS 페패(FAIRPASS Badge)는 방수 처리된 FSC 인증 특수 종이를 사용합니다. 일반 행사 환경(실내, 1~3일)에서는 플라스틱과 동일한 내구성을 제공합니다."

@@ -6,14 +6,14 @@ import BlogCard from '../../components/BlogCard.astro';
 const base = import.meta.env.BASE_URL;
 const site = 'https://fairpass.world';
 
-const allPosts = await getCollection('blog-ko', ({ data }) => !data.draft);
+const allPosts = await getCollection('journal-ko', ({ data }) => !data.draft && data.status === 'published');
 const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
 const categories = [...new Set(posts.map(p => p.data.category))];
 ---
 
 <BlogLayout
-  title="한국어 블로그 — 행사 운영 인사이트"
+  title="FAIRPASS Journal — 행사 운영 인사이트"
   description="기업·기관 행사 담당자를 위한 접수 자동화, 현장 체크인, 친환경 명찰 운영 가이드. FAIRPASS가 제공합니다."
   lang="ko"
   hreflangKo={`${site}${base}/ko/`}

@@ -6,16 +6,16 @@ import BlogCard from '../components/BlogCard.astro';
 const base = import.meta.env.BASE_URL;
 const site = 'https://fairpass.world';
 
-const koRaw = await getCollection('blog-ko', ({ data }) => !data.draft);
-const enRaw = await getCollection('blog-en', ({ data }) => !data.draft);
+const koRaw = await getCollection('journal-ko', ({ data }) => !data.draft && data.status === 'published');
+const enRaw = await getCollection('journal-en', ({ data }) => !data.draft && data.status === 'published');
 
 const koPosts = koRaw.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
 const enPosts = enRaw.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
 ---
 
 <BlogLayout
-  title="이벤트 운영 인사이트 | Event Management Insights"
-  description="행사 접수·현장 운영·명찰 등 이벤트 인사이트를 FAIRPASS가 전합니다. Event management insights from FAIRPASS."
+  title="FAIRPASS Journal — 행사 운영의 현장, FAIRPASS가 기록합니다"
+  description="행사 접수·현장 운영·명찰 등 이벤트 인사이트를 FAIRPASS가 전합니다. FAIRPASS Journal — Insights, Stories and News from the Event Industry."
   lang="ko"
   hreflangKo={`${site}${base}/ko/`}
   hreflangEn={`${site}${base}/en/`}
@@ -27,12 +27,12 @@ const enPosts = enRaw.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.v
     <div class="text-center mb-16">
       <h1 class="text-3xl sm:text-4xl font-bold text-fp-text mb-4">
         <span class="bg-gradient-to-r from-fp-purple-light to-fp-cyan-light bg-clip-text text-transparent">
-          FAIRPASS Blog
+          FAIRPASS Journal
         </span>
       </h1>
       <p class="text-fp-muted max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
-        행사 접수·현장 운영·친환경 명찰에 관한 실무 인사이트<br class="hidden sm:block" />
-        <span class="text-fp-secondary text-xs sm:text-sm">Event registration, on-site operations, and eco badge insights</span>
+        행사 운영의 현장, FAIRPASS가 기록합니다<br class="hidden sm:block" />
+        <span class="text-fp-secondary text-xs sm:text-sm">Insights, Stories and News from the Event Industry</span>
       </p>
 
       <!-- Language Toggle -->
@@ -41,13 +41,13 @@ const enPosts = enRaw.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.v
           href={`${base}/ko/`}
           class="px-6 py-2.5 rounded-full bg-fp-purple text-white text-sm font-medium hover:bg-fp-purple-light transition-colors"
         >
-          한국어 블로그
+          한국어 저널
         </a>
         <a
           href={`${base}/en/`}
           class="px-6 py-2.5 rounded-full border border-fp-border text-fp-muted text-sm font-medium hover:border-fp-cyan hover:text-fp-text transition-all"
         >
-          English Blog
+          English Journal
         </a>
       </div>
     </div>

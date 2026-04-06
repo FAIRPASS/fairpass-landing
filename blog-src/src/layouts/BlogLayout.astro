@@ -27,7 +27,7 @@ const {
   type = 'website',
 } = Astro.props;
 
-const base = import.meta.env.BASE_URL; // '/blog'
+const base = import.meta.env.BASE_URL; // '/journal'
 const site = 'https://fairpass.world';
 const ogImage = image || `${site}/images/hero_image.png`;
 const canonical = canonicalURL || `${site}${Astro.url.pathname}`;
@@ -90,7 +90,7 @@ const ui = {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{title} | FAIRPASS Blog</title>
+  <title>{title} | FAIRPASS Journal</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonical} />
 
@@ -101,7 +101,7 @@ const ui = {
 
   <!-- OG / Social -->
   <meta property="og:type" content={type} />
-  <meta property="og:title" content={`${title} | FAIRPASS Blog`} />
+  <meta property="og:title" content={`${title} | FAIRPASS Journal`} />
   <meta property="og:description" content={description} />
   <meta property="og:image" content={ogImage} />
   <meta property="og:url" content={canonical} />
@@ -164,7 +164,7 @@ const ui = {
           <img src="/images/FAIRPASS.png" alt="FAIRPASS" class="h-6 w-auto" loading="eager" />
         </a>
         <span class="shrink-0">/</span>
-        <a href={`${base}/`} class="hover:text-fp-text transition-colors shrink-0">Blog</a>
+        <a href={`${base}/`} class="hover:text-fp-text transition-colors shrink-0">Journal</a>
         <slot name="breadcrumb" />
       </div>
 
@@ -268,7 +268,7 @@ const ui = {
         const res = await fetch('/api/newsletter', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, lang, source: 'blog' }),
+          body: JSON.stringify({ email, lang, source: 'journal' }),
         });
         const data = await res.json();
         msg.classList.remove('hidden');

@@ -3,12 +3,12 @@ import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
   integrations: [tailwind()],
-  base: '/blog',
-  outDir: '../blog',
+  base: '/journal',
+  outDir: '../journal',
   output: 'static',
   trailingSlash: 'always',
   site: 'https://fairpass.world',
   build: {
-    assets: 'blog-assets',
+    assets: 'journal-assets',
   },
 });
