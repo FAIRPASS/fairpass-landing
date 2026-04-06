@@ -47,6 +47,10 @@
     }
     .login-btn:hover { opacity: 0.88; }
     .login-err { font-size: 13px; color: var(--red); margin-top: 10px; min-height: 20px; }
+    .pw-wrap { position: relative; margin-bottom: 14px; }
+    .pw-wrap .login-input { margin-bottom: 0; padding-right: 42px; }
+    .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; line-height: 1; padding: 2px; transition: color 0.15s; }
+    .pw-toggle:hover { color: var(--text); }
 
     /* ── Layout ── */
     #app { display: none; }
@@ -296,7 +300,10 @@
   <div class="login-card">
     <div class="login-logo">FAIRPASS <span>Admin</span></div>
     <div class="login-sub">관리자 페이지</div>
-    <input type="password" id="pwInput" class="login-input" placeholder="관리자 비밀번호" autocomplete="current-password">
+    <div class="pw-wrap">
+      <input type="password" id="pwInput" class="login-input" placeholder="관리자 비밀번호" autocomplete="current-password">
+      <button type="button" class="pw-toggle" id="pwToggleBtn" onclick="togglePwVisible()" title="비밀번호 보기/숨기기">👁️</button>
+    </div>
     <button class="login-btn" id="loginBtn">로그인</button>
     <div class="login-err" id="loginErr"></div>
   </div>
@@ -863,6 +870,21 @@ document.querySelectorAll('.nav-item').forEach(btn => {
     document.getElementById('page-' + btn.dataset.page).classList.add('active');
   });
 });
+
+// ── Password toggle ──
+function togglePwVisible() {
+  const input = document.getElementById('pwInput');
+  const btn   = document.getElementById('pwToggleBtn');
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+    btn.title = '비밀번호 숨기기';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁️';
+    btn.title = '비밀번호 보기';
+  }
+}
 
 // ── Login ──
 document.getElementById('loginBtn').onclick = async () => {
