@@ -511,6 +511,7 @@
     fetch(`/api/journal-admin?action=list&lang=ko&password=${encodeURIComponent(pw)}`)
       .then(r => {
         if (r.ok) {
+          sessionStorage.setItem('fairpass_admin_pw', pw); // main admin 세션과 공유
           sessionStorage.setItem('journalAdminPw', pw);
           document.getElementById('loginScreen').style.display = 'none';
           document.getElementById('app').style.display = 'block';
@@ -531,10 +532,11 @@
     if (e.key === 'Enter') doLogin();
   });
 
-  // Auto-login from session
-  const savedPw = sessionStorage.getItem('journalAdminPw');
+  // Auto-login from session — main admin(fairpass_admin_pw) 또는 journal 세션 공유
+  const savedPw = sessionStorage.getItem('fairpass_admin_pw') || sessionStorage.getItem('journalAdminPw');
   if (savedPw) {
     pw = savedPw;
+    sessionStorage.setItem('journalAdminPw', pw); // 동기화
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     initApp();
