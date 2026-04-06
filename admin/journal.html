@@ -182,6 +182,15 @@
     .translate-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
     .translate-loading { font-size: 12px; color: var(--cyan); display: none; }
 
+    /* ── Generate Panel ── */
+    .generate-view { max-width: 560px; }
+    .generate-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+    .generate-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .generate-desc { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+    .generate-result { margin-top: 16px; padding: 14px 16px; border-radius: var(--radius-xs); font-size: 13px; display: none; }
+    .generate-result.ok { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #34d399; display: block; }
+    .generate-result.err { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #f87171; display: block; }
+
     /* ── Misc ── */
     .loading { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
     .empty { text-align: center; padding: 48px; color: var(--muted2); font-size: 14px; }
@@ -238,8 +247,11 @@
         <a class="nav-item" href="/admin/">
           <span class="nav-icon">📊</span> 대시보드
         </a>
-        <button class="nav-item active" onclick="showList()">
+        <button class="nav-item active" id="navJournal" onclick="showList()">
           <span class="nav-icon">✍️</span> 저널
+        </button>
+        <button class="nav-item" id="navGenerate" onclick="showGenerate()">
+          <span class="nav-icon">🚀</span> 초안 요청
         </button>
       </nav>
       <div class="sidebar-bottom">
@@ -267,6 +279,50 @@
 
         <div id="postListContainer" class="post-list">
           <div class="loading">불러오는 중...</div>
+        </div>
+      </div>
+
+      <!-- GENERATE VIEW -->
+      <div id="generateView" style="display:none;">
+        <div class="page-header">
+          <h1 class="page-title">즉시 초안 생성</h1>
+        </div>
+        <div class="generate-view">
+          <div class="generate-card">
+            <div class="generate-title">✍️ 특별 주제 초안 생성 요청</div>
+            <div class="generate-desc">
+              AI가 지정한 주제와 카테고리로 저널 초안을 생성합니다.<br>
+              완료 시 GitHub PR이 생성되고 이메일로 알림이 전송됩니다 (약 2~3분 소요).
+            </div>
+            <div class="form-grid" style="grid-template-columns:1fr;">
+              <div class="form-group">
+                <label class="form-label">주제 힌트 (선택)</label>
+                <input class="form-input" id="genTopic" type="text" placeholder="예: 새학기 특별 안내, APEC 2026 대비 행사 운영 팁, 연말 시상식 운영 체크리스트..." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">카테고리</label>
+                <select class="form-select" id="genCategory">
+                  <option value="auto">자동 선택</option>
+                  <option value="FAIRPASS 이야기">FAIRPASS 이야기</option>
+                  <option value="FAIRPASS 활용법">FAIRPASS 활용법</option>
+                  <option value="운영 사례">운영 사례</option>
+                  <option value="지속가능한 행사">지속가능한 행사</option>
+                  <option value="업계 트렌드">업계 트렌드</option>
+                  <option value="FAIRPASS 소식">FAIRPASS 소식</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top:16px;">
+              <button class="btn btn-primary" id="genBtn" onclick="triggerGenerate()">🚀 초안 생성 요청</button>
+              <span id="genLoading" style="font-size:12px;color:var(--cyan);margin-left:12px;display:none;">요청 중...</span>
+            </div>
+            <div class="generate-result" id="genResult"></div>
+          </div>
+          <div style="margin-top:20px;font-size:12px;color:var(--muted2);line-height:2;">
+            <strong style="color:var(--muted);">생성 후 워크플로우</strong><br>
+            초안 생성 완료 → GitHub PR 자동 생성 → 이메일 알림 수신<br>
+            → 저널 목록에서 편집 → status: published → 저장 시 자동 배포
+          </div>
         </div>
       </div>
 
@@ -597,6 +653,63 @@
     if (cats.includes(current)) sel.value = current;
   }
 
+  // ── Nav views ──
+  function showList() {
+    document.getElementById('listView').style.display = 'block';
+    document.getElementById('generateView').style.display = 'none';
+    document.getElementById('editorPanel').classList.remove('open');
+    document.getElementById('navJournal').classList.add('active');
+    document.getElementById('navGenerate').classList.remove('active');
+    loadList();
+  }
+
+  function showGenerate() {
+    document.getElementById('listView').style.display = 'none';
+    document.getElementById('generateView').style.display = 'block';
+    document.getElementById('editorPanel').classList.remove('open');
+    document.getElementById('navJournal').classList.remove('active');
+    document.getElementById('navGenerate').classList.add('active');
+    document.getElementById('genResult').className = 'generate-result';
+    document.getElementById('genResult').textContent = '';
+  }
+
+  async function triggerGenerate() {
+    const topic = document.getElementById('genTopic').value.trim();
+    const category = document.getElementById('genCategory').value;
+    const btn = document.getElementById('genBtn');
+    const loading = document.getElementById('genLoading');
+    const result = document.getElementById('genResult');
+
+    btn.disabled = true;
+    loading.style.display = 'inline';
+    result.className = 'generate-result';
+    result.textContent = '';
+
+    try {
+      const r = await fetch('/api/journal-trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw, topic, category }),
+      });
+      const data = await r.json();
+      if (r.ok && data.ok) {
+        result.className = 'generate-result ok';
+        result.textContent = '✓ ' + data.message;
+        document.getElementById('genTopic').value = '';
+        document.getElementById('genCategory').value = 'auto';
+      } else {
+        result.className = 'generate-result err';
+        result.textContent = '오류: ' + (data.error || '알 수 없는 오류');
+      }
+    } catch (e) {
+      result.className = 'generate-result err';
+      result.textContent = '요청 실패: ' + e.message;
+    } finally {
+      btn.disabled = false;
+      loading.style.display = 'none';
+    }
+  }
+
   // ── List ──
   function switchLang(lang) {
     currentLang = lang;
@@ -633,6 +746,7 @@
             </div>
           </div>
           <div class="post-item-actions">
+            <button class="btn btn-ghost btn-sm btn-icon" onclick="openListPreview('${escHtml(f.path)}')" title="미리보기">👁️</button>
             <button class="btn btn-ghost btn-sm" onclick="openEdit('${escHtml(f.path)}','${escHtml(f.sha || '')}')">편집</button>
           </div>`;
         container.appendChild(item);
@@ -672,12 +786,6 @@
   }
 
   // ── Open ──
-  function showList() {
-    document.getElementById('listView').style.display = 'block';
-    document.getElementById('editorPanel').classList.remove('open');
-    loadList();
-  }
-
   function openNew() {
     isNew = true;
     currentSha = null;
@@ -967,6 +1075,27 @@ ${body}`;
   }
 
   // ── Preview ──
+  async function openListPreview(path) {
+    document.getElementById('previewContent').innerHTML = '<div style="padding:40px;color:var(--muted);text-align:center;">불러오는 중...</div>';
+    document.getElementById('previewModal').classList.add('open');
+    try {
+      const r = await fetch(`/api/journal-admin?action=read&path=${encodeURIComponent(path)}&password=${encodeURIComponent(pw)}`);
+      const { content } = await r.json();
+      const fm = parseFrontmatter(content);
+      const body = extractBody(content);
+      const html = marked.parse(body);
+      const status = fm.status || (fm.draft === 'false' ? 'published' : 'draft');
+      document.getElementById('previewContent').innerHTML =
+        `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">${statusBadgeHtml(status)}${fm.category ? catBadgeHtml(fm.category) : ''}</div>
+         <h1>${escHtml(fm.title || '(제목 없음)')}</h1>
+         ${fm.description ? `<p style="color:var(--muted);font-size:13px;margin:6px 0 4px;">${escHtml(fm.description)}</p>` : ''}
+         <p style="color:var(--muted2);font-size:12px;margin-bottom:16px;">${escHtml(fm.author || '')}${fm.authorTitle ? ' · ' + escHtml(fm.authorTitle) : ''}${fm.pubDate ? ' · ' + escHtml(fm.pubDate) : ''}</p>
+         <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin-bottom:24px;">` + html;
+    } catch (e) {
+      document.getElementById('previewContent').innerHTML = '<div style="padding:40px;color:var(--red);text-align:center;">불러오기 실패</div>';
+    }
+  }
+
   function openPreview() {
     const title = document.getElementById('fTitle').value || '(제목 없음)';
     const body = easyMDE.value();

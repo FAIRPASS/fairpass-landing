@@ -2,10 +2,12 @@ name: Weekly Journal Draft Generator
 
 on:
   schedule:
-    # Tuesday 9:00 AM KST = Monday 00:00 UTC
-    - cron: '0 0 * * 2'
-    # Thursday 9:00 AM KST = Wednesday 00:00 UTC
-    - cron: '0 0 * * 4'
+    # Monday 9:00 AM KST = Sunday 00:00 UTC — 실용 콘텐츠 (활용법/운영 사례)
+    - cron: '0 0 * * 1'
+    # Monday 10:00 AM KST = Sunday 01:00 UTC — 인사이트 콘텐츠 (이야기/트렌드)
+    - cron: '0 1 * * 1'
+    # Monday 11:00 AM KST = Sunday 02:00 UTC — 가치 콘텐츠 (지속가능/소식)
+    - cron: '0 2 * * 1'
   workflow_dispatch:
     inputs:
       topic:
@@ -85,12 +87,13 @@ jobs:
         if: success()
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL || 'fairpass@fairpass.world' }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL || 'yj@fairpass.world,sy@fairpass.world' }}
         run: |
           node -e "
+          const to = process.env.NOTIFY_EMAIL.split(',').map(e => e.trim());
           const body = JSON.stringify({
             from: 'FAIRPASS Journal <noreply@fairpass.world>',
-            to: [process.env.NOTIFY_EMAIL],
+            to,
             subject: '[FAIRPASS Journal] 이번 주 초안이 준비됐습니다',
             html: '<p>FAIRPASS Journal 자동 초안이 생성되었습니다.</p><p>관리자 페이지에서 검토해 주세요: <a href=\"https://fairpass.world/admin/journal.html\">journal.html</a></p>'
           });
