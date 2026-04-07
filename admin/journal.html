@@ -649,6 +649,8 @@
   let currentPath = null;
   let easyMDE = null;
   let isNew = false;
+  let autosaveTimer = null;
+  let _importData = null;
 
   // ── Password toggle ──
   function togglePwVisible() {
@@ -1516,15 +1518,12 @@ snsCopy:
   }
 
   // ── Autosave timer ──
-  let autosaveTimer = null;
   function startAutosave() {
     if (autosaveTimer) clearInterval(autosaveTimer);
     autosaveTimer = setInterval(doAutosave, 30000);
   }
 
   // ── Import Modal ──
-  let _importData = null;
-
   function openImportModal() {
     document.getElementById('importRawText').value = '';
     document.getElementById('importCategory').value = '';
@@ -1539,10 +1538,8 @@ snsCopy:
     document.getElementById('importModal').classList.remove('open');
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('importModal').addEventListener('click', function(e) {
-      if (e.target === this) closeImportModal();
-    });
+  document.getElementById('importModal').addEventListener('click', function(e) {
+    if (e.target === this) closeImportModal();
   });
 
   async function runImportConvert() {
