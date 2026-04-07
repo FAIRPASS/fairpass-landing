@@ -202,6 +202,18 @@
     .slug-hint { font-size: 11px; color: var(--muted2); margin-top: 4px; }
     .section-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
 
+    /* ── Error Detail Modal ── */
+    #errorModal { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 24px; }
+    #errorModal.open { display: flex; }
+    .error-box { background: #12121f; border: 1px solid rgba(239,68,68,0.4); border-radius: var(--radius); width: 100%; max-width: 560px; overflow: hidden; }
+    .error-box-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: rgba(239,68,68,0.12); border-bottom: 1px solid rgba(239,68,68,0.2); }
+    .error-box-header span { font-size: 14px; font-weight: 700; color: #f87171; }
+    .error-box-body { padding: 16px 18px; }
+    .error-detail-text { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: #fca5a5; font-size: 12px; font-family: monospace; line-height: 1.6; padding: 10px 12px; resize: vertical; min-height: 100px; outline: none; }
+    .error-copy-btn { margin-top: 10px; padding: 7px 16px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; color: #f87171; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+    .error-copy-btn:hover { background: rgba(239,68,68,0.25); }
+    .error-copy-btn.copied { color: var(--green); border-color: var(--green); background: rgba(16,185,129,0.1); }
+
     /* ── Import Modal ── */
     #importModal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
     #importModal.open { display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px; overflow-y: auto; }
@@ -538,6 +550,20 @@
       </div>
 
     </main>
+  </div>
+</div>
+
+<!-- ── ERROR DETAIL MODAL ── -->
+<div id="errorModal">
+  <div class="error-box">
+    <div class="error-box-header">
+      <span id="errorModalTitle">⚠️ 오류</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeErrorModal()">✕</button>
+    </div>
+    <div class="error-box-body">
+      <textarea class="error-detail-text" id="errorDetailText" readonly></textarea>
+      <button class="error-copy-btn" id="errorCopyBtn" onclick="copyErrorDetail()">📋 전체 복사</button>
+    </div>
   </div>
 </div>
 
@@ -1090,7 +1116,8 @@ ${body}`;
       }
     } catch (e) {
       document.getElementById('saveStatus').className = 'save-status err';
-      document.getElementById('saveStatus').textContent = `저장 실패: ${e.message}`;
+      document.getElementById('saveStatus').textContent = `저장 실패 (아래 상세 확인)`;
+      showErrorDetail('저장 실패', e.message);
     } finally {
       document.getElementById('saveBtn').disabled = false;
     }
@@ -1122,6 +1149,33 @@ ${body}`;
       document.getElementById('saveStatus').textContent = `삭제 실패: ${e.message}`;
     }
   }
+
+  // ── Error detail modal ──
+  function showErrorDetail(title, msg) {
+    document.getElementById('errorModalTitle').textContent = '⚠️ ' + title;
+    document.getElementById('errorDetailText').value = msg;
+    document.getElementById('errorCopyBtn').textContent = '📋 전체 복사';
+    document.getElementById('errorCopyBtn').classList.remove('copied');
+    document.getElementById('errorModal').classList.add('open');
+  }
+
+  function closeErrorModal() {
+    document.getElementById('errorModal').classList.remove('open');
+  }
+
+  function copyErrorDetail() {
+    const text = document.getElementById('errorDetailText').value;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('errorCopyBtn');
+      btn.textContent = '✓ 복사됨';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 전체 복사'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  document.getElementById('errorModal').addEventListener('click', function(e) {
+    if (e.target === this) closeErrorModal();
+  });
 
   // ── Cursor save (for image insert) ──
   function saveCursorPos() {
