@@ -97,8 +97,8 @@ export default async function handler(req, res) {
       const commitMsg = message || (sha ? `update: ${path.split('/').pop()}` : `feat: new journal post ${path.split('/').pop()}`);
       let result = await ghPut(path, content, commitMsg, sha || undefined);
 
-      // SHA 충돌(409) 시 최신 SHA 가져와서 한 번 재시도
-      if (!result.ok && result.status === 409) {
+      // SHA 충돌(409/422) 시 최신 SHA 가져와서 한 번 재시도
+      if (!result.ok && (result.status === 409 || result.status === 422)) {
         const current = await ghGet(path);
         if (current.ok) {
           result = await ghPut(path, content, commitMsg, current.data.sha);
