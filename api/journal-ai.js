@@ -172,12 +172,14 @@ ${rawText.slice(0, 6000)}
 반드시 아래 형식 그대로 반환하세요. 형식을 절대 바꾸지 마세요:
 
 ===META===
-{"title":"제목","description":"설명 160자 이내","category":"카테고리","tags":["태그1","태그2","태그3","태그4","태그5"]}
+{"title":"제목","description":"설명 160자 이내","category":"카테고리","tags":["태그1","태그2","태그3","태그4","태그5"],"slug":"english-url-slug-kr"}
 ===BODY===
 (완성된 마크다운 본문 전체)
 
-규칙: ===META=== 줄에는 한 줄 JSON만, ===BODY=== 줄 이후엔 마크다운만. 다른 텍스트 없이.
-category는 반드시 다음 중 하나: FAIRPASS 이야기 | FAIRPASS 활용법 | 운영 사례 | 지속가능한 행사 | 업계 트렌드 | FAIRPASS 소식`;
+규칙:
+- ===META=== 줄에는 한 줄 JSON만, ===BODY=== 줄 이후엔 마크다운만. 다른 텍스트 없이.
+- category는 반드시 다음 중 하나: FAIRPASS 이야기 | FAIRPASS 활용법 | 운영 사례 | 지속가능한 행사 | 업계 트렌드 | FAIRPASS 소식
+- slug는 영어로 된 URL 친화적 슬러그 (소문자, 하이픈 구분, 주제를 잘 나타내는 2~5단어), 끝에 반드시 -kr 붙이기. 예: qr-checkin-guide-kr, paperless-badge-case-kr`;
 
   try {
     const r = await claudeCall({ system, user, maxTokens: 4096 });

@@ -753,7 +753,14 @@
       toolbar: [
         'bold', 'italic', 'heading', '|',
         'quote', 'unordered-list', 'ordered-list', '|',
-        'link', 'image', '|',
+        'link',
+        {
+          name: 'image',
+          action: () => document.getElementById('imgFileInput').click(),
+          className: 'fa fa-image',
+          title: '이미지 업로드',
+        },
+        '|',
         'table', 'horizontal-rule', '|',
         'preview', 'side-by-side', 'fullscreen', '|',
         'guide'
@@ -1664,7 +1671,7 @@ snsCopy:
     document.getElementById('editorLangBadge').textContent = '🇰🇷 한국어';
     document.getElementById('fTitle').value = _importData.title || '';
     document.getElementById('fDesc').value  = _importData.description || '';
-    const autoSlug = generateSlug(_importData.title || '');
+    const autoSlug = _importData.slug || generateSlug(_importData.title || '', 'ko');
     document.getElementById('fSlug').value = autoSlug;
     document.getElementById('fSlug').dataset.manual = 'false';
     document.getElementById('slugHint').textContent = autoSlug
@@ -1698,9 +1705,11 @@ snsCopy:
   }
 
   // ── Slug generator ──
-  function generateSlug(title) {
+  function generateSlug(title, lang) {
+    const suffix = (lang || currentLang) === 'en' ? '-en' : '-kr';
     if (!title) return '';
-    // 영어·숫자만 추출해서 슬러그 만들기
+
+    // 영어·숫자만 추출
     let slug = title
       .toLowerCase()
       .replace(/[^\w\s-]/g, ' ')
@@ -1709,7 +1718,7 @@ snsCopy:
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
 
-    // 영어 내용이 너무 적으면 (한국어 제목) 날짜 기반 슬러그
+    // 영어 내용이 너무 적으면 (한국어 제목) 날짜 기반
     if (slug.replace(/-/g, '').length < 3) {
       const now = new Date();
       const d = now.toISOString().slice(0, 10).replace(/-/g, '');
@@ -1717,7 +1726,7 @@ snsCopy:
       slug = `post-${d}-${t}`;
     }
 
-    return slug.slice(0, 60);
+    return slug.slice(0, 55) + suffix;
   }
 
   // ── Utility ──
