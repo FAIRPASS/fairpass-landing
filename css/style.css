@@ -365,12 +365,20 @@ html[data-lang="en"] .en-hide { display: none !important; }
     margin: 8px 0 4px 14px;
   }
 
-  /* 로그인 위 구분선 */
+  /* 로그인 위 구분선 (전체 너비 선) */
   .nav-link--login {
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px solid var(--border);
+    margin-top: 16px;
     text-align: center;
+    position: relative;
+  }
+  .nav-link--login::before {
+    content: '';
+    position: absolute;
+    top: -9px;
+    left: -16px;
+    right: -16px;
+    height: 1px;
+    background: var(--border);
   }
 
   /* 회원가입 CTA 모바일 강조 */
