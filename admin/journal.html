@@ -1226,6 +1226,45 @@ ${body}`;
     }
   });
 
+  // ── Image compression (client-side, keeps Vercel body < 4.5 MB) ──
+  async function compressImage(file) {
+    const MAX_DIM = 1600;
+    const QUALITY = 0.82;
+    const shouldCompress = file.size > 400 * 1024 && /^image\/(jpeg|png|webp|bmp)/i.test(file.type);
+
+    if (!shouldCompress) {
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      return { base64, filename: file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_') };
+    }
+
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const objUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(objUrl);
+        let { width, height } = img;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width >= height) { height = Math.round(height * MAX_DIM / width); width = MAX_DIM; }
+          else { width = Math.round(width * MAX_DIM / height); height = MAX_DIM; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        const base64 = canvas.toDataURL('image/jpeg', QUALITY).split(',')[1];
+        const baseName = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9.\-_]/g, '_');
+        resolve({ base64, filename: `${baseName}.jpg` });
+      };
+      img.onerror = reject;
+      img.src = objUrl;
+    });
+  }
+
   // ── Image upload ──
   async function uploadImages(input) {
     const files = Array.from(input.files);
@@ -1240,20 +1279,13 @@ ${body}`;
     statusEl.textContent = '';
     let done = 0;
 
-    const readAsBase64 = (file) => new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result.split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-
     const results = [];
     for (const file of files) {
       progressText.textContent = `업로드 중 ${done + 1} / ${files.length} — ${file.name}`;
       progressBar.style.width = `${(done / files.length) * 100}%`;
       try {
-        const base64 = await readAsBase64(file);
-        const filename = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+        const { base64, filename: compName } = await compressImage(file);
+        const filename = `${Date.now()}_${compName}`;
         const r = await fetch('/api/journal-admin', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
