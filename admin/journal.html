@@ -384,7 +384,10 @@
           </div>
           <div class="form-group">
             <label class="form-label">슬러그 (slug) — URL</label>
-            <input class="form-input" id="fSlug" type="text" placeholder="url-friendly-slug" />
+            <div style="display:flex;gap:6px;align-items:center;">
+              <input class="form-input" id="fSlug" type="text" placeholder="url-friendly-slug" style="flex:1;" />
+              <button type="button" class="btn btn-ghost btn-sm" id="slugAiBtn" onclick="generateSlugAI()" title="AI가 제목 기반으로 슬러그 생성" style="white-space:nowrap;flex-shrink:0;">✨ AI</button>
+            </div>
             <div class="slug-hint" id="slugHint"></div>
           </div>
           <div class="form-group">
@@ -695,6 +698,7 @@
   let isNew = false;
   let autosaveTimer = null;
   let _importData = null;
+  const _uploadedImages = new Map(); // githubUrl → blobUrl (미리보기 즉시 표시용)
 
   // ── Password toggle ──
   function togglePwVisible() {
@@ -781,6 +785,14 @@
       element: document.getElementById('mdEditor'),
       spellChecker: false,
       autosave: { enabled: false },
+      previewRender: (plainText) => {
+        let html = marked.parse(plainText);
+        // 방금 업로드한 이미지는 blob URL로 즉시 표시 (Vercel 빌드 전에도 보임)
+        for (const [githubUrl, blobUrl] of _uploadedImages) {
+          html = html.split(githubUrl).join(blobUrl);
+        }
+        return html;
+      },
       toolbar: [
         'bold', 'italic', 'heading', '|',
         'quote', 'unordered-list', 'ordered-list', '|',
@@ -1294,6 +1306,12 @@ ${body}`;
         const data = await r.json();
         if (r.ok) {
           results.push({ name: file.name, url: data.url, ok: true });
+          // blob URL 캐시 — EasyMDE previewRender에서 즉시 표시
+          try {
+            const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+            const blob = new Blob([bytes], { type: 'image/jpeg' });
+            _uploadedImages.set(data.url, URL.createObjectURL(blob));
+          } catch {}
         } else {
           const errDetail = data.detail ? '\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
           results.push({ name: file.name, error: (data.error || 'Upload failed') + errDetail, ok: false });
@@ -1391,7 +1409,10 @@ ${body}`;
   function openPreview() {
     const title = document.getElementById('fTitle').value || '(제목 없음)';
     const body = easyMDE.value();
-    const html = marked.parse(body);
+    let html = marked.parse(body);
+    for (const [githubUrl, blobUrl] of _uploadedImages) {
+      html = html.split(githubUrl).join(blobUrl);
+    }
     document.getElementById('previewContent').innerHTML =
       `<h1>${escHtml(title)}</h1><hr style="margin:16px 0 24px;border-color:rgba(255,255,255,0.1);">` + html;
     document.getElementById('previewModal').classList.add('open');
@@ -1813,6 +1834,37 @@ snsCopy:
     document.getElementById('navGenerate').classList.remove('active');
     // Scroll to top
     window.scrollTo(0, 0);
+  }
+
+  // ── AI Slug generator ──
+  async function generateSlugAI() {
+    const title = document.getElementById('fTitle').value.trim();
+    if (!title) { alert('제목을 먼저 입력해주세요.'); return; }
+    const btn = document.getElementById('slugAiBtn');
+    btn.disabled = true;
+    btn.textContent = '...';
+    try {
+      const r = await fetch('/api/journal-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'slug', title, lang: currentLang, password: pw }),
+      });
+      const data = await r.json();
+      if (r.ok && data.slug) {
+        const suffix = currentLang === 'en' ? '-en' : '-kr';
+        const full = data.slug + suffix;
+        document.getElementById('fSlug').value = full;
+        document.getElementById('fSlug').dataset.manual = 'true';
+        document.getElementById('slugHint').textContent = `URL: /journal/${currentLang}/${full}/`;
+      } else {
+        alert('슬러그 생성 실패: ' + (data.error || '알 수 없는 오류'));
+      }
+    } catch (e) {
+      alert('슬러그 생성 오류: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '✨ AI';
+    }
   }
 
   // ── Slug generator ──

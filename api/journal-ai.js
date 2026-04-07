@@ -222,6 +222,37 @@ ${rawText.slice(0, 6000)}
   }
 }
 
+// ── 슬러그 생성 ──────────────────────────────────────────────
+async function handleSlug(req, res) {
+  const { title, lang = 'ko' } = req.body;
+  if (!title) return res.status(400).json({ error: 'title required' });
+
+  const r = await claudeCall({
+    system: 'You are a URL slug generator. Return only the slug — no explanation, no quotes, no punctuation.',
+    user: `Generate a concise, SEO-friendly English URL slug for this article title.
+
+Title: ${title}
+Language: ${lang === 'ko' ? 'Korean' : 'English'}
+
+Rules:
+- 3 to 6 words maximum
+- lowercase letters and hyphens only
+- descriptive of the actual topic/concept
+- do NOT include brand names (fairpass, mice, etc.) unless truly essential
+- do NOT add -kr or -en suffix (added separately)
+- return ONLY the slug, nothing else
+
+Example: "MICE 운영의 패러다임 전환 — 지속가능한 행사 운영 모델" → sustainable-event-operations-model`,
+    maxTokens: 30,
+  });
+
+  if (!r.ok) return res.status(500).json({ error: 'Claude API error' });
+  const result = await r.json();
+  const raw = result.content[0].text.trim();
+  const slug = raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 55);
+  return res.status(200).json({ slug });
+}
+
 // ── Main handler ──────────────────────────────────────────
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://fairpass.world');
@@ -242,6 +273,7 @@ export default async function handler(req, res) {
   if (action === 'sns')       return handleSns(req, res);
   if (action === 'translate') return handleTranslate(req, res);
   if (action === 'import')    return handleImport(req, res);
+  if (action === 'slug')      return handleSlug(req, res);
 
-  return res.status(400).json({ error: 'Invalid action. Use: sns | translate | import' });
+  return res.status(400).json({ error: 'Invalid action. Use: sns | translate | import | slug' });
 }
