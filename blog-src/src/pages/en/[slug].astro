@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import BlogLayout from '../../layouts/BlogLayout.astro';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('journal-en', ({ data }) => !data.draft && data.status === 'published');
+  const posts = await getCollection('journal-en', ({ data }) => data.status === 'published');
   return posts.map(post => ({ params: { slug: post.slug }, props: { post } }));
 }
 
@@ -15,7 +15,7 @@ const site = 'https://fairpass.world';
 
 const canonical = `${site}${base}/en/${post.slug}/`;
 
-const koPosts = await getCollection('journal-ko', ({ data }) => !data.draft && data.status === 'published');
+const koPosts = await getCollection('journal-ko', ({ data }) => data.status === 'published');
 const koMatch = koPosts.find(p => p.slug === post.slug);
 const hreflangKo = koMatch ? `${site}${base}/ko/${post.slug}/` : `${site}${base}/ko/`;
 

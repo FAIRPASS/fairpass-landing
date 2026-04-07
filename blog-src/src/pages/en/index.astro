@@ -1,20 +1,54 @@
 ---
 import { getCollection } from 'astro:content';
 import BlogLayout from '../../layouts/BlogLayout.astro';
-import BlogCard from '../../components/BlogCard.astro';
 
 const base = import.meta.env.BASE_URL;
 const site = 'https://fairpass.world';
 
-const allPosts = await getCollection('journal-en', ({ data }) => !data.draft && data.status === 'published');
+// status === 'published' only
+const allPosts = await getCollection('journal-en', ({ data }) => data.status === 'published');
 const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
-const categories = [...new Set(posts.map(p => p.data.category))];
+const EN_CATS = ['Our Story','How It Works','In the Field','Sustainable Events','Industry Trends','FAIRPASS News'];
+const usedCats = EN_CATS.filter(c => posts.some(p => p.data.category === c));
+
+const CAT: Record<string, {accent:string; bg:string}> = {
+  'Our Story':        { accent:'#d97706', bg:'linear-gradient(135deg,#451a03 0%,#92400e 100%)' },
+  'How It Works':     { accent:'#a78bfa', bg:'linear-gradient(135deg,#2e1065 0%,#5b21b6 100%)' },
+  'In the Field':     { accent:'#fb923c', bg:'linear-gradient(135deg,#431407 0%,#9a3412 100%)' },
+  'Sustainable Events': { accent:'#34d399', bg:'linear-gradient(135deg,#022c22 0%,#065f46 100%)' },
+  'Industry Trends':  { accent:'#60a5fa', bg:'linear-gradient(135deg,#1e3a5f 0%,#1e40af 100%)' },
+  'FAIRPASS News':    { accent:'#9ca3af', bg:'linear-gradient(135deg,#111827 0%,#374151 100%)' },
+};
+const DEFAULT_CAT = { accent:'#6b7280', bg:'linear-gradient(135deg,#111827,#1f2937)' };
+
+function getHeroImage(post: any): string | null {
+  if (post.data.image) return post.data.image;
+  const m = (post.body as string).match(/!\[.*?\]\(([^)]+)\)/);
+  return m ? m[1] : null;
+}
+
+const postsData = posts.map(post => {
+  const c = CAT[post.data.category] ?? DEFAULT_CAT;
+  return {
+    title:       post.data.title,
+    description: post.data.description || '',
+    href:        `${base}/en/${post.slug}/`,
+    pubDate:     post.data.pubDate.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}),
+    pubDateISO:  post.data.pubDate.toISOString(),
+    category:    post.data.category || '',
+    tags:        (post.data.tags || []).slice(0,3) as string[],
+    heroImage:   getHeroImage(post),
+    accent:      c.accent,
+    catBg:       c.bg,
+    searchText:  `${post.data.title} ${post.data.description||''} ${(post.data.tags||[]).join(' ')} ${post.data.category}`.toLowerCase(),
+  };
+});
 ---
 
 <BlogLayout
   title="FAIRPASS Journal — Event Management Insights"
-  description="Practical guides for event managers: registration automation, self-service check-in kiosks, and eco-friendly name badges. By FAIRPASS."
+  description="Practical guides for corporate event managers: registration automation, on-site check-in, eco-friendly badges, and more. FAIRPASS Journal."
   lang="en"
   hreflangKo={`${site}${base}/ko/`}
   hreflangEn={`${site}${base}/en/`}
@@ -26,44 +60,190 @@ const categories = [...new Set(posts.map(p => p.data.category))];
     <span class="text-fp-text">English</span>
   </Fragment>
 
-  <div class="max-w-5xl mx-auto px-6 py-12">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+
+    <!-- Header -->
     <div class="mb-10">
+      <a href={`${base}/ko/`} class="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border border-fp-border text-fp-muted hover:border-fp-cyan/50 hover:text-fp-cyan-light transition-all mb-4">
+        🇰🇷 한국어 저널 →
+      </a>
       <h1 class="text-2xl sm:text-3xl font-bold mb-3">
         <span class="bg-gradient-to-r from-fp-purple-light to-fp-cyan-light bg-clip-text text-transparent">
           Event Management Insights
         </span>
       </h1>
-      <p class="text-fp-muted text-sm">
-        Practical guides for corporate event managers — registration, check-in, badges, and more.
+      <p class="text-fp-muted text-sm leading-relaxed">
+        Practical guides for corporate event managers — registration, check-in, eco-friendly badges, and beyond
       </p>
     </div>
 
-    {categories.length > 1 && (
-      <div class="flex flex-wrap gap-2 mb-8">
-        {categories.map(cat => (
-          <span class="text-xs px-3 py-1.5 rounded-full border border-fp-border text-fp-muted cursor-default">
-            {cat}
-          </span>
-        ))}
+    <!-- Search -->
+    <div class="relative mb-5">
+      <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none">
+        <svg class="w-4 h-4 text-fp-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="Search by title, content, or tag..."
+        class="w-full pl-10 pr-10 py-2.5 bg-white/[0.04] border border-fp-border rounded-fp-sm text-sm text-fp-text placeholder-[rgba(255,255,255,0.3)] outline-none focus:border-[rgba(168,85,247,0.5)] transition-colors"
+      />
+      <button id="searchClear" class="absolute inset-y-0 right-3 hidden items-center justify-center text-fp-muted hover:text-fp-text transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Category filter -->
+    {usedCats.length > 0 && (
+      <div class="flex flex-wrap gap-2 mb-6" id="catFilter">
+        <button class="cat-btn text-xs px-3.5 py-1.5 rounded-full font-medium border transition-all duration-150 border-[rgba(168,85,247,0.6)] text-[#a855f7] bg-[rgba(168,85,247,0.1)]" data-cat="all">
+          All <span class="ml-1 opacity-60">{posts.length}</span>
+        </button>
+        {usedCats.map(cat => {
+          const c = CAT[cat] ?? DEFAULT_CAT;
+          const cnt = posts.filter(p => p.data.category === cat).length;
+          return (
+            <button
+              class="cat-btn text-xs px-3.5 py-1.5 rounded-full font-medium border transition-all duration-150 border-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.5)] hover:border-[rgba(255,255,255,0.2)] hover:text-white"
+              data-cat={cat}
+              data-accent={c.accent}
+            >
+              {cat} <span class="ml-1 opacity-50">{cnt}</span>
+            </button>
+          );
+        })}
       </div>
     )}
 
-    {posts.length > 0 ? (
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {posts.map(post => (
-          <BlogCard
-            title={post.data.title}
-            description={post.data.description}
-            slug={post.slug}
-            pubDate={post.data.pubDate}
-            category={post.data.category}
-            tags={post.data.tags}
-            lang="en"
-          />
-        ))}
-      </div>
-    ) : (
-      <p class="text-fp-muted text-sm">Posts coming soon.</p>
-    )}
+    <!-- Count -->
+    <p class="text-xs text-fp-muted mb-5" id="resultsCount">{posts.length} posts</p>
+
+    <!-- Grid -->
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="postsGrid">
+      {postsData.map(post => (
+        <article
+          class="journal-card group rounded-fp border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.18)] hover:bg-[rgba(255,255,255,0.06)] transition-all duration-300 overflow-hidden flex flex-col"
+          data-cat={post.category}
+          data-search={post.searchText}
+        >
+          <a href={post.href} class="flex flex-col h-full">
+
+            <!-- Thumbnail -->
+            <div class="relative h-44 overflow-hidden flex-shrink-0">
+              {post.heroImage ? (
+                <img
+                  src={post.heroImage}
+                  alt={post.title}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+              ) : (
+                <div class="w-full h-full" style={`background:${post.catBg};`}>
+                  <div class="w-full h-full flex items-center justify-center">
+                    <span class="text-5xl font-black opacity-[0.07] text-white select-none">{post.category.slice(0,2)}</span>
+                  </div>
+                </div>
+              )}
+              <div class="absolute top-3 left-3">
+                <span class="text-xs px-2.5 py-1 rounded-full font-semibold backdrop-blur-sm"
+                  style={`background:${post.accent}20;color:${post.accent};border:1px solid ${post.accent}50;`}>
+                  {post.category}
+                </span>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-5 flex flex-col gap-2.5 flex-1">
+              <h2 class="text-sm font-semibold text-white group-hover:text-[#a855f7] transition-colors line-clamp-2 leading-snug">
+                {post.title}
+              </h2>
+              <p class="text-xs text-[rgba(255,255,255,0.5)] line-clamp-2 leading-relaxed flex-1">
+                {post.description}
+              </p>
+              <div class="flex items-center justify-between pt-2.5 border-t border-[rgba(255,255,255,0.07)] mt-auto">
+                <time class="text-xs text-[rgba(255,255,255,0.35)]" datetime={post.pubDateISO}>{post.pubDate}</time>
+                {post.tags.length > 0 && (
+                  <div class="flex gap-1">
+                    {post.tags.slice(0,2).map(tag => (
+                      <span class="text-[10px] text-[rgba(255,255,255,0.35)] border border-[rgba(255,255,255,0.08)] px-1.5 py-0.5 rounded-full">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+          </a>
+        </article>
+      ))}
+    </div>
+
+    <!-- Empty state -->
+    <div id="emptyState" class="hidden text-center py-20">
+      <p class="text-4xl mb-4">🔍</p>
+      <p class="text-[rgba(255,255,255,0.4)] text-sm mb-3">No results found.</p>
+      <button id="resetBtn" class="text-xs text-[#a855f7] hover:underline">Clear search</button>
+    </div>
+
   </div>
+
+  <script is:inline>
+    (function () {
+      const cards = Array.from(document.querySelectorAll('.journal-card'));
+      const input = document.getElementById('searchInput');
+      const clearBtn = document.getElementById('searchClear');
+      const resetBtn = document.getElementById('resetBtn');
+      const catBtns = Array.from(document.querySelectorAll('.cat-btn'));
+      const empty = document.getElementById('emptyState');
+      const count = document.getElementById('resultsCount');
+      let cat = 'all', q = '';
+
+      function apply() {
+        let n = 0;
+        cards.forEach(card => {
+          const show = (cat === 'all' || card.dataset.cat === cat) &&
+                       (!q || (card.dataset.search || '').includes(q));
+          card.style.display = show ? '' : 'none';
+          if (show) n++;
+        });
+        count.textContent = n + (n === 1 ? ' post' : ' posts');
+        empty.style.display = n === 0 ? 'block' : 'none';
+        clearBtn.style.display = q ? 'flex' : 'none';
+      }
+
+      input.addEventListener('input', e => { q = e.target.value.toLowerCase().trim(); apply(); });
+
+      clearBtn.addEventListener('click', () => { input.value = ''; q = ''; apply(); input.focus(); });
+      if (resetBtn) resetBtn.addEventListener('click', () => { input.value = ''; q = ''; cat = 'all'; setCatActive(catBtns[0]); apply(); });
+
+      function setCatActive(active) {
+        catBtns.forEach(b => {
+          b.style.borderColor = ''; b.style.color = ''; b.style.background = '';
+          b.classList.remove('active');
+          b.style.borderColor = 'rgba(255,255,255,0.1)';
+          b.style.color = 'rgba(255,255,255,0.5)';
+        });
+        const accent = active.dataset.accent;
+        if (accent) {
+          active.style.borderColor = accent + '88';
+          active.style.color = accent;
+          active.style.background = accent + '18';
+        } else {
+          active.style.borderColor = 'rgba(168,85,247,0.6)';
+          active.style.color = '#a855f7';
+          active.style.background = 'rgba(168,85,247,0.1)';
+        }
+        active.classList.add('active');
+      }
+
+      catBtns.forEach(btn => {
+        btn.addEventListener('click', () => { cat = btn.dataset.cat; setCatActive(btn); apply(); });
+      });
+    })();
+  </script>
 </BlogLayout>

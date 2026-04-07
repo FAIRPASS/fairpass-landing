@@ -954,7 +954,7 @@
             const titleEl = item.querySelector('.post-item-title');
             if (fm.title) titleEl.textContent = fm.title;
             const meta = item.querySelector('.post-item-meta');
-            const status = fm.status || (fm.draft === 'false' ? 'published' : 'draft');
+            const status = fm.status || 'draft';
             const catHtml = fm.category ? catBadgeHtml(fm.category) : '';
             meta.innerHTML = `
               ${statusBadgeHtml(status)}
@@ -1033,7 +1033,7 @@
       document.getElementById('fAuthorTitle').value = fm.authorTitle !== undefined ? fm.authorTitle : (AUTHOR_TITLES[author] || '');
       document.getElementById('fTags').value = (fm.tags || '').replace(/[\[\]"]/g, '');
       document.getElementById('fDate').value = fm.pubDate || new Date().toISOString().split('T')[0];
-      document.getElementById('fStatus').value = fm.status || (fm.draft === 'false' ? 'published' : 'draft');
+      document.getElementById('fStatus').value = fm.status || 'draft';
       onStatusChange();
       easyMDE.value(body);
       document.getElementById('saveStatus').textContent = '';
@@ -1394,7 +1394,7 @@ ${body}`;
       const fm = parseFrontmatter(content);
       const body = extractBody(content);
       const html = marked.parse(body);
-      const status = fm.status || (fm.draft === 'false' ? 'published' : 'draft');  // draft가 명시적으로 false일 때만 published
+      const status = fm.status || 'draft';
       document.getElementById('previewContent').innerHTML =
         `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">${statusBadgeHtml(status)}${fm.category ? catBadgeHtml(fm.category) : ''}</div>
          <h1>${escHtml(fm.title || '(제목 없음)')}</h1>
