@@ -198,6 +198,7 @@ ${rawText.slice(0, 6000)}
 
 규칙:
 - ===META=== 줄에는 한 줄 JSON만, ===BODY=== 줄 이후엔 마크다운만. 다른 텍스트 없이.
+- BODY는 ## 소제목으로 시작. # H1 제목은 절대 본문에 포함하지 않음 (title 필드에 별도 존재).
 - category는 반드시 다음 중 하나: FAIRPASS 이야기 | FAIRPASS 활용법 | 운영 사례 | 지속가능한 행사 | 업계 트렌드 | FAIRPASS 소식
 - slug는 영어로 된 URL 친화적 슬러그 (소문자, 하이픈 구분, 주제를 잘 나타내는 2~5단어), 끝에 반드시 -kr 붙이기. 예: qr-checkin-guide-kr, paperless-badge-case-kr`;
 

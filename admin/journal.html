@@ -125,7 +125,7 @@
     .EasyMDEContainer { background: transparent; }
     .EasyMDEContainer .CodeMirror { background: rgba(255,255,255,0.03); color: var(--text); border: none; font-size: 14px; min-height: 380px; padding: 12px; }
     .EasyMDEContainer .CodeMirror-cursor { border-left-color: var(--purple-light); }
-    .EasyMDEContainer .editor-toolbar { background: rgba(255,255,255,0.04); border: none; border-bottom: 1px solid var(--border); }
+    .EasyMDEContainer .editor-toolbar { background: rgba(10,10,18,0.96); border: none; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 30; backdrop-filter: blur(8px); }
     .EasyMDEContainer .editor-toolbar button { color: var(--muted) !important; border: none !important; }
     .EasyMDEContainer .editor-toolbar button:hover, .EasyMDEContainer .editor-toolbar button.active { background: rgba(139,92,246,0.2) !important; color: var(--purple-light) !important; border-radius: 4px !important; }
     .EasyMDEContainer .editor-toolbar i.separator { border-color: var(--border); }
@@ -412,7 +412,7 @@
 
         <!-- Image / Video upload -->
         <div class="img-upload-row">
-          <label class="img-upload-label" for="imgFileInput">
+          <label class="img-upload-label" for="imgFileInput" onclick="saveCursorPos()">
             🖼️ 이미지 삽입
           </label>
           <input type="file" id="imgFileInput" accept="image/*" multiple onchange="uploadImages(this)" />
@@ -761,7 +761,7 @@
         'link',
         {
           name: 'image',
-          action: () => document.getElementById('imgFileInput').click(),
+          action: () => { saveCursorPos(); document.getElementById('imgFileInput').click(); },
           className: 'fa fa-image',
           title: '이미지 업로드',
         },
@@ -1086,7 +1086,7 @@ ${body}`;
         document.getElementById('saveStatus').textContent = '✓ 저장 완료 — Vercel이 자동 빌드합니다';
         clearDraft();
       } else {
-        throw new Error(data.error || 'Save failed');
+        throw new Error((data.error || 'Save failed') + (data.detail?.message ? ': ' + data.detail.message : data.detail ? ': ' + JSON.stringify(data.detail).slice(0, 120) : ''));
       }
     } catch (e) {
       document.getElementById('saveStatus').className = 'save-status err';
@@ -1121,6 +1121,11 @@ ${body}`;
       document.getElementById('saveStatus').className = 'save-status err';
       document.getElementById('saveStatus').textContent = `삭제 실패: ${e.message}`;
     }
+  }
+
+  // ── Cursor save (for image insert) ──
+  function saveCursorPos() {
+    if (easyMDE) window._savedCursor = easyMDE.codemirror.getCursor();
   }
 
   // ── Video embed ──
@@ -1214,10 +1219,12 @@ ${body}`;
     const mdImages = results.filter(r => r.ok).map(r => `![${r.name}](${r.url})`).join('\n\n');
     if (mdImages) {
       const cm = easyMDE.codemirror;
-      const cursor = cm.getCursor();
-      const currentLine = cm.getLine(cursor.line);
+      const cursor = window._savedCursor || cm.getCursor();
+      const currentLine = cm.getLine(cursor.line) || '';
       const prefix = currentLine.trim() ? '\n\n' : '';
       cm.replaceRange(prefix + mdImages + '\n\n', cursor);
+      cm.focus();
+      window._savedCursor = null;
     }
 
     progressBar.style.width = '100%';
@@ -1704,7 +1711,9 @@ snsCopy:
     closeTranslateResult();
     currentLang = 'ko';
     updateTranslateVisibility();
-    easyMDE.value(_importData.body || '');
+    // 본문 첫 줄 H1이 제목과 중복되면 제거
+    let importBody = (_importData.body || '').replace(/^\s*#\s+[^\n]*\n+/, '').trimStart();
+    easyMDE.value(importBody);
     document.getElementById('listView').style.display = 'none';
     document.getElementById('generateView').style.display = 'none';
     document.getElementById('editorPanel').classList.add('open');
