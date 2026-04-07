@@ -286,6 +286,7 @@ html[data-lang="en"] .en-hide { display: none !important; }
 .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 @media (max-width: 768px) {
+  /* 메뉴 패널 */
   .nav-links {
     display: none;
     position: absolute;
@@ -293,23 +294,46 @@ html[data-lang="en"] .en-hide { display: none !important; }
     left: 0;
     right: 0;
     flex-direction: column;
-    background: rgba(5,5,5,0.95);
+    align-items: stretch; /* center → stretch: 핵심 수정 */
+    background: rgba(5,5,5,0.97);
     backdrop-filter: blur(20px);
-    padding: 16px 24px;
+    -webkit-backdrop-filter: blur(20px);
+    padding: 8px 16px 20px;
     border-bottom: 1px solid var(--border);
-    gap: 4px;
+    gap: 2px;
+    max-height: calc(100svh - 60px);
+    overflow-y: auto;
   }
   .nav-links.open { display: flex; }
-  .nav-link { width: 100%; padding: 12px 14px; text-align: left; }
+
+  /* 일반 링크 */
+  .nav-link {
+    width: 100%;
+    padding: 12px 14px;
+    text-align: left;
+    border-radius: 8px;
+  }
   .nav-toggle { display: flex; }
 
+  /* 서비스 드롭다운 full-width */
+  .nav-dropdown { width: 100%; }
+  .nav-link--dropdown {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* 드롭다운 서브메뉴 */
   .nav-dropdown-menu {
     position: static;
     transform: none;
     min-width: auto;
     background: rgba(255,255,255,0.03);
-    border: none;
-    padding: 4px 0 4px 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 4px 0 4px 8px;
+    margin: 2px 0 4px;
     opacity: 0;
     visibility: hidden;
     max-height: 0;
@@ -321,6 +345,39 @@ html[data-lang="en"] .en-hide { display: none !important; }
     visibility: visible;
     max-height: 300px;
     transform: none;
+  }
+
+  /* 서브메뉴 아이콘 모바일 축소 */
+  .nav-dropdown-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    flex-shrink: 0;
+  }
+  .nav-dropdown-icon svg { width: 14px; height: 14px; }
+  .nav-dropdown-item { padding: 10px 10px; gap: 10px; }
+  .nav-dropdown-item strong { font-size: 13px; }
+  .nav-dropdown-item small { font-size: 11px; }
+
+  /* 언어 토글 왼쪽 정렬 */
+  .nav-lang-toggle {
+    align-self: flex-start;
+    margin: 8px 0 4px 14px;
+  }
+
+  /* 로그인 위 구분선 */
+  .nav-link--login {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  /* 회원가입 CTA 모바일 강조 */
+  .nav-link--cta {
+    text-align: center;
+    margin-top: 4px;
+    padding: 13px 14px;
   }
 }
 
