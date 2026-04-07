@@ -569,9 +569,14 @@
         <label class="form-label">원문 텍스트 붙여넣기</label>
         <textarea class="form-textarea" id="importRawText" rows="10" placeholder="네이버 블로그, 카카오, 워드 문서 등에서 복사한 텍스트를 여기에 붙여넣으세요..."></textarea>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <button class="btn btn-primary" id="importConvertBtn" onclick="runImportConvert()">✨ AI 정리</button>
-        <span id="importLoading" style="font-size:12px;color:var(--cyan);display:none;">AI가 정리 중...</span>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="importConvertBtn" onclick="runImportConvert('format')">✨ 서식만</button>
+        <button class="btn btn-ghost" id="importRewriteBtn" onclick="runImportConvert('rewrite')">✏️ 내용 다듬기</button>
+        <span id="importLoading" style="font-size:12px;color:var(--cyan);display:none;">AI가 작업 중...</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:6px;line-height:1.7;">
+        <b style="color:var(--muted);">서식만</b> — 내용 그대로, 마크다운 구조화만 (소제목·굵기·표·이모지)<br>
+        <b style="color:var(--muted);">내용 다듬기</b> — 구어체·이모티콘 제거, B2B 저널 톤으로 재작성 + 서식
       </div>
 
       <div class="import-result" id="importResult">
@@ -1622,7 +1627,7 @@ snsCopy:
     if (e.target === this) closeImportModal();
   });
 
-  async function runImportConvert() {
+  async function runImportConvert(mode) {
     const rawText = document.getElementById('importRawText').value.trim();
     if (rawText.length < 50) {
       alert('최소 50자 이상의 텍스트를 붙여넣어 주세요.');
@@ -1630,17 +1635,20 @@ snsCopy:
     }
     const category = document.getElementById('importCategory').value;
     const btn = document.getElementById('importConvertBtn');
+    const btn2 = document.getElementById('importRewriteBtn');
     const loading = document.getElementById('importLoading');
 
     btn.disabled = true;
+    btn2.disabled = true;
     loading.style.display = 'inline';
+    loading.textContent = mode === 'rewrite' ? '내용 다듬는 중... (20~30초)' : 'AI가 정리 중...';
     document.getElementById('importResult').classList.remove('open');
 
     try {
       const r = await fetch('/api/journal-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'import', rawText, category, password: pw }),
+        body: JSON.stringify({ action: 'import', mode: mode || 'format', rawText, category, password: pw }),
       });
       const data = await r.json();
       if (!r.ok) throw new Error((data.error || '변환 실패') + (data.detail ? ': ' + data.detail : ''));
@@ -1656,7 +1664,9 @@ snsCopy:
       alert('AI 정리 실패: ' + e.message);
     } finally {
       btn.disabled = false;
+      btn2.disabled = false;
       loading.style.display = 'none';
+      loading.textContent = 'AI가 작업 중...';
     }
   }
 
