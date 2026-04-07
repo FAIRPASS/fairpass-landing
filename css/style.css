@@ -3133,6 +3133,20 @@ select.form-input option {
   .detail-hero { padding: 88px 16px 60px; }
   .detail-features-grid { grid-template-columns: 1fr; }
   .detail-specs-grid { grid-template-columns: 1fr; }
+
+  /* Fix inline white-space:nowrap overflow on mobile */
+  .hero-subtitle span,
+  .section-desc span,
+  .section-desc .lang-ko,
+  .section-desc .lang-en,
+  .final-cta-desc .lang-en {
+    white-space: normal !important;
+  }
+
+  /* Mission/Vision 카드 모바일 1열 스택 */
+  .values-grid--2 {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ========================================
