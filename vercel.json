@@ -1,6 +1,9 @@
 {
   "buildCommand": "cd blog-src && npm install && npm run build",
   "outputDirectory": ".",
+  "functions": {
+    "api/journal-ai.js": { "maxDuration": 60 }
+  },
   "redirects": [
     { "source": "/en", "destination": "/?lang=en", "permanent": false },
     { "source": "/en/(.*)", "destination": "/$1?lang=en", "permanent": false },

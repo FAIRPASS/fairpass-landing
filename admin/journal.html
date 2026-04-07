@@ -1548,7 +1548,10 @@ snsCopy:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'translate', title, description: desc, body, category, tags, slug, password: pw }),
       });
-      const data = await r.json();
+      let data;
+      try { data = await r.json(); } catch {
+        throw new Error('서버 타임아웃 — 글이 길면 본문을 줄이고 다시 시도해주세요.\n(Hobby 플랜 10초 한도 초과. Vercel Pro 업그레이드 시 해결됩니다.)');
+      }
       if (r.ok) {
         document.getElementById('translateOutput').value = data.content || data.markdown || '';
         document.getElementById('translateResult').classList.add('open');
