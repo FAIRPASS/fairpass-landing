@@ -5836,6 +5836,15 @@ select.form-input option {
    (badge.html / kiosk.html / platform.html)
    ======================================== */
 @media (max-width: 768px) {
+  /* badge.html: 갤러리 3열 → 2열 */
+  .badge-gallery-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* portfolio.html: 썸네일 4열 → 2열 */
+  .portfolio-thumbs { grid-template-columns: repeat(2, 1fr); }
+
+  /* 기능카드 내 <br> 숨김 — 모바일 full-width 카드에서 자연스러운 줄바꿈 */
+  .detail-feature-desc br { display: none; }
+
   /* badge.html: 3열 증거 카드 → 1열 */
   .badge-proof-grid { grid-template-columns: 1fr; }
 
@@ -5874,4 +5883,7 @@ select.form-input option {
 @media (max-width: 480px) {
   /* badge.html: 명찰 종류 2열 → 1열 */
   .badge-types-grid { grid-template-columns: 1fr; }
+
+  /* badge.html: 갤러리 2열 → 1열 */
+  .badge-gallery-grid { grid-template-columns: 1fr; }
 }
