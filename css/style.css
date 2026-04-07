@@ -5830,3 +5830,48 @@ select.form-input option {
   display: inline-block;
 }
 .clients-arrow.up { transform: rotate(180deg); }
+
+/* ========================================
+   SUB-PAGE MOBILE GRID OVERRIDES
+   (badge.html / kiosk.html / platform.html)
+   ======================================== */
+@media (max-width: 768px) {
+  /* badge.html: 3열 증거 카드 → 1열 */
+  .badge-proof-grid { grid-template-columns: 1fr; }
+
+  /* badge.html: 명찰 종류 4열 → 2열 */
+  .badge-types-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* badge.html: 특징 분할 레이아웃 → 1열 */
+  .badge-features-intro { grid-template-columns: 1fr; }
+  .badge-allpaper-diagram { grid-template-columns: 1fr; }
+
+  /* badge.html: 스마트스토어 섹션 → 1열 */
+  .badge-store-wrap { grid-template-columns: 1fr; }
+  .badge-store-right { padding-top: 0; }
+
+  /* kiosk.html: 갤러리 2fr 1fr → 1열 */
+  .kiosk-gallery-grid { grid-template-columns: 1fr; }
+
+  /* kiosk.html: 스펙 4fr 6fr → 1열 */
+  .kiosk-specs-grid { grid-template-columns: 1fr; gap: 32px; }
+
+  /* kiosk.html: 3fr 7fr 분할 섹션들 → 1열 */
+  .kiosk-only-split { grid-template-columns: 1fr; gap: 32px; }
+  .kiosk-why2-split { grid-template-columns: 1fr; gap: 32px; }
+
+  /* kiosk.html: WHY FAIRPASS 3열 카드 → 1열 */
+  .kiosk-why-grid { grid-template-columns: 1fr; }
+
+  /* platform.html: 3열 기능 그리드 → 1열 */
+  .detail-features-grid--3col { grid-template-columns: 1fr; }
+
+  /* 모바일에서 nowrap 방지 — 서브페이지 공통 */
+  .kiosk-why2-elevate-desc { white-space: normal; }
+  .detail-cta .section-desc { white-space: normal; }
+}
+
+@media (max-width: 480px) {
+  /* badge.html: 명찰 종류 2열 → 1열 */
+  .badge-types-grid { grid-template-columns: 1fr; }
+}
