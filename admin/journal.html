@@ -410,19 +410,32 @@
           </div>
         </div>
 
-        <!-- Image upload -->
+        <!-- Image / Video upload -->
         <div class="img-upload-row">
           <label class="img-upload-label" for="imgFileInput">
-            🖼️ 이미지 업로드 (여러 장 가능)
+            🖼️ 이미지 삽입
           </label>
           <input type="file" id="imgFileInput" accept="image/*" multiple onchange="uploadImages(this)" />
-          <span id="imgUploadStatus">여러 장 선택 가능 · 업로드 후 마크다운에 자동 삽입</span>
+          <button class="img-upload-label" onclick="openVideoEmbed()" type="button" style="cursor:pointer;">
+            🎬 영상 삽입
+          </button>
+          <span id="imgUploadStatus" style="font-size:12px;color:var(--muted);">커서 위치에 삽입됩니다</span>
         </div>
         <div id="imgProgress" style="display:none;margin-bottom:12px;">
           <div style="font-size:12px;color:var(--muted);margin-bottom:6px;" id="imgProgressText"></div>
           <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
             <div id="imgProgressBar" style="height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));width:0%;transition:width 0.3s;"></div>
           </div>
+        </div>
+        <!-- Video embed modal (inline) -->
+        <div id="videoEmbedBox" style="display:none;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xs);margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;">🎬 영상 URL 삽입 — YouTube, Vimeo, 또는 직접 업로드 링크</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input id="videoUrlInput" class="form-input" type="text" placeholder="https://youtube.com/watch?v=... 또는 https://vimeo.com/..." style="flex:1;font-size:13px;" />
+            <button class="btn btn-primary btn-sm" onclick="insertVideoEmbed()">삽입</button>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('videoEmbedBox').style.display='none'">✕</button>
+          </div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:6px;">YouTube · Vimeo · mp4 직접 링크 지원</div>
         </div>
 
         <!-- Editor toolbar row -->
@@ -1085,6 +1098,49 @@ ${body}`;
     }
   }
 
+  // ── Video embed ──
+  function openVideoEmbed() {
+    const box = document.getElementById('videoEmbedBox');
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    if (box.style.display === 'block') document.getElementById('videoUrlInput').focus();
+  }
+
+  function insertVideoEmbed() {
+    const url = document.getElementById('videoUrlInput').value.trim();
+    if (!url) return;
+
+    let md = '';
+    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+
+    if (ytMatch) {
+      const id = ytMatch[1];
+      md = `<iframe width="100%" style="aspect-ratio:16/9;" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe>`;
+    } else if (vimeoMatch) {
+      const id = vimeoMatch[1];
+      md = `<iframe width="100%" style="aspect-ratio:16/9;" src="https://player.vimeo.com/video/${id}" frameborder="0" allowfullscreen></iframe>`;
+    } else if (url.match(/\.(mp4|webm|mov)(\?|$)/i)) {
+      md = `<video controls width="100%" style="border-radius:8px;">\n  <source src="${url}" type="video/mp4">\n</video>`;
+    } else {
+      alert('YouTube, Vimeo URL 또는 .mp4 직접 링크를 입력해주세요.');
+      return;
+    }
+
+    const cm = easyMDE.codemirror;
+    const cursor = cm.getCursor();
+    const currentLine = cm.getLine(cursor.line);
+    const prefix = currentLine.trim() ? '\n\n' : '';
+    cm.replaceRange(prefix + md + '\n\n', cursor);
+    document.getElementById('videoUrlInput').value = '';
+    document.getElementById('videoEmbedBox').style.display = 'none';
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && document.activeElement === document.getElementById('videoUrlInput')) {
+      insertVideoEmbed();
+    }
+  });
+
   // ── Image upload ──
   async function uploadImages(input) {
     const files = Array.from(input.files);
@@ -1130,9 +1186,13 @@ ${body}`;
       done++;
     }
 
-    const mdImages = results.filter(r => r.ok).map(r => `![${r.name}](${r.url})`).join('\n');
+    const mdImages = results.filter(r => r.ok).map(r => `![${r.name}](${r.url})`).join('\n\n');
     if (mdImages) {
-      easyMDE.value(easyMDE.value() + '\n\n' + mdImages);
+      const cm = easyMDE.codemirror;
+      const cursor = cm.getCursor();
+      const currentLine = cm.getLine(cursor.line);
+      const prefix = currentLine.trim() ? '\n\n' : '';
+      cm.replaceRange(prefix + mdImages + '\n\n', cursor);
     }
 
     progressBar.style.width = '100%';
@@ -1563,7 +1623,7 @@ snsCopy:
         body: JSON.stringify({ action: 'import', rawText, category, password: pw }),
       });
       const data = await r.json();
-      if (!r.ok) throw new Error(data.error || '변환 실패');
+      if (!r.ok) throw new Error((data.error || '변환 실패') + (data.detail ? ': ' + data.detail : ''));
 
       _importData = data;
       document.getElementById('importResTitle').textContent    = data.title || '—';
