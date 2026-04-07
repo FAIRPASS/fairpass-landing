@@ -725,7 +725,18 @@
     startAutosave();
     loadList();
 
+    document.getElementById('fTitle').addEventListener('input', function() {
+      const slugEl = document.getElementById('fSlug');
+      if (slugEl.dataset.manual === 'true') return;
+      const generated = generateSlug(this.value);
+      slugEl.value = generated;
+      document.getElementById('slugHint').textContent = generated
+        ? `URL: /journal/${currentLang}/${generated}/`
+        : '';
+    });
+
     document.getElementById('fSlug').addEventListener('input', function() {
+      this.dataset.manual = this.value ? 'true' : 'false';
       document.getElementById('slugHint').textContent = this.value
         ? `URL: /journal/${currentLang}/${this.value}/`
         : '';
@@ -916,6 +927,7 @@
     document.getElementById('fTitle').value = '';
     document.getElementById('fDesc').value = '';
     document.getElementById('fSlug').value = '';
+    document.getElementById('fSlug').dataset.manual = 'false';
     document.getElementById('slugHint').textContent = '';
     populateCategorySelect(currentLang);
     document.getElementById('fAuthor').value = '전서윤';
@@ -960,6 +972,7 @@
       document.getElementById('fDesc').value = fm.description || '';
       const slug = path.split('/').pop().replace('.md', '');
       document.getElementById('fSlug').value = slug;
+      document.getElementById('fSlug').dataset.manual = 'true';
       document.getElementById('slugHint').textContent = `URL: /journal/${currentLang}/${slug}/`;
 
       populateCategorySelect(currentLang);
@@ -1651,8 +1664,12 @@ snsCopy:
     document.getElementById('editorLangBadge').textContent = '🇰🇷 한국어';
     document.getElementById('fTitle').value = _importData.title || '';
     document.getElementById('fDesc').value  = _importData.description || '';
-    document.getElementById('fSlug').value  = '';
-    document.getElementById('slugHint').textContent = '';
+    const autoSlug = generateSlug(_importData.title || '');
+    document.getElementById('fSlug').value = autoSlug;
+    document.getElementById('fSlug').dataset.manual = 'false';
+    document.getElementById('slugHint').textContent = autoSlug
+      ? `URL: /journal/ko/${autoSlug}/`
+      : '';
     populateCategorySelect('ko');
     const cats = KO_CATEGORIES;
     if (_importData.category && cats.includes(_importData.category)) {
@@ -1678,6 +1695,29 @@ snsCopy:
     document.getElementById('navGenerate').classList.remove('active');
     // Scroll to top
     window.scrollTo(0, 0);
+  }
+
+  // ── Slug generator ──
+  function generateSlug(title) {
+    if (!title) return '';
+    // 영어·숫자만 추출해서 슬러그 만들기
+    let slug = title
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, ' ')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    // 영어 내용이 너무 적으면 (한국어 제목) 날짜 기반 슬러그
+    if (slug.replace(/-/g, '').length < 3) {
+      const now = new Date();
+      const d = now.toISOString().slice(0, 10).replace(/-/g, '');
+      const t = now.getHours().toString().padStart(2, '0') + now.getMinutes().toString().padStart(2, '0');
+      slug = `post-${d}-${t}`;
+    }
+
+    return slug.slice(0, 60);
   }
 
   // ── Utility ──

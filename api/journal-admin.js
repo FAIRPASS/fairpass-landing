@@ -95,9 +95,18 @@ export default async function handler(req, res) {
       const { path, content, message, sha } = req.body;
       if (!path || !content) return res.status(400).json({ error: 'path and content required' });
       const commitMsg = message || (sha ? `update: ${path.split('/').pop()}` : `feat: new journal post ${path.split('/').pop()}`);
-      const { ok, data } = await ghPut(path, content, commitMsg, sha || undefined);
-      if (!ok) return res.status(500).json({ error: 'GitHub write failed', detail: data });
-      return res.status(200).json({ success: true, sha: data.content?.sha });
+      let result = await ghPut(path, content, commitMsg, sha || undefined);
+
+      // SHA 충돌(409) 시 최신 SHA 가져와서 한 번 재시도
+      if (!result.ok && result.status === 409) {
+        const current = await ghGet(path);
+        if (current.ok) {
+          result = await ghPut(path, content, commitMsg, current.data.sha);
+        }
+      }
+
+      if (!result.ok) return res.status(500).json({ error: 'GitHub write failed', detail: result.data });
+      return res.status(200).json({ success: true, sha: result.data.content?.sha });
     }
 
     // ── DELETE ──
