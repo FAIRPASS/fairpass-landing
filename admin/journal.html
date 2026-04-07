@@ -347,6 +347,7 @@
                   <option value="지속가능한 행사">지속가능한 행사</option>
                   <option value="업계 트렌드">업계 트렌드</option>
                   <option value="FAIRPASS 소식">FAIRPASS 소식</option>
+                  <option value="언론 보도">언론 보도</option>
                 </select>
               </div>
             </div>
@@ -582,6 +583,32 @@
         네이버 블로그·카카오·다른 플랫폼에서 복사한 텍스트를 붙여넣으세요.<br>
         AI가 마크다운으로 재편집하고, 제목·카테고리·태그도 자동 추출합니다.
       </p>
+
+      <!-- 언론 보도 URL 가져오기 -->
+      <div style="background:rgba(159,18,57,0.1);border:1px solid rgba(159,18,57,0.3);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:#fda4af;margin-bottom:10px;">🗞️ 언론 보도 URL로 가져오기</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+          <input
+            id="pressUrl"
+            type="url"
+            placeholder="https://... (기사 URL 붙여넣기)"
+            style="flex:1;min-width:200px;padding:8px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius-xs);color:var(--text);font-size:13px;outline:none;"
+          />
+          <select id="pressLang" style="padding:8px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius-xs);color:var(--text);font-size:13px;outline:none;">
+            <option value="ko">한국어 기사</option>
+            <option value="en">영어 기사</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="btn btn-sm" id="pressImportBtn" onclick="runPressImport()" style="background:rgba(159,18,57,0.7);border:1px solid rgba(159,18,57,0.8);color:#fff;font-size:12px;padding:6px 14px;border-radius:var(--radius-xs);">📥 가져오기</button>
+          <span id="pressImportLoading" style="font-size:12px;color:var(--cyan);display:none;">기사 분석 중...</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:8px;line-height:1.6;">
+          URL을 입력하면 기사를 자동으로 가져와 저널 형식으로 재편집합니다.<br>
+          가져온 후 에디터에 적용 → 영문 버전은 <b style="color:var(--muted);">🌐 영문 버전 생성</b> 으로 추가 생성하세요.
+        </div>
+      </div>
+
       <div class="form-group" style="margin-bottom:12px;">
         <label class="form-label">카테고리 힌트 (선택)</label>
         <select class="form-select" id="importCategory">
@@ -592,6 +619,7 @@
           <option value="지속가능한 행사">지속가능한 행사</option>
           <option value="업계 트렌드">업계 트렌드</option>
           <option value="FAIRPASS 소식">FAIRPASS 소식</option>
+          <option value="언론 보도">언론 보도</option>
         </select>
       </div>
       <div class="form-group" style="margin-bottom:12px;">
@@ -660,6 +688,7 @@
     '지속가능한 행사',
     '업계 트렌드',
     'FAIRPASS 소식',
+    '언론 보도',
   ];
   const EN_CATEGORIES = [
     'Our Story',
@@ -668,6 +697,7 @@
     'Sustainable Events',
     'Industry Trends',
     'FAIRPASS News',
+    'In the Press',
   ];
   const CAT_COLORS = {
     'FAIRPASS 이야기': { bg: '#BA7517', text: '#fff' },
@@ -682,6 +712,8 @@
     'Industry Trends': { bg: '#185FA5', text: '#fff' },
     'FAIRPASS 소식':   { bg: '#0F172A', text: '#9ca3af', border: '#4B5563' },
     'FAIRPASS News':   { bg: '#0F172A', text: '#9ca3af', border: '#4B5563' },
+    '언론 보도':        { bg: '#9F1239', text: '#fff' },
+    'In the Press':    { bg: '#9F1239', text: '#fff' },
   };
   const AUTHOR_TITLES = {
     '전서윤': '대표이사',
@@ -1749,6 +1781,42 @@ snsCopy:
   document.getElementById('importModal').addEventListener('click', function(e) {
     if (e.target === this) closeImportModal();
   });
+
+  async function runPressImport() {
+    const url = document.getElementById('pressUrl').value.trim();
+    if (!url || !url.startsWith('http')) { alert('올바른 URL을 입력해주세요.'); return; }
+    const sourceLang = document.getElementById('pressLang').value;
+    const btn = document.getElementById('pressImportBtn');
+    const loading = document.getElementById('pressImportLoading');
+    btn.disabled = true;
+    loading.style.display = 'inline';
+    document.getElementById('importResult').classList.remove('open');
+    try {
+      const r = await fetch('/api/journal-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'pressImport', url, sourceLang, password: pw }),
+      });
+      let data;
+      try { data = await r.json(); } catch {
+        throw new Error('서버 응답 오류 — 잠시 후 다시 시도해주세요.');
+      }
+      if (!r.ok) throw new Error((data.error || '가져오기 실패') + (data.detail ? ': ' + data.detail : ''));
+
+      _importData = data;
+      document.getElementById('importResTitle').textContent    = data.title || '—';
+      document.getElementById('importResDesc').textContent     = data.description || '—';
+      document.getElementById('importResCategory').textContent = data.category || '—';
+      document.getElementById('importResTags').textContent     = (data.tags || []).join(', ') || '—';
+      document.getElementById('importResBody').textContent     = data.body || '';
+      document.getElementById('importResult').classList.add('open');
+    } catch (e) {
+      alert('언론 보도 가져오기 실패: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      loading.style.display = 'none';
+    }
+  }
 
   async function runImportConvert(mode) {
     const rawText = document.getElementById('importRawText').value.trim();

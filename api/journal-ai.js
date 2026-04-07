@@ -222,6 +222,91 @@ ${rawText.slice(0, 6000)}
   }
 }
 
+// ── 언론 보도 URL 가져오기 ────────────────────────────────────
+async function handlePressImport(req, res) {
+  const { url, sourceLang = 'ko' } = req.body;
+  if (!url) return res.status(400).json({ error: 'url required' });
+
+  // 1. URL 크롤링
+  let rawText;
+  try {
+    const r = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; FAIRPASSBot/1.0)' },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!r.ok) return res.status(400).json({ error: `URL 접근 실패 (${r.status})` });
+    const html = await r.text();
+    // HTML 태그 제거 → 순수 텍스트 추출
+    rawText = html
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 5000);
+  } catch (e) {
+    return res.status(400).json({ error: `URL 가져오기 실패: ${e.message}` });
+  }
+
+  const isKo = sourceLang === 'ko';
+
+  const system = isKo
+    ? `당신은 FAIRPASS B2B 이벤트 플랫폼의 언론 담당 에디터입니다.
+언론 보도 기사를 FAIRPASS Journal '언론 보도' 카테고리 포스트로 재편집합니다.
+FAIRPASS는 행사 온라인 접수·QR 체크인·무인 명찰 출력을 통합한 B2B 이벤트 플랫폼입니다.
+
+작성 원칙:
+- 기사 핵심 사실·수치만 요약 (전문 복사 금지, 저작권 보호)
+- FAIRPASS 또는 행사 운영 관련 의미를 부각
+- 본문 마지막에 반드시 원문 출처 링크 포함: > 원문: [기사 제목](${url})
+- 전문적 B2B 저널 서술체
+- 슬러그는 영어 소문자 + 하이픈, 끝에 -kr 붙이기`
+    : `You are a press editor for FAIRPASS, a B2B event management platform.
+Reformat press coverage into a FAIRPASS Journal 'In the Press' post.
+FAIRPASS integrates online registration, QR check-in, and badge printing for B2B events.
+
+Rules:
+- Summarize key facts and figures only (no full reproduction — copyright)
+- Highlight relevance to FAIRPASS or B2B event management
+- End with source attribution: > Source: [Article title](${url})
+- Professional B2B journal tone
+- Slug: English lowercase + hyphens, add -en suffix`;
+
+  const user = `아래 기사 텍스트를 FAIRPASS Journal 언론 보도 포스트로 재편집해주세요.
+출처 URL: ${url}
+
+---기사 내용---
+${rawText}
+---끝---
+
+반드시 아래 형식 그대로 반환하세요:
+
+===META===
+{"title":"제목","description":"설명 160자 이내","category":"${isKo ? '언론 보도' : 'In the Press'}","tags":["태그1","태그2","태그3"],"slug":"press-article-slug-${isKo ? 'kr' : 'en'}"}
+===BODY===
+(완성된 마크다운 본문)
+
+규칙: ===META=== 줄에는 한 줄 JSON만, ===BODY=== 줄 이후엔 마크다운만. BODY는 ## 소제목으로 시작.`;
+
+  try {
+    const r = await claudeCall({ system, user, maxTokens: 3000 });
+    if (!r.ok) return res.status(500).json({ error: 'Claude API error', detail: await r.text() });
+    const result = await r.json();
+    const text = result.content[0].text;
+
+    const metaMatch = text.match(/===META===\s*\n(.*?)\n===BODY===/s);
+    const bodyMatch = text.match(/===BODY===\s*\n([\s\S]*)/);
+    if (!metaMatch || !bodyMatch) {
+      return res.status(500).json({ error: 'Press import failed', detail: 'Response format invalid: ' + text.slice(0, 200) });
+    }
+    const meta = JSON.parse(metaMatch[1].trim());
+    const body = bodyMatch[1].trim();
+    return res.status(200).json({ success: true, ...meta, body, sourceUrl: url, sourceLang });
+  } catch (e) {
+    return res.status(500).json({ error: 'Press import failed', detail: e.message });
+  }
+}
+
 // ── 슬러그 생성 ──────────────────────────────────────────────
 async function handleSlug(req, res) {
   const { title, lang = 'ko' } = req.body;
@@ -273,7 +358,8 @@ export default async function handler(req, res) {
   if (action === 'sns')       return handleSns(req, res);
   if (action === 'translate') return handleTranslate(req, res);
   if (action === 'import')    return handleImport(req, res);
-  if (action === 'slug')      return handleSlug(req, res);
+  if (action === 'slug')        return handleSlug(req, res);
+  if (action === 'pressImport') return handlePressImport(req, res);
 
-  return res.status(400).json({ error: 'Invalid action. Use: sns | translate | import | slug' });
+  return res.status(400).json({ error: 'Invalid action. Use: sns | translate | import | slug | pressImport' });
 }
