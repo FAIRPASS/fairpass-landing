@@ -2,17 +2,18 @@
 title: "행사 참가신청 자동화, 어디서부터 시작할까? — 담당자 실무 가이드"
 description: "엑셀·이메일 취합에서 벗어나 온라인 접수 시스템을 도입하는 방법. 담당자가 꼭 알아야 할 설정 포인트와 주의사항을 정리했습니다."
 pubDate: 2026-03-10
-category: "접수 운영"
+category: ""
 tags: ["행사접수", "등록시스템", "행사담당자", "자동화", "온라인접수"]
 author: "FAIRPASS 팀"
-status: published
-faq:
-  - q: "행사 참가신청 자동화 시스템이란 무엇인가요?"
-    a: "온라인 폼으로 참가자 정보를 수집하고, 자동으로 확인 이메일·QR코드를 발송하며, 실시간 통계를 제공하는 소프트웨어입니다. 담당자가 수작업으로 엑셀을 관리하지 않아도 됩니다."
-  - q: "행사 참가신청 시스템 도입 비용은 얼마인가요?"
-    a: "FAIRPASS는 행사 규모와 기능에 따라 맞춤 견적을 제공합니다. 소규모 세미나부터 수천 명 규모 컨퍼런스까지 다양한 요금제가 있습니다. 무료 상담 후 정확한 견적을 받아보세요."
-  - q: "결제 기능도 포함되나요?"
-    a: "네. 참가비 온라인 결제(신용카드, 계좌이체), 조기등록 할인, 그룹 할인, 발급 영수증 등을 지원합니다."
+authorTitle: ""
+draft: true
+status: draft
+snsCopy:
+  linkedinKo: "행사 끝난 뒤 쓰레기통에 쌓인 플라스틱 명찰 홀더, 보신 적 있으신가요?\n\n운영 인력 30% 절감, 현장 대기 40% 감소 — 명찰 하나를 바꿨을 때 생기는 변화입니다.\n\n그런데 가장 놀라운 건 따로 있습니다. 전체 내용 →\nhttps://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
+  linkedinEn: "Still sorting name badges the night before your event?\n\nOne change cut wait times by 40% and slashed plastic waste by 90%.\n\nBut the real ROI? That's in the full story →\nhttps://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
+  instagramKo: "명찰 하나가 행사의 첫인상을 결정합니다.\n\n매년 수천 건의 기업 행사, 그런데 운영 방식은 10년째 그대로?\n플라스틱 폐기물 90% 감축이 가능한 방법이 있습니다.\n그리고 그것이 ESG 보고서의 '실제 근거'가 된다면?\n\n궁금한 분들은 프로필 링크에서 확인하세요 →\n\n#MICE #행사운영 #ESG경영 #지속가능경영 #B2B이벤트 #페어패스 #Fairpass #컨퍼런스 #전시회운영 #스마트이벤트"
+  instagramEn: "The smallest touchpoint at your event says the most about your brand.\n\nWhat if a name badge could cut plastic waste by 90%?\nWhat if check-in lines disappeared — automatically?\nAnd what if that data went straight into your ESG report?\n\nThe full breakdown is in our bio link →\n\n#EventTech #MICE #SustainableEvents #ESG #B2BEvents #Fairpass #EventManagement #GreenEvents #SmartEvent #ConferenceTech"
+  naverBlog: "전시회, 컨퍼런스, 포럼, 세미나 — 기업 행사는 매년 수천 건이 열립니다. 하지만 그 운영 방식을 들여다보면, 놀랍도록 많은 부분이 10년 전과 다르지 않습니다. 참가자는 여전히 등록 데스크 앞에서 줄을 서고, 명찰은 플라스틱 홀더에 담겨 하루만 쓰이고 버려집니다. 운영팀은 전날 밤까지 명찰을 조립하고 분류하며 체력을 소진합니다.\n\nESG 경영이 선택이 아닌 필수가 된 지금, 이 '당연한 관행'을 다시 들여다볼 필요가 있습니다. 페어패스(Fairpass)는 종이 기반 친환경 명찰과 무인 키오스크, 데이터 통합 시스템을 하나로 연결해 MICE 운영의 구조 자체를 바꿉니다.\n\n실제 도입 사례에서는 현장 대기시간 40% 감소, 운영 인력 투입 30% 절감이라는 수치가 확인됐습니다. 플라스틱 폐기물은 무려 90% 감축됐고, 이 데이터는 ESG 보고서의 정량적 근거로도 활용됩니다.\n\n그렇다면 가장 중요한 질문 — 참가자 경험과 브랜드 평판에는 어떤 변화가 생겼을까요? 그리고 도입 기업들이 공통으로 꼽은 '예상 밖의 효과'는 무엇이었을까요?\n\n전체 내용 보기 → https://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
 ---
 
 기업 세미나, 학술대회, 포럼을 담당하는 실무자라면 한 번쯤 이런 경험이 있을 겁니다.
