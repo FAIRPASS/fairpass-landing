@@ -85,8 +85,9 @@ export default async function handler(req, res) {
       const { path } = req.query;
       if (!path) return res.status(400).json({ error: 'path required' });
       const { ok, data } = await ghGet(path);
-      if (!ok) return res.status(404).json({ error: 'File not found' });
-      const content = Buffer.from(data.content, 'base64').toString('utf-8');
+      if (!ok) return res.status(404).json({ error: 'File not found', detail: data });
+      if (!data.content) return res.status(500).json({ error: 'File content empty (too large or unsupported)', size: data.size });
+      const content = Buffer.from(data.content.replace(/\n/g, ''), 'base64').toString('utf-8');
       return res.status(200).json({ content, sha: data.sha, path: data.path });
     }
 
@@ -130,8 +131,8 @@ export default async function handler(req, res) {
         headers: githubHeaders(),
         body: JSON.stringify({ message: `upload: journal image ${safe}`, content: base64 }),
       });
-      const data = await res2.json();
-      if (!res2.ok) return res.status(500).json({ error: 'Image upload failed', detail: data });
+      const data2 = await res2.json();
+      if (!res2.ok) return res.status(500).json({ error: 'Image upload failed', detail: data2 });
       return res.status(200).json({ success: true, url: `/journal/journal-images/${safe}` });
     }
 
@@ -139,6 +140,6 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error('journal-admin error:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error', detail: err?.message || String(err) });
   }
 }

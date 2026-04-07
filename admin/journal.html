@@ -1112,7 +1112,8 @@ ${body}`;
         document.getElementById('saveStatus').textContent = '✓ 저장 완료 — Vercel이 자동 빌드합니다';
         clearDraft();
       } else {
-        throw new Error((data.error || 'Save failed') + (data.detail?.message ? ': ' + data.detail.message : data.detail ? ': ' + JSON.stringify(data.detail).slice(0, 120) : ''));
+        const detailStr = data.detail ? (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
+      throw new Error((data.error || 'Save failed') + (detailStr ? '\n\n' + detailStr : ''));
       }
     } catch (e) {
       document.getElementById('saveStatus').className = 'save-status err';
@@ -1262,7 +1263,8 @@ ${body}`;
         if (r.ok) {
           results.push({ name: file.name, url: data.url, ok: true });
         } else {
-          results.push({ name: file.name, error: data.error, ok: false });
+          const errDetail = data.detail ? '\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
+          results.push({ name: file.name, error: (data.error || 'Upload failed') + errDetail, ok: false });
         }
       } catch (err) {
         results.push({ name: file.name, error: err.message, ok: false });
@@ -1286,6 +1288,10 @@ ${body}`;
     const failCount = results.filter(r => !r.ok).length;
     progressText.textContent = `완료: ${okCount}개 성공${failCount ? ` / ${failCount}개 실패` : ''} (빌드 후 사이트에 표시됩니다)`;
     statusEl.style.color = failCount ? 'var(--red)' : 'var(--green)';
+    if (failCount) {
+      const failMsgs = results.filter(r => !r.ok).map(r => `[${r.name}] ${r.error}`).join('\n\n');
+      showErrorDetail('이미지 업로드 실패', failMsgs);
+    }
     setTimeout(() => { progressEl.style.display = 'none'; }, 5000);
     input.value = '';
   }
