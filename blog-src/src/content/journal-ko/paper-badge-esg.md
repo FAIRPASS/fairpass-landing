@@ -2,17 +2,18 @@
 title: "종이 명찰 하나로 행사 ESG를 실현하는 방법"
 description: "플라스틱 명찰을 버리고 100% 종이 명찰로 전환한 기업들의 사례. 비용·품질·지속가능성까지 한 번에 해결하는 현실적인 방법을 소개합니다."
 pubDate: 2026-03-24
-category: "친환경 운영"
+category: ""
 tags: ["ESG", "종이명찰", "친환경행사", "지속가능성", "페패"]
 author: "FAIRPASS 팀"
-status: published
-faq:
-  - q: "종이 명찰은 내구성이 약하지 않나요?"
-    a: "FAIRPASS 페패(FAIRPASS Badge)는 방수 처리된 FSC 인증 특수 종이를 사용합니다. 일반 행사 환경(실내, 1~3일)에서는 플라스틱과 동일한 내구성을 제공합니다."
-  - q: "종이 명찰로 바꾸면 비용이 더 드나요?"
-    a: "플라스틱 홀더·목걸이·클립을 별도 구매하는 비용 대비 전체 패키지로 계산하면 비슷하거나 더 저렴한 경우가 많습니다. 무료 견적 비교를 받아보세요."
-  - q: "명찰에 로고 인쇄가 가능한가요?"
-    a: "네. 행사 브랜딩, 스폰서 로고, QR코드 등을 명찰에 인쇄할 수 있습니다. 단색 인쇄와 풀컬러 인쇄 모두 지원합니다."
+authorTitle: ""
+draft: true
+status: draft
+snsCopy:
+  linkedinKo: "행사 끝난 뒤 쓰레기통에 쌓인 플라스틱 명찰 홀더, 보신 적 있으신가요?\n\n운영 인력 30% 절감, 현장 대기 40% 감소 — 명찰 하나를 바꿨을 때 생기는 변화입니다.\n\n그런데 가장 놀라운 건 따로 있습니다. 전체 내용 →\nhttps://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
+  linkedinEn: "Still sorting name badges the night before your event?\n\nOne change cut wait times by 40% and slashed plastic waste by 90%.\n\nBut the real ROI? That's in the full story →\nhttps://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
+  instagramKo: "명찰 하나가 행사의 첫인상을 결정합니다.\n\n매년 수천 건의 기업 행사, 그런데 운영 방식은 10년째 그대로?\n플라스틱 폐기물 90% 감축이 가능한 방법이 있습니다.\n그리고 그것이 ESG 보고서의 '실제 근거'가 된다면?\n\n궁금한 분들은 프로필 링크에서 확인하세요 →\n\n#MICE #행사운영 #ESG경영 #지속가능경영 #B2B이벤트 #페어패스 #Fairpass #컨퍼런스 #전시회운영 #스마트이벤트"
+  instagramEn: "The smallest touchpoint at your event says the most about your brand.\n\nWhat if a name badge could cut plastic waste by 90%?\nWhat if check-in lines disappeared — automatically?\nAnd what if that data went straight into your ESG report?\n\nThe full breakdown is in our bio link →\n\n#EventTech #MICE #SustainableEvents #ESG #B2BEvents #Fairpass #EventManagement #GreenEvents #SmartEvent #ConferenceTech"
+  naverBlog: "전시회, 컨퍼런스, 포럼, 세미나 — 기업 행사는 매년 수천 건이 열립니다. 하지만 그 운영 방식을 들여다보면, 놀랍도록 많은 부분이 10년 전과 다르지 않습니다. 참가자는 여전히 등록 데스크 앞에서 줄을 서고, 명찰은 플라스틱 홀더에 담겨 하루만 쓰이고 버려집니다. 운영팀은 전날 밤까지 명찰을 조립하고 분류하며 체력을 소진합니다.\n\nESG 경영이 선택이 아닌 필수가 된 지금, 이 '당연한 관행'을 다시 들여다볼 필요가 있습니다. 페어패스(Fairpass)는 종이 기반 친환경 명찰과 무인 키오스크, 데이터 통합 시스템을 하나로 연결해 MICE 운영의 구조 자체를 바꿉니다.\n\n실제 도입 사례에서는 현장 대기시간 40% 감소, 운영 인력 투입 30% 절감이라는 수치가 확인됐습니다. 플라스틱 폐기물은 무려 90% 감축됐고, 이 데이터는 ESG 보고서의 정량적 근거로도 활용됩니다.\n\n그렇다면 가장 중요한 질문 — 참가자 경험과 브랜드 평판에는 어떤 변화가 생겼을까요? 그리고 도입 기업들이 공통으로 꼽은 '예상 밖의 효과'는 무엇이었을까요?\n\n전체 내용 보기 → https://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
 ---
 
 행사를 마치고 나면 바닥에 나뒹구는 플라스틱 명찰 홀더들. 행사 한 번에 수백 개의 플라스틱이 쓰레기가 됩니다.
