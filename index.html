@@ -996,9 +996,9 @@
   <!-- ===================== 8. QUOTE (모의 견적) ===================== -->
   <section id="quote" class="section section--alt">
     <div class="container">
-      <div class="section-label fade-up">INSTANT QUOTE</div>
-      <h2 class="section-title fade-up"><span class="lang-ko">행사에 맞춘 솔루션 선택, <span class="gradient-text">모의 견적</span> 즉시 완성</span><span class="lang-en">Your <span class="gradient-text">instant quote</span> — coming soon</span></h2>
-      <p class="section-desc fade-up"><span class="lang-ko">필요한 기능과 출력 옵션을 고르면 <strong class="kw-blue">예상 비용</strong>이 <strong class="kw-blue">바로 반영</strong>됩니다.</span><span class="lang-en" style="white-space:nowrap">Select your features and options and the <strong class="kw-blue">estimated cost</strong> is <strong class="kw-blue">reflected instantly</strong>.</span></p>
+      <div class="section-label fade-up">QUOTE REQUEST</div>
+      <h2 class="section-title fade-up"><span class="lang-ko">행사 규모와 필요 기능을 선택하면<br><span class="gradient-text">담당자가 맞춤 견적</span>을 드립니다</span><span class="lang-en">Your <span class="gradient-text">instant quote</span> — coming soon</span></h2>
+      <p class="section-desc fade-up"><span class="lang-ko">필요한 기능과 구성을 선택하고 견적을 요청하세요.<br><strong class="kw-blue">영업일 1~2일 내</strong> 담당자가 맞춤 견적서를 이메일로 보내드립니다.</span><span class="lang-en" style="white-space:nowrap">Select your features and options and the <strong class="kw-blue">estimated cost</strong> is <strong class="kw-blue">reflected instantly</strong>.</span></p>
 
       <!-- EN: OPEN SOON -->
       <div class="lang-en en-quote-soon fade-up" style="--delay:0.1s">
@@ -1177,12 +1177,9 @@
               <strong id="sumBasics">-</strong>
             </div>
             <hr class="divider">
-            <div id="sumItems" class="sum-items"></div>
-            <hr class="divider">
-            <div class="total-box">
-              <div class="total-label">총 예상 비용</div>
-              <div class="total-value gradient-text" id="sumTotal">&#8361;0</div>
-              <div class="form-hint" id="sumNote">* 본 견적은 모의 견적이며, 실제 견적과 차이가 있을 수 있습니다.<br>* 부가서비스(출입관리·알림톡·문자 등)는 실제 견적 시 반영됩니다.<br>* 유료 결제 서비스 이용 시 결제액의 5% (행사 후 정산)</div>
+            <div class="quote-request-note">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--cyan-light)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <p>선택하신 내용을 바탕으로 담당자가 맞춤 견적서를 보내드립니다.<br>부가서비스(출입관리·알림톡 등)는 실제 견적 시 반영됩니다.</p>
             </div>
             <div class="consent-wrap">
               <label class="consent-label">
@@ -1190,19 +1187,19 @@
                 <span>모의견적서 서비스 이용을 위한 <button type="button" class="consent-toggle" id="consentToggle">개인정보 수집·이용 동의</button></span>
               </label>
               <div class="consent-terms" id="consentTerms" hidden>
-                <p>FAIRPASS는 모의견적서 이메일 발송 서비스 제공을 위해 아래와 같이 개인정보를 수집·이용합니다.</p>
+                <p>FAIRPASS는 견적 상담 서비스 제공을 위해 아래와 같이 개인정보를 수집·이용합니다.</p>
                 <ul>
-                  <li><strong>수집 항목:</strong> 담당자 성함, 소속, 이메일</li>
-                  <li><strong>수집 목적:</strong> 모의견적서 이메일 발송</li>
+                  <li><strong>수집 항목:</strong> 담당자 성함, 소속, 이메일, 전화번호</li>
+                  <li><strong>수집 목적:</strong> 맞춤 견적서 발송 및 상담 연락</li>
                   <li><strong>보유 기간:</strong> 1년</li>
                 </ul>
-                <p>동의를 거부할 수 있으며, 거부 시 이메일 발송 서비스를 이용할 수 없습니다.</p>
+                <p>동의를 거부할 수 있으며, 거부 시 견적 요청 서비스를 이용할 수 없습니다.</p>
               </div>
             </div>
             <div class="quote-export-actions">
               <button type="button" class="btn btn-primary btn-full" id="quoteEmailBtn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                견적서 이메일로 받기
+                견적 요청하기
               </button>
             </div>
           </div>
@@ -1362,21 +1359,26 @@
   <div class="modal-overlay" id="emailModal">
     <div class="modal-card glass-card">
       <button class="modal-close" id="emailModalClose" type="button">&times;</button>
-      <h3 class="modal-title">모의 견적서 이메일 발송</h3>
-      <p class="modal-desc">견적서를 받을 이메일 주소를 입력해주세요.</p>
+      <h3 class="modal-title">견적 요청</h3>
+      <p class="modal-desc">연락처를 입력하시면 담당자가 영업일 1~2일 내 맞춤 견적을 보내드립니다.</p>
       <form id="emailForm">
         <!-- 봇 차단용 honeypot -->
         <input type="text" name="website" style="display:none;visibility:hidden;" tabindex="-1" autocomplete="off" aria-hidden="true">
         <label class="form-label">
-          <span>이메일</span>
+          <span>이메일 <span style="color:var(--cyan-light)">*</span></span>
           <input type="email" name="email" class="form-input" placeholder="example@company.com" required>
         </label>
+        <label class="form-label">
+          <span>전화번호 <span style="color:var(--cyan-light)">*</span></span>
+          <input type="tel" name="phone" class="form-input" placeholder="010-0000-0000" required>
+          <small class="form-hint" style="margin-top:4px;display:block">견적 검토 후 담당자가 영업일 1~2일 내 연락드립니다.</small>
+        </label>
         <div class="cf-turnstile" data-sitekey="0x4AAAAAACyOcW8tfusEzahN" data-theme="dark" style="margin-bottom:12px;"></div>
-        <button type="submit" class="btn btn-primary btn-full" id="emailSubmitBtn">발송하기</button>
+        <button type="submit" class="btn btn-primary btn-full" id="emailSubmitBtn">견적 요청하기</button>
       </form>
       <div class="email-success" id="emailSuccess" style="display:none;">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-light)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        <p>견적서가 이메일로 발송되었습니다.</p>
+        <p>견적 요청이 접수되었습니다.<br>담당자가 영업일 1~2일 내 연락드립니다.</p>
       </div>
     </div>
   </div>

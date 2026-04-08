@@ -480,19 +480,21 @@
       syncKioskOptions();
       const res = calculate();
 
-      $("#sumPackage").textContent = res.pkgLabel;
-      $("#sumBasics").textContent = res.attendees.toLocaleString() + "명 / " + res.days + "일";
+      if ($("#sumPackage")) $("#sumPackage").textContent = res.pkgLabel;
+      if ($("#sumBasics")) $("#sumBasics").textContent = res.attendees.toLocaleString() + "명 / " + res.days + "일";
 
       const sumItems = $("#sumItems");
-      sumItems.innerHTML = "";
-      res.items.forEach((it) => {
-        const row = document.createElement("div");
-        row.className = "sum-item";
-        row.innerHTML = "<span>" + escapeHTML(it.label) + "</span><strong>" + formatKRW(it.cost) + "</strong>";
-        sumItems.appendChild(row);
-      });
+      if (sumItems) {
+        sumItems.innerHTML = "";
+        res.items.forEach((it) => {
+          const row = document.createElement("div");
+          row.className = "sum-item";
+          row.innerHTML = "<span>" + escapeHTML(it.label) + "</span><strong>" + formatKRW(it.cost) + "</strong>";
+          sumItems.appendChild(row);
+        });
+      }
 
-      $("#sumTotal").textContent = formatKRW(res.total);
+      if ($("#sumTotal")) $("#sumTotal").textContent = formatKRW(res.total);
     }
 
     var _quoteStarted = false;
@@ -753,6 +755,7 @@
           name: quoteData.contactName,
           org: quoteData.contactOrg,
           email: formData.get("email"),
+          phone: formData.get("phone") || "",
           quoteText: buildExportText(quoteData),
           quoteTotal: formatKRW(quoteData.total),
           timestamp: window._quoteEmailModalOpenTime || new Date().toISOString(),

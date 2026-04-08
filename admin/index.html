@@ -490,7 +490,7 @@
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>접수 일시</th><th>담당자</th><th>소속</th><th>이메일</th><th>행사명</th><th>패키지</th><th>참가자</th><th>일수</th><th>총 금액</th><th>견적서</th><th>삭제</th>
+              <th>접수 일시</th><th>담당자</th><th>소속</th><th>이메일</th><th>전화번호</th><th>행사명</th><th>패키지</th><th>참가자</th><th>일수</th><th>총 금액</th><th>견적서</th><th>삭제</th>
             </tr></thead>
             <tbody id="quoteBody"></tbody>
           </table>
@@ -1345,6 +1345,7 @@ function renderQuoteTable() {
       <td style="font-weight:600">${item.name||'-'}</td>
       <td class="td-muted">${item.company||'-'}</td>
       <td class="td-muted" style="font-size:12px">${item.email||'-'}</td>
+      <td style="font-size:12px;white-space:nowrap">${item.phone ? `<a href="tel:${item.phone}" style="color:var(--cyan-light);text-decoration:none;">${item.phone}</a>` : '-'}</td>
       <td style="font-weight:600;max-width:160px;">${p.행사명||'-'}<div class="td-muted" style="font-size:11px;margin-top:2px">${p.행사장소||''}</div></td>
       <td><span style="display:inline-block;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:700;background:rgba(139,92,246,0.18);color:var(--purple-light)">${pkgShort}</span></td>
       <td class="td-muted" style="text-align:right">${p.참가자수||'-'}</td>

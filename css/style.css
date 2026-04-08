@@ -1754,6 +1754,24 @@ select.form-input option {
   line-height: 1.6;
 }
 
+/* === QUOTE REQUEST NOTE === */
+.quote-request-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(34, 211, 238, 0.06);
+  border: 1px solid rgba(34, 211, 238, 0.18);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+}
+.quote-request-note p {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.6;
+}
+
 /* === QUOTE EXPORT ACTIONS === */
 .quote-export-actions {
   display: grid;
