@@ -238,6 +238,19 @@
     .modal-close-btn:hover { color: var(--text); }
     .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 28px; }
 
+    /* ── Quote Send Modal ── */
+    .qs-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 20px; }
+    .qs-info-item { font-size: 12px; }
+    .qs-info-item span { display: block; color: var(--muted); margin-bottom: 3px; }
+    .qs-info-item strong, .qs-info-item a { font-size: 13px; font-weight: 600; color: var(--text); text-decoration: none; }
+    .qs-info-item a { color: var(--cyan-light); }
+    .qs-label { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px; display: block; }
+    .qs-textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: var(--radius-xs); color: var(--text); font-size: 12px; font-family: 'Pretendard', monospace; line-height: 1.7; padding: 12px 14px; resize: vertical; outline: none; transition: border-color 0.2s; }
+    .qs-textarea:focus { border-color: var(--purple-light); }
+    .qs-total-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: var(--radius-xs); color: var(--text); font-size: 15px; font-weight: 700; padding: 12px 14px; outline: none; transition: border-color 0.2s; margin-top: 6px; }
+    .qs-total-input:focus { border-color: var(--cyan-light); }
+    .sent-badge { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 11px; font-weight: 700; background: rgba(16,185,129,0.18); color: var(--green); white-space: nowrap; }
+
     /* ── Seed progress ── */
     .seed-progress { display: none; position: fixed; bottom: 28px; right: 28px; z-index: 300; background: #0e0e1a; border: 1px solid var(--green); border-radius: var(--radius-sm); padding: 16px 22px; min-width: 240px; }
     .seed-progress.show { display: block; }
@@ -490,7 +503,7 @@
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>접수 일시</th><th>담당자</th><th>소속</th><th>이메일</th><th>전화번호</th><th>행사명</th><th>패키지</th><th>참가자</th><th>일수</th><th>총 금액</th><th>견적서</th><th>삭제</th>
+              <th>접수 일시</th><th>담당자</th><th>소속</th><th>이메일</th><th>전화번호</th><th>행사명</th><th>패키지</th><th>참가자</th><th>일수</th><th>총 금액</th><th>견적서</th><th>발송</th><th>삭제</th>
             </tr></thead>
             <tbody id="quoteBody"></tbody>
           </table>
@@ -536,6 +549,42 @@
       </div>
 
     </main>
+  </div>
+</div>
+
+<!-- ══ 견적 발송 모달 ══ -->
+<div class="modal-bg" id="quoteSendModalBg">
+  <div class="modal" style="max-width:600px">
+    <button class="modal-close-btn" onclick="closeQuoteSendModal()">&times;</button>
+    <div class="modal-title">견적서 발송</div>
+
+    <!-- 고객 정보 -->
+    <div class="qs-info-grid">
+      <div class="qs-info-item"><span>담당자</span><strong id="qs_name">-</strong></div>
+      <div class="qs-info-item"><span>소속</span><strong id="qs_company">-</strong></div>
+      <div class="qs-info-item"><span>이메일</span><a id="qs_email" href="#">-</a></div>
+      <div class="qs-info-item"><span>전화번호</span><a id="qs_phone" href="#">-</a></div>
+    </div>
+
+    <!-- 견적 내용 -->
+    <div style="margin-bottom:16px">
+      <span class="qs-label">견적 내용 <span style="color:var(--muted);font-weight:400;text-transform:none">(수정 가능)</span></span>
+      <textarea id="qs_content" class="qs-textarea" rows="9"></textarea>
+    </div>
+
+    <!-- 총 금액 -->
+    <div style="margin-bottom:4px">
+      <span class="qs-label">총 견적 금액 <span style="color:var(--red)">*</span></span>
+      <input type="text" id="qs_total" class="qs-total-input" placeholder="예: ₩3,500,000">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeQuoteSendModal()">취소</button>
+      <button class="btn btn-primary" id="qs_sendBtn" onclick="sendQuoteEmail()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span id="qs_sendLabel">고객에게 발송하기</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1352,6 +1401,7 @@ function renderQuoteTable() {
       <td class="td-muted" style="text-align:right">${p.운영일수||'-'}</td>
       <td style="font-weight:700;white-space:nowrap;color:var(--cyan-light)">${item.total||p.총계||'-'}</td>
       <td><button class="btn btn-ghost btn-sm" onclick="openQuotePdf(${idx})" style="white-space:nowrap">📄 보기</button></td>
+      <td>${item.quote_sent_at ? `<span class="sent-badge">✓ 발송완료</span>` : `<button class="btn btn-primary btn-sm" onclick="openQuoteSendModal(${idx})" style="white-space:nowrap">견적 발송</button>`}</td>
       <td><button class="btn btn-danger btn-sm" onclick="deleteQuote(${item.id})" style="white-space:nowrap">삭제</button></td>
     </tr>`;
   }).join('');
@@ -1796,6 +1846,79 @@ document.getElementById('seedBtn').onclick = async () => {
   showToast(`${LEGACY.length}개 데이터 가져오기 완료!`);
   await loadItems();
 };
+
+// ── 견적 발송 모달 ──
+let _qsIdx = null;
+
+function openQuoteSendModal(idx) {
+  const item = quoteItems[idx];
+  if (!item) return;
+  _qsIdx = idx;
+
+  document.getElementById('qs_name').textContent = item.name || '-';
+  document.getElementById('qs_company').textContent = item.company || '-';
+  const emailEl = document.getElementById('qs_email');
+  emailEl.textContent = item.email || '-';
+  emailEl.href = item.email ? `mailto:${item.email}` : '#';
+  const phoneEl = document.getElementById('qs_phone');
+  phoneEl.textContent = item.phone || '-';
+  phoneEl.href = item.phone ? `tel:${item.phone}` : '#';
+  document.getElementById('qs_content').value = item.content || '';
+  document.getElementById('qs_total').value = item.total || '';
+
+  const btn = document.getElementById('qs_sendBtn');
+  document.getElementById('qs_sendLabel').textContent = '고객에게 발송하기';
+  btn.disabled = false;
+
+  document.getElementById('quoteSendModalBg').classList.add('open');
+}
+
+function closeQuoteSendModal() {
+  document.getElementById('quoteSendModalBg').classList.remove('open');
+  _qsIdx = null;
+}
+
+document.getElementById('quoteSendModalBg').addEventListener('click', e => {
+  if (e.target === document.getElementById('quoteSendModalBg')) closeQuoteSendModal();
+});
+
+async function sendQuoteEmail() {
+  if (_qsIdx === null) return;
+  const item = quoteItems[_qsIdx];
+  const total = document.getElementById('qs_total').value.trim();
+  if (!total) { showToast('총 견적 금액을 입력해주세요.', true); return; }
+
+  const btn = document.getElementById('qs_sendBtn');
+  document.getElementById('qs_sendLabel').textContent = '발송 중...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/quote-send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password: sessionPw,
+        id: item.id,
+        customerEmail: item.email,
+        customerName: item.name,
+        quoteContent: document.getElementById('qs_content').value,
+        quoteTotal: total,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || '발송 실패');
+
+    // 메모리 상태 업데이트 → 테이블 즉시 반영
+    quoteItems[_qsIdx] = { ...item, quote_sent_at: new Date().toISOString() };
+    renderQuoteTable();
+    closeQuoteSendModal();
+    showToast(`✅ ${item.name || item.email}에게 견적서 발송 완료!`);
+  } catch (err) {
+    showToast('발송 실패: ' + err.message, true);
+    document.getElementById('qs_sendLabel').textContent = '고객에게 발송하기';
+    btn.disabled = false;
+  }
+}
 </script>
 </body>
 </html>
