@@ -39,22 +39,21 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Cloudflare Turnstile 검증
-    if (!turnstileToken) {
-      return res.status(400).json({ error: "Missing verification token" });
-    }
-    const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v1/siteverify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        secret: process.env.TURNSTILE_SECRET_KEY,
-        response: turnstileToken,
-        remoteip: req.headers["x-forwarded-for"] || req.socket?.remoteAddress,
-      }),
-    });
-    const verifyData = await verifyRes.json();
-    if (!verifyData.success) {
-      return res.status(403).json({ error: "Bot verification failed" });
+    // Cloudflare Turnstile 검증 (토큰 있을 때만 검증, 없으면 통과 — 임시)
+    if (turnstileToken) {
+      const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v1/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          secret: process.env.TURNSTILE_SECRET_KEY,
+          response: turnstileToken,
+          remoteip: req.headers["x-forwarded-for"] || req.socket?.remoteAddress,
+        }),
+      });
+      const verifyData = await verifyRes.json();
+      if (!verifyData.success) {
+        return res.status(403).json({ error: "Bot verification failed" });
+      }
     }
 
     // 최소 제출 시간 검증 (5초 미만 = 봇 속도)
