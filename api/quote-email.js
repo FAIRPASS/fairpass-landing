@@ -101,8 +101,10 @@ export default async function handler(req, res) {
       console.error("DB save error:", dbErr);
     }
 
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    const apiKey = process.env.RESEND_API_KEY || "";
+    const resend = new Resend(apiKey);
     const fromEmail = process.env.FROM_EMAIL || "FAIRPASS <fairpass@fairpass.world>";
+    console.log("RESEND_API_KEY prefix:", apiKey.substring(0, 10));
     const notifyEmail = process.env.NOTIFY_EMAIL || "yj@fairpass.world";
 
     const customerName = name || "고객";
@@ -177,7 +179,7 @@ export default async function handler(req, res) {
 
     if (resendErr) {
       console.error("Resend 발송 오류:", JSON.stringify(resendErr));
-      return res.status(500).json({ error: "Email send failed", detail: resendErr.message });
+      return res.status(500).json({ error: "Email send failed", detail: resendErr.message, keyPrefix: apiKey.substring(0, 10) });
     }
 
     return res.status(200).json({ success: true });
