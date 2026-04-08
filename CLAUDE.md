@@ -33,6 +33,22 @@
 - `inquiries.js` — Admin 비밀번호 인증 ✅
 - Supabase `inquiries` 테이블에 `ip` 컬럼 추가됨 (Rate Limiting용)
 
+## 모의견적 → 견적 요청 시스템 개편 (2026-04-08)
+- **배경**: 경제 침체로 가격 표시 후 이탈 증가 → 가격 숨기고 상담 전환 방식으로 변경
+- **변경 파일**: `index.html`, `js/main.js`, `api/quote-email.js`, `api/quote-send.js`(신규), `admin/index.html`, `css/style.css`
+- **핵심 변경**:
+  - `index.html`: 가격 표시(`sumTotal`, `sumItems`) 제거 → 안내 노트로 교체 / 전화번호 필드(필수) 추가 / 버튼 "견적 요청하기"로 변경 / 성공 메시지 업데이트
+  - `api/quote-email.js`: 고객 자동 이메일 발송 제거 / 내부 알림만 유지 (yj@fairpass.world + fairpass@fairpass.world) / phone 필드 추가
+  - `api/quote-send.js`: 관리자 수동 견적 발송 API / 인증: ADMIN_PASSWORD / 고객에게 맞춤 견적 이메일 + FAIRPASS 상세 안내 발송 / DB `quote_sent_at` 업데이트
+  - `admin/index.html`: 전화번호 컬럼 추가 / "견적 발송" 버튼 → 클릭 시 모달 (고객 정보 + 견적 내용 편집 + 금액 입력) / 발송 후 "✓ 발송완료" 배지 즉시 표시
+- **Supabase**: `inquiries` 테이블에 `phone TEXT` + `quote_sent_at TIMESTAMPTZ` 컬럼 추가 완료
+- **운영 플로우**: 고객 폼 제출 → 내부 알림 수신 → 관리자 페이지 "견적 발송" 클릭 → 고객에게 맞춤 견적서 이메일 발송 → 전화 상담
+
+## 모바일 반응형 전체 개편 (2026-04-07~08)
+- **대상**: index.html, kiosk.html, badge.html, css/style.css
+- **주요 수정**: 전체 grid 1열 override (@media 768px/480px) / white-space:nowrap 인라인 스타일 !important 해제 / 히어로 텍스트 마케팅 문구 재작성 / 모바일 nav 정렬 수정 (align-items: stretch) / store-cta 배너 모바일 세로 배치 + 네이버 그린 accent
+- **CSS 추가**: `.quote-request-note`, `.store-cta` 모바일 재설계, SUB-PAGE MOBILE GRID OVERRIDES 블록
+
 ## FAQ 페이지 (2026-04-02 추가)
 - `faq.html` — 8개 카테고리, 32개 Q&A, 국영문 전환, 아코디언 UI
 - 카테고리: 서비스 소개 / 기능-운영 / 명찰 / 가격-견적 / 보안-데이터 / ESG-친환경 / 글로벌-해외(KO only) / 상담-도입
