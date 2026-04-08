@@ -290,6 +290,9 @@
         <button class="nav-item" id="navGenerate" onclick="showGenerate()">
           <span class="nav-icon">🚀</span> 초안 요청
         </button>
+        <button class="nav-item" id="navSubscribers" onclick="showSubscribers()">
+          <span class="nav-icon">📧</span> 구독자
+        </button>
       </nav>
       <div class="sidebar-bottom">
         <button class="logout-btn" onclick="doLogout()">로그아웃</button>
@@ -317,6 +320,36 @@
 
         <div id="postListContainer" class="post-list">
           <div class="loading">불러오는 중...</div>
+        </div>
+      </div>
+
+      <!-- SUBSCRIBERS VIEW -->
+      <div id="subscribersView" style="display:none;">
+        <div class="page-header">
+          <h1 class="page-title">뉴스레터 구독자</h1>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-ghost btn-sm" onclick="loadSubscribers()">🔄 새로고침</button>
+            <button class="btn btn-primary btn-sm" onclick="exportSubscribers()">⬇️ CSV 다운로드</button>
+          </div>
+        </div>
+        <div style="padding:0 24px 24px;">
+          <div id="subStats" style="display:flex;gap:12px;margin-bottom:20px;"></div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+              <thead>
+                <tr style="background:rgba(255,255,255,0.04);border-bottom:1px solid var(--border);">
+                  <th style="padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;">이메일</th>
+                  <th style="padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;">언어</th>
+                  <th style="padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;">출처</th>
+                  <th style="padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;">구독일</th>
+                  <th style="padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;">상태</th>
+                </tr>
+              </thead>
+              <tbody id="subTableBody">
+                <tr><td colspan="5" style="padding:40px;text-align:center;color:var(--muted);">불러오는 중...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -871,20 +904,112 @@
   function showList() {
     document.getElementById('listView').style.display = 'block';
     document.getElementById('generateView').style.display = 'none';
+    document.getElementById('subscribersView').style.display = 'none';
     document.getElementById('editorPanel').classList.remove('open');
     document.getElementById('navJournal').classList.add('active');
     document.getElementById('navGenerate').classList.remove('active');
+    document.getElementById('navSubscribers').classList.remove('active');
     loadList();
   }
 
   function showGenerate() {
     document.getElementById('listView').style.display = 'none';
     document.getElementById('generateView').style.display = 'block';
+    document.getElementById('subscribersView').style.display = 'none';
     document.getElementById('editorPanel').classList.remove('open');
     document.getElementById('navJournal').classList.remove('active');
     document.getElementById('navGenerate').classList.add('active');
+    document.getElementById('navSubscribers').classList.remove('active');
     document.getElementById('genResult').className = 'generate-result';
     document.getElementById('genResult').textContent = '';
+  }
+
+  function showSubscribers() {
+    document.getElementById('listView').style.display = 'none';
+    document.getElementById('generateView').style.display = 'none';
+    document.getElementById('subscribersView').style.display = 'block';
+    document.getElementById('editorPanel').classList.remove('open');
+    document.getElementById('navJournal').classList.remove('active');
+    document.getElementById('navGenerate').classList.remove('active');
+    document.getElementById('navSubscribers').classList.add('active');
+    loadSubscribers();
+  }
+
+  async function loadSubscribers() {
+    const tbody = document.getElementById('subTableBody');
+    const stats = document.getElementById('subStats');
+    tbody.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--muted);">불러오는 중...</td></tr>';
+    try {
+      const r = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'list', password: pw }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || '불러오기 실패');
+
+      const subs = data.subscribers || [];
+      const active = subs.filter(s => !s.unsubscribed_at);
+      const ko = active.filter(s => s.lang === 'ko').length;
+      const en = active.filter(s => s.lang === 'en').length;
+
+      stats.innerHTML = `
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 18px;font-size:12px;">
+          <div style="color:var(--muted);margin-bottom:2px;">전체 구독자</div>
+          <div style="font-size:22px;font-weight:800;color:var(--purple-light);">${active.length}</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 18px;font-size:12px;">
+          <div style="color:var(--muted);margin-bottom:2px;">한국어</div>
+          <div style="font-size:22px;font-weight:800;color:var(--cyan-light);">${ko}</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 18px;font-size:12px;">
+          <div style="color:var(--muted);margin-bottom:2px;">영어</div>
+          <div style="font-size:22px;font-weight:800;color:var(--cyan-light);">${en}</div>
+        </div>`;
+
+      if (subs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--muted);">구독자가 없습니다.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = subs.map(s => {
+        const date = new Date(s.subscribed_at).toLocaleDateString('ko-KR', { year:'numeric', month:'short', day:'numeric' });
+        const active = !s.unsubscribed_at;
+        return `<tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:10px 14px;">${s.email}</td>
+          <td style="padding:10px 14px;color:var(--muted);">${s.lang === 'ko' ? '🇰🇷 KO' : '🇺🇸 EN'}</td>
+          <td style="padding:10px 14px;color:var(--muted);">${s.source}</td>
+          <td style="padding:10px 14px;color:var(--muted);">${date}</td>
+          <td style="padding:10px 14px;">
+            <span style="font-size:11px;padding:2px 8px;border-radius:20px;${active ? 'background:rgba(16,185,129,0.15);color:#34d399;' : 'background:rgba(255,255,255,0.05);color:var(--muted);'}">
+              ${active ? '구독 중' : '해지'}
+            </span>
+          </td>
+        </tr>`;
+      }).join('');
+    } catch (e) {
+      tbody.innerHTML = `<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--red);">${e.message}</td></tr>`;
+    }
+  }
+
+  async function exportSubscribers() {
+    try {
+      const r = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'export', password: pw }),
+      });
+      if (!r.ok) { alert('내보내기 실패'); return; }
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `newsletter_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert('CSV 다운로드 실패: ' + e.message);
+    }
   }
 
   async function triggerGenerate() {
