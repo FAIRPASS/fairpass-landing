@@ -578,10 +578,19 @@
     <!-- 비용 내역 미리보기 -->
     <div id="qs_billing_preview" style="margin-bottom:16px"></div>
 
-    <!-- 할인 금액 -->
+    <!-- 할인 -->
     <div style="margin-bottom:12px">
-      <span class="qs-label">할인 금액 <span style="color:var(--muted);font-weight:400;text-transform:none">(없으면 비워두세요 — 이메일에 포함됩니다)</span></span>
-      <input type="text" id="qs_discount" class="qs-total-input" placeholder="예: ₩200,000">
+      <span class="qs-label">할인 <span style="color:var(--muted);font-weight:400;text-transform:none">(없으면 비워두세요 — 이메일에 포함됩니다)</span></span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="display:flex;border-radius:6px;overflow:hidden;border:1px solid var(--border);flex-shrink:0">
+          <button type="button" id="qs_dt_krw" onclick="setDiscountType('krw')"
+            style="padding:8px 14px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:#8b5cf6;color:#fff;transition:all .15s">₩</button>
+          <button type="button" id="qs_dt_pct" onclick="setDiscountType('pct')"
+            style="padding:8px 14px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:var(--surface);color:var(--muted);transition:all .15s">%</button>
+        </div>
+        <input type="text" id="qs_discount" class="qs-total-input" placeholder="예: ₩200,000" style="flex:1;margin:0"
+          oninput="formatDiscountInput()">
+      </div>
     </div>
 
     <!-- 총 금액 -->
@@ -1877,6 +1886,40 @@ if (_seedBtn) _seedBtn.onclick = async () => {
 
 // ── 견적 발송 모달 ──
 var _qsIdx = null;
+var _discountType = 'krw';
+
+function setDiscountType(type) {
+  _discountType = type;
+  const krwBtn = document.getElementById('qs_dt_krw');
+  const pctBtn = document.getElementById('qs_dt_pct');
+  if (type === 'krw') {
+    krwBtn.style.background = '#8b5cf6'; krwBtn.style.color = '#fff';
+    pctBtn.style.background = 'var(--surface)'; pctBtn.style.color = 'var(--muted)';
+    document.getElementById('qs_discount').placeholder = '예: ₩200,000';
+  } else {
+    pctBtn.style.background = '#8b5cf6'; pctBtn.style.color = '#fff';
+    krwBtn.style.background = 'var(--surface)'; krwBtn.style.color = 'var(--muted)';
+    document.getElementById('qs_discount').placeholder = '예: 10';
+  }
+  document.getElementById('qs_discount').value = '';
+}
+
+function formatDiscountInput() {
+  const input = document.getElementById('qs_discount');
+  const raw = input.value.replace(/[^0-9]/g, '');
+  if (!raw) { input.value = ''; return; }
+  if (_discountType === 'krw') {
+    input.value = '₩' + Number(raw).toLocaleString('ko-KR');
+  } else {
+    input.value = raw;
+  }
+}
+
+function getDiscountValue() {
+  const raw = document.getElementById('qs_discount').value.replace(/[^0-9]/g, '');
+  if (!raw || raw === '0') return '';
+  return _discountType === 'krw' ? '₩' + Number(raw).toLocaleString('ko-KR') : raw + '%';
+}
 
 function openQuoteSendModal(idx) {
   const item = quoteItems[idx];
@@ -1893,7 +1936,7 @@ function openQuoteSendModal(idx) {
   phoneEl.href = item.phone ? `tel:${item.phone}` : '#';
   document.getElementById('qs_content').value = item.content || '';
   document.getElementById('qs_total').value = item.total || '';
-  document.getElementById('qs_discount').value = '';
+  setDiscountType('krw');
   document.getElementById('qs_notes').value = '';
 
   // 비용 내역 미리보기 렌더
@@ -1954,7 +1997,7 @@ async function sendQuoteEmail() {
         customerName: item.name,
         quoteContent: document.getElementById('qs_content').value,
         quoteTotal: total,
-        quoteDiscount: document.getElementById('qs_discount').value.trim(),
+        quoteDiscount: getDiscountValue(),
         quoteNotes: document.getElementById('qs_notes').value.trim(),
       }),
     });
