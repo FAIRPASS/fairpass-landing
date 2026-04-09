@@ -13,7 +13,7 @@
 const GITHUB_OWNER = 'FAIRPASS';
 const GITHUB_REPO = 'fairpass-landing';
 const CONTENT_BASE = 'blog-src/src/content';
-const IMAGES_BASE = 'blog-src/public/journal-images';
+const IMAGES_BASE = 'journal-images';
 
 function githubHeaders() {
   return {
@@ -133,7 +133,7 @@ export default async function handler(req, res) {
       });
       const data2 = await res2.json();
       if (!res2.ok) return res.status(500).json({ error: 'Image upload failed', detail: data2 });
-      return res.status(200).json({ success: true, url: `/journal/journal-images/${safe}` });
+      return res.status(200).json({ success: true, url: `/journal-images/${safe}` });
     }
 
     return res.status(400).json({ error: 'Unknown action' });
