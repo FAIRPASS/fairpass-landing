@@ -1830,7 +1830,8 @@ window.openQuotePdf = function(index) {
 };
 
 // ── Seed ──
-document.getElementById('seedBtn').onclick = async () => {
+const _seedBtn = document.getElementById('seedBtn');
+if (_seedBtn) _seedBtn.onclick = async () => {
   if (!confirm('기존 60개 데이터를 Supabase에 추가합니다.\n이미 가져온 경우 중복될 수 있습니다. 계속할까요?')) return;
   const progress = document.getElementById('seedProgress');
   const fill = document.getElementById('seedFill');
@@ -1854,7 +1855,7 @@ document.getElementById('seedBtn').onclick = async () => {
 };
 
 // ── 견적 발송 모달 ──
-let _qsIdx = null;
+var _qsIdx = null;
 
 function openQuoteSendModal(idx) {
   const item = quoteItems[idx];
