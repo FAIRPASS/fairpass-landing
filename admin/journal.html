@@ -184,6 +184,8 @@
     .translate-result-body { padding: 12px 14px; }
     .translate-textarea { width: 100%; padding: 8px 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-xs); color: var(--text); font-size: 12px; line-height: 1.6; resize: vertical; outline: none; font-family: monospace; min-height: 200px; }
     .translate-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+    .translate-result-body .EasyMDEContainer { margin-bottom: 8px; }
+    .translate-result-body .EasyMDEContainer .CodeMirror { min-height: 250px; }
     .translate-loading { font-size: 12px; color: var(--cyan); display: none; }
 
     /* ── Generate Panel ── */
@@ -605,10 +607,15 @@
               <button class="btn btn-ghost btn-sm" onclick="closeTranslateResult()">✕</button>
             </div>
             <div class="translate-result-body">
-              <textarea class="translate-textarea" id="translateOutput" placeholder="영문 번역 결과가 여기에 표시됩니다..."></textarea>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                <label class="img-upload-label" style="cursor:pointer;font-size:12px;" onclick="saveCursorPosEn(); document.getElementById('enImgInput').click();">🖼️ 이미지 삽입</label>
+                <input type="file" id="enImgInput" accept="image/*" multiple style="display:none;" onchange="uploadImages(this, easyMDEEn)" />
+                <span id="enImgStatus" style="font-size:11px;color:var(--muted);"></span>
+              </div>
+              <textarea id="translateOutputMde" placeholder="영문 번역 결과가 여기에 표시됩니다..."></textarea>
               <div class="translate-actions">
                 <button class="btn btn-ghost btn-sm" onclick="openEnglishPreview()">👁 미리보기</button>
-                <button class="btn btn-primary btn-sm" onclick="saveTranslation()">GitHub에 저장</button>
+                <button class="btn btn-primary btn-sm" onclick="saveTranslation()">💾 GitHub에 저장</button>
               </div>
             </div>
           </div>
@@ -621,6 +628,7 @@
             <button class="btn btn-danger btn-sm" id="deleteBtn" onclick="deletePost()" style="display:none;">삭제</button>
             <button class="btn btn-ghost" onclick="showList()">취소</button>
             <button class="btn btn-primary" onclick="savePost()" id="saveBtn">저장 (초안)</button>
+            <button class="btn btn-success" onclick="publishPost()" id="publishBtn" style="background:linear-gradient(135deg,#10b981,#06b6d4);">🚀 최종 배포</button>
           </div>
         </div>
       </div>
@@ -802,7 +810,10 @@
   let isNew = false;
   let autosaveTimer = null;
   let _importData = null;
-  const _uploadedImages = new Map(); // githubUrl → blobUrl (미리보기 즉시 표시용)
+  const _uploadedImages = new Map();
+  let easyMDEEn = null;
+  let currentEnSha = null;
+  let currentEnPath = null; // githubUrl → blobUrl (미리보기 즉시 표시용)
 
   // ── Password toggle ──
   function togglePwVisible() {
@@ -1170,6 +1181,10 @@
     isNew = true;
     currentSha = null;
     currentPath = null;
+    currentEnSha = null;
+    currentEnPath = null;
+    if (easyMDEEn) easyMDEEn.value('');
+    closeTranslateResult();
     document.getElementById('editorTitle').textContent = '새 포스트';
     document.getElementById('editorLangBadge').textContent = currentLang === 'ko' ? '🇰🇷 한국어' : '🇺🇸 English';
     document.getElementById('fTitle').value = '';
@@ -1254,6 +1269,25 @@
         document.getElementById('snsInstagramKo').value        = snsCopy.instagramKo        || '';
         document.getElementById('snsInstagramEn').value        = snsCopy.instagramEn        || '';
         document.getElementById('snsNaverBlog').value          = snsCopy.naverBlog          || '';
+      }
+
+      // 기존 영문 버전 로드 (있으면 에디터에 표시)
+      currentEnSha = null;
+      currentEnPath = null;
+      if (currentLang === 'ko') {
+        const slug2 = path.split('/').pop().replace('.md', '');
+        const enPath = `blog-src/src/content/journal-en/${slug2}.md`;
+        try {
+          const enR = await fetch(`/api/journal-admin?action=read&path=${encodeURIComponent(enPath)}&password=${encodeURIComponent(pw)}`);
+          if (enR.ok) {
+            const { content: enContent, sha: enSha } = await enR.json();
+            currentEnSha = enSha;
+            currentEnPath = enPath;
+            initEnglishEditor();
+            easyMDEEn.value(enContent);
+            document.getElementById('translateResult').classList.add('open');
+          }
+        } catch {}
       }
     } catch (e) {
       document.getElementById('saveStatus').className = 'save-status err';
@@ -1483,7 +1517,7 @@ ${body}`;
   }
 
   // ── Image upload ──
-  async function uploadImages(input) {
+  async function uploadImages(input, targetEditor) {
     const files = Array.from(input.files);
     if (!files.length) return;
 
@@ -1529,12 +1563,15 @@ ${body}`;
 
     const mdImages = results.filter(r => r.ok).map(r => `![${r.name}](${r.url})`).join('\n\n');
     if (mdImages) {
-      const cm = easyMDE.codemirror;
-      const cursor = window._savedCursor || cm.getCursor();
-      const currentLine = cm.getLine(cursor.line) || '';
-      const prefix = currentLine.trim() ? '\n\n' : '';
-      cm.replaceRange(prefix + mdImages + '\n\n', cursor);
-      cm.focus();
+      const targetEd = targetEditor || easyMDE;
+      if (targetEd && targetEd.codemirror) {
+        const cm = targetEd.codemirror;
+        const cursor = window._savedCursor || cm.getCursor();
+        const currentLine = cm.getLine(cursor.line) || '';
+        const prefix = currentLine.trim() ? '\n\n' : '';
+        cm.replaceRange(prefix + mdImages + '\n\n', cursor);
+        cm.focus();
+      }
       window._savedCursor = null;
     }
 
@@ -1625,7 +1662,7 @@ ${body}`;
   }
 
   function openEnglishPreview() {
-    const raw = document.getElementById('translateOutput').value.trim();
+    const raw = easyMDEEn ? easyMDEEn.value().trim() : '';
     if (!raw) return;
     const fm = parseFrontmatter(raw);
     const body = extractBody(raw);
@@ -1797,7 +1834,8 @@ snsCopy:
         throw new Error(`서버 응답 오류 (HTTP ${r.status})\n글이 길면 본문을 줄이고 다시 시도해주세요.\n\nRAW 응답:\n${rawText.slice(0, 800)}`);
       }
       if (r.ok) {
-        document.getElementById('translateOutput').value = data.content || data.markdown || '';
+        initEnglishEditor();
+        easyMDEEn.value(data.content || data.markdown || '');
         document.getElementById('translateResult').classList.add('open');
       } else {
         const detail = data.detail ? '\n\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
@@ -1815,25 +1853,62 @@ snsCopy:
     document.getElementById('translateResult').classList.remove('open');
   }
 
+  function saveCursorPosEn() {
+    if (easyMDEEn) window._savedCursor = easyMDEEn.codemirror.getCursor();
+  }
+
+  function initEnglishEditor() {
+    if (easyMDEEn) return;
+    const el = document.getElementById('translateOutputMde');
+    if (!el) return;
+    easyMDEEn = new EasyMDE({
+      element: el,
+      spellChecker: false,
+      autosave: { enabled: false },
+      previewRender: (plainText) => {
+        let html = marked.parse(plainText).replace(/\/journal\/journal-images\//g, '/journal-images/');
+        for (const [githubUrl, blobUrl] of _uploadedImages) {
+          html = html.split(githubUrl).join(blobUrl);
+        }
+        return html;
+      },
+      toolbar: [
+        'bold', 'italic', 'heading', '|',
+        'quote', 'unordered-list', 'ordered-list', '|',
+        'link', 'table', 'horizontal-rule', '|',
+        'preview', 'side-by-side', 'fullscreen',
+      ],
+      status: false,
+      minHeight: '250px',
+    });
+  }
+
+  async function publishPost() {
+    document.getElementById('fStatus').value = 'published';
+    onStatusChange();
+    await savePost();
+  }
+
   async function saveTranslation() {
-    const content = document.getElementById('translateOutput').value.trim();
+    const content = easyMDEEn ? easyMDEEn.value().trim() : '';
     const slug = document.getElementById('fSlug').value.trim();
     if (!content || !slug) {
       alert('번역 내용 또는 슬러그가 없습니다.');
       return;
     }
 
-    const path = `blog-src/src/content/journal-en/${slug}.md`;
+    const path = currentEnPath || `blog-src/src/content/journal-en/${slug}.md`;
 
     try {
       const r = await fetch('/api/journal-admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'save', path, content, password: pw }),
+        body: JSON.stringify({ action: 'save', path, content, password: pw, sha: currentEnSha || undefined }),
       });
       const data = await r.json();
       if (r.ok) {
-        closeTranslateResult();
+        currentEnSha = data.sha;
+        currentEnPath = path;
         alert('✓ 영문 버전이 GitHub에 저장되었습니다!');
       } else {
         const detail = data.detail ? '\n\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
