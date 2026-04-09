@@ -17,6 +17,7 @@ function parseQuoteContent(content) {
     소속: get("소속"),
     행사명: get("행사명"),
     행사장소: get("행사 장소"),
+    패키지: get("패키지"),
     비용상세: detailMatch ? detailMatch[1].trim() : "",
     총계: (content || "").match(/\[총계\] (.+)/)?.[1]?.trim() || "",
   };
@@ -78,6 +79,7 @@ export default async function handler(req, res) {
   const eventRows = [
     p.행사명 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;width:28%;border-bottom:1px solid #f0f1f5;background:#fafbff;">행사명</td><td style="padding:8px 14px;font-size:13px;font-weight:600;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.행사명}</td></tr>` : "",
     p.행사장소 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">장소</td><td style="padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.행사장소}</td></tr>` : "",
+    p.패키지 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">패키지</td><td style="padding:8px 14px;font-size:13px;font-weight:600;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.패키지}</td></tr>` : "",
   ].filter(Boolean).join("");
 
   // 추가 메모 섹션 (조건부)
