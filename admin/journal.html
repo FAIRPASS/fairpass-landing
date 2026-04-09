@@ -1618,10 +1618,11 @@ ${body}`;
         document.getElementById('snsInstagramEn').value = data.instagramEn || '';
         document.getElementById('snsNaverBlog').value = data.naverBlog || '';
       } else {
-        alert(`SNS 생성 실패: ${data.error || '알 수 없는 오류'}`);
+        const detail = data.detail ? '\n\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
+        showErrorDetail('SNS 생성 실패', (data.error || '알 수 없는 오류') + detail);
       }
     } catch (e) {
-      alert(`SNS 생성 오류: ${e.message}`);
+      showErrorDetail('SNS 생성 오류', e.message);
     } finally {
       loadingEl.style.display = 'none';
     }
@@ -1706,17 +1707,22 @@ snsCopy:
         body: JSON.stringify({ action: 'translate', title, description: desc, body, category, tags, slug, password: pw }),
       });
       let data;
-      try { data = await r.json(); } catch {
-        throw new Error('서버 응답 오류 — 글이 길면 본문을 줄이고 다시 시도해주세요.\n(번역 생성에 시간이 오래 걸릴 수 있습니다. 잠시 후 재시도해주세요.)');
+      let rawText = '';
+      try {
+        rawText = await r.clone().text();
+        data = JSON.parse(rawText);
+      } catch {
+        throw new Error(`서버 응답 오류 (HTTP ${r.status})\n글이 길면 본문을 줄이고 다시 시도해주세요.\n\nRAW 응답:\n${rawText.slice(0, 800)}`);
       }
       if (r.ok) {
         document.getElementById('translateOutput').value = data.content || data.markdown || '';
         document.getElementById('translateResult').classList.add('open');
       } else {
-        alert(`번역 실패: ${data.error || '알 수 없는 오류'}`);
+        const detail = data.detail ? '\n\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
+        showErrorDetail('번역 실패', `HTTP ${r.status}\n${data.error || '알 수 없는 오류'}${detail}`);
       }
     } catch (e) {
-      alert(`번역 오류: ${e.message}`);
+      showErrorDetail('번역 오류', e.message);
     } finally {
       loadingEl.style.display = 'none';
       btn.disabled = false;
@@ -1748,10 +1754,11 @@ snsCopy:
         closeTranslateResult();
         alert('✓ 영문 버전이 GitHub에 저장되었습니다!');
       } else {
-        alert(`저장 실패: ${data.error}`);
+        const detail = data.detail ? '\n\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
+        showErrorDetail('번역 저장 실패', (data.error || '알 수 없는 오류') + detail);
       }
     } catch (e) {
-      alert(`저장 오류: ${e.message}`);
+      showErrorDetail('번역 저장 오류', e.message);
     }
   }
 
@@ -1936,7 +1943,7 @@ snsCopy:
       document.getElementById('importResBody').textContent     = data.body || '';
       document.getElementById('importResult').classList.add('open');
     } catch (e) {
-      alert('언론 보도 가져오기 실패: ' + e.message);
+      showErrorDetail('언론 보도 가져오기 실패', e.message);
     } finally {
       btn.disabled = false;
       loading.style.display = 'none';
@@ -1977,7 +1984,7 @@ snsCopy:
       document.getElementById('importResBody').textContent     = data.body || '';
       document.getElementById('importResult').classList.add('open');
     } catch (e) {
-      alert('AI 정리 실패: ' + e.message);
+      showErrorDetail('AI 정리 실패', e.message);
     } finally {
       btn.disabled = false;
       btn2.disabled = false;
@@ -2053,10 +2060,10 @@ snsCopy:
         document.getElementById('fSlug').dataset.manual = 'true';
         document.getElementById('slugHint').textContent = `URL: /journal/${currentLang}/${full}/`;
       } else {
-        alert('슬러그 생성 실패: ' + (data.error || '알 수 없는 오류'));
+        showErrorDetail('슬러그 생성 실패', data.error || '알 수 없는 오류');
       }
     } catch (e) {
-      alert('슬러그 생성 오류: ' + e.message);
+      showErrorDetail('슬러그 생성 오류', e.message);
     } finally {
       btn.disabled = false;
       btn.textContent = '✨ AI';
