@@ -204,6 +204,22 @@
     .slug-hint { font-size: 11px; color: var(--muted2); margin-top: 4px; }
     .section-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
 
+    /* ── Publish Choice Modal ── */
+    #publishModal { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 24px; }
+    #publishModal.open { display: flex; }
+    .publish-box { background: #12121f; border: 1px solid rgba(139,92,246,0.4); border-radius: var(--radius); width: 100%; max-width: 420px; overflow: hidden; }
+    .publish-box-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: rgba(139,92,246,0.12); border-bottom: 1px solid rgba(139,92,246,0.2); }
+    .publish-box-header span { font-size: 14px; font-weight: 700; color: #c084fc; }
+    .publish-box-body { padding: 20px 18px; }
+    .publish-box-body p { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+    .publish-choices { display: flex; flex-direction: column; gap: 10px; }
+    .publish-choice-btn { width: 100%; padding: 12px 16px; border-radius: var(--radius-xs); font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid; text-align: left; transition: all 0.15s; }
+    .publish-choice-btn:hover { opacity: 0.85; }
+    .publish-choice-ko { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.5); color: #c084fc; }
+    .publish-choice-en { background: rgba(6,182,212,0.12); border-color: rgba(6,182,212,0.4); color: #22d3ee; }
+    .publish-choice-both { background: linear-gradient(135deg,rgba(139,92,246,0.2),rgba(6,182,212,0.15)); border-color: rgba(255,255,255,0.2); color: #fff; }
+    .publish-choice-cancel { background: transparent; border-color: rgba(255,255,255,0.1); color: var(--muted); margin-top: 4px; }
+
     /* ── Error Detail Modal ── */
     #errorModal { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 24px; }
     #errorModal.open { display: flex; }
@@ -641,6 +657,33 @@
 </div>
 
 <!-- ── ERROR DETAIL MODAL ── -->
+<!-- ── PUBLISH CHOICE MODAL ── -->
+<div id="publishModal">
+  <div class="publish-box">
+    <div class="publish-box-header">
+      <span>🚀 배포 언어 선택</span>
+      <button class="btn btn-ghost btn-sm" onclick="closePublishModal()">✕</button>
+    </div>
+    <div class="publish-box-body">
+      <p>status를 <strong style="color:#c084fc">published</strong>로 변경하고 GitHub에 저장합니다.<br>배포할 언어를 선택하세요.</p>
+      <div class="publish-choices">
+        <button class="publish-choice-btn publish-choice-ko" onclick="executePublish('ko')">
+          🇰🇷 한국어만 배포
+        </button>
+        <button class="publish-choice-btn publish-choice-en" onclick="executePublish('en')">
+          🇺🇸 영어만 배포
+        </button>
+        <button class="publish-choice-btn publish-choice-both" onclick="executePublish('both')">
+          🌐 한국어 + 영어 모두 배포
+        </button>
+        <button class="publish-choice-btn publish-choice-cancel" onclick="closePublishModal()">
+          취소
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="errorModal">
   <div class="error-box">
     <div class="error-box-header">
@@ -1902,20 +1945,66 @@ snsCopy:
     });
   }
 
-  async function publishPost() {
-    if (!confirm('이 포스트를 최종 배포하시겠습니까?\nstatus: published로 저장 → GitHub push → Vercel 자동 빌드 (1~2분)')) return;
+  function publishPost() {
+    document.getElementById('publishModal').classList.add('open');
+  }
+
+  function closePublishModal() {
+    document.getElementById('publishModal').classList.remove('open');
+  }
+
+  document.getElementById('publishModal').addEventListener('click', function(e) {
+    if (e.target === this) closePublishModal();
+  });
+
+  async function executePublish(choice) {
+    closePublishModal();
     const btn = document.getElementById('publishBtn');
     const origHtml = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '⏳ 배포 중...';
 
-    document.getElementById('fStatus').value = 'published';
-    onStatusChange();
+    // KO 저장 시 status → published
+    if (choice === 'ko' || choice === 'both') {
+      document.getElementById('fStatus').value = 'published';
+      onStatusChange();
+    }
+
+    let koOk = true, enOk = true;
 
     try {
-      await savePost();
-      const ok = document.getElementById('saveStatus').classList.contains('ok');
-      if (ok) {
+      if (choice === 'ko' || choice === 'both') {
+        await savePost();
+        koOk = document.getElementById('saveStatus').classList.contains('ok');
+      }
+
+      if (choice === 'en' || choice === 'both') {
+        const enContent = easyMDEEn ? easyMDEEn.value().trim() : '';
+        const slug = document.getElementById('fSlug').value.trim();
+        if (!enContent || !slug) {
+          showErrorDetail('영어 배포 실패', '영문 에디터에 내용이 없거나 슬러그가 비어 있습니다.\n영문 편집 패널을 열고 내용을 확인해주세요.');
+          enOk = false;
+        } else {
+          const path = currentEnPath || `blog-src/src/content/journal-en/${slug}.md`;
+          const r = await fetch('/api/journal-admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'save', path, content: enContent, password: pw, sha: currentEnSha || undefined }),
+          });
+          const data = await r.json();
+          if (r.ok) {
+            currentEnSha = data.sha;
+            currentEnPath = path;
+          } else {
+            const detail = data.detail ? '\n\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
+            showErrorDetail('영어 배포 실패', (data.error || '알 수 없는 오류') + detail);
+            enOk = false;
+          }
+        }
+      }
+
+      const allOk = (choice === 'ko' ? koOk : choice === 'en' ? enOk : koOk && enOk);
+      if (allOk) {
         btn.innerHTML = '✅ 배포 완료!';
         btn.style.background = 'linear-gradient(135deg,#059669,#0891b2)';
         setTimeout(() => { btn.innerHTML = origHtml; btn.style.background = ''; btn.disabled = false; }, 4000);
@@ -1923,7 +2012,8 @@ snsCopy:
         btn.innerHTML = origHtml;
         btn.disabled = false;
       }
-    } catch {
+    } catch (e) {
+      showErrorDetail('배포 오류', e.message);
       btn.innerHTML = origHtml;
       btn.disabled = false;
     }
