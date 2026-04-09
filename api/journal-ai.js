@@ -95,20 +95,24 @@ Tags: ${tagsArr.join(', ')}
 Body:
 ${body}
 
-Return JSON format:
-{
-  "title": "English title (SEO optimized)",
-  "description": "English meta description (under 160 chars)",
-  "category": "English category name",
-  "tags": ["tag1", "tag2", "tag3"],
-  "body": "Full English markdown body — recreated for international context, not literal translation"
-}
+Return in EXACTLY this format — no other text:
 
-Return JSON only. No other text.`;
+===META===
+{"title":"English SEO title","description":"English meta description under 160 chars","category":"English category name","tags":["tag1","tag2","tag3"]}
+===BODY===
+Full English markdown body here (recreated for international B2B audience, not literal translation)`;
     const r = await claudeCall({ system, user, maxTokens: 4096 });
     if (!r.ok) return res.status(500).json({ error: 'Claude API error', detail: await r.text() });
     const result = await r.json();
-    const translated = parseJson(result.content[0].text);
+    const text = result.content[0].text;
+
+    const metaMatch = text.match(/===META===\s*\n(.*?)\n===BODY===/s);
+    const bodyMatch = text.match(/===BODY===\s*\n([\s\S]*)/);
+    if (!metaMatch || !bodyMatch) {
+      return res.status(500).json({ error: 'Translation failed', detail: 'Response format invalid: ' + text.slice(0, 300) });
+    }
+    const translated = JSON.parse(metaMatch[1].trim());
+    const translatedBody = bodyMatch[1].trim();
 
     const today = new Date().toISOString().split('T')[0];
     const tagsYaml = translated.tags?.length
@@ -128,13 +132,13 @@ status: draft
 translationKey: "${slug}"
 ---
 
-${translated.body}
+${translatedBody}
 `;
     return res.status(200).json({
       success: true,
       path: `blog-src/src/content/journal-en/${slug}.md`,
       content: mdContent,
-      translated,
+      translated: { ...translated, body: translatedBody },
     });
   } catch (e) {
     return res.status(500).json({ error: 'Translation failed', detail: e.message });
