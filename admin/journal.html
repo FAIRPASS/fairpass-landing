@@ -140,7 +140,7 @@
     #imgUploadStatus { font-size: 12px; color: var(--muted); }
 
     /* ── Save bar ── */
-    .save-bar { position: sticky; bottom: 0; background: var(--bg); border-top: 1px solid var(--border); padding: 14px 0; margin-top: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 10; }
+    .save-bar { position: sticky; bottom: 0; background: var(--bg); border-top: 1px solid var(--border); padding: 14px 0; margin-top: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 10; flex-wrap: wrap; }
     .save-status { font-size: 13px; color: var(--muted); }
     .save-status.ok { color: var(--green); }
     .save-status.err { color: var(--red); }
@@ -597,14 +597,15 @@
 
         <!-- Translate Section (ko only) -->
         <div class="translate-section" id="translateSection">
-          <button class="btn btn-ghost btn-sm" onclick="generateTranslation()" id="translateBtn">
-            🌐 영문 버전 생성
-          </button>
-          <span class="translate-loading" id="translateLoading">번역 생성 중...</span>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-ghost btn-sm" onclick="toggleEnglishPanel()" id="enOpenBtn">📝 영문 편집</button>
+            <button class="btn btn-ghost btn-sm" onclick="confirmGenerateTranslation()" id="translateBtn">🌐 AI 번역 생성</button>
+            <span class="translate-loading" id="translateLoading">번역 생성 중...</span>
+          </div>
           <div class="translate-result" id="translateResult">
             <div class="translate-result-header">
-              <span>🇺🇸 생성된 영문 마크다운</span>
-              <button class="btn btn-ghost btn-sm" onclick="closeTranslateResult()">✕</button>
+              <span>🇺🇸 영문 버전 편집</span>
+              <button class="btn btn-ghost btn-sm" onclick="closeTranslateResult()">✕ 접기</button>
             </div>
             <div class="translate-result-body">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
@@ -1851,6 +1852,22 @@ snsCopy:
 
   function closeTranslateResult() {
     document.getElementById('translateResult').classList.remove('open');
+  }
+
+  function toggleEnglishPanel() {
+    const panel = document.getElementById('translateResult');
+    if (panel.classList.contains('open')) {
+      panel.classList.remove('open');
+    } else {
+      initEnglishEditor();
+      panel.classList.add('open');
+    }
+  }
+
+  function confirmGenerateTranslation() {
+    const hasContent = easyMDEEn && easyMDEEn.value().trim().length > 0;
+    if (hasContent && !confirm('이미 영문 버전이 있습니다. AI로 재생성하면 현재 내용이 덮어씌워집니다.\n\n계속하시겠습니까?')) return;
+    generateTranslation();
   }
 
   function saveCursorPosEn() {
