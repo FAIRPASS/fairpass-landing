@@ -1943,6 +1943,7 @@ if (_seedBtn) _seedBtn.onclick = async () => {
 // ── 견적 발송 모달 ──
 var _qsIdx = null;
 var _discountType = 'krw';
+var _qsOriginalTotal = '';
 
 function setDiscountType(type) {
   _discountType = type;
@@ -1958,17 +1959,34 @@ function setDiscountType(type) {
     document.getElementById('qs_discount').placeholder = '예: 10';
   }
   document.getElementById('qs_discount').value = '';
+  recalcTotal();
 }
 
 function formatDiscountInput() {
   const input = document.getElementById('qs_discount');
   const raw = input.value.replace(/[^0-9]/g, '');
-  if (!raw) { input.value = ''; return; }
+  if (!raw) { input.value = ''; recalcTotal(); return; }
   if (_discountType === 'krw') {
     input.value = '₩' + Number(raw).toLocaleString('ko-KR');
   } else {
     input.value = raw;
   }
+  recalcTotal();
+}
+
+function recalcTotal() {
+  const origNum = Number((_qsOriginalTotal || '').replace(/[^0-9]/g, ''));
+  if (!origNum) return;
+  const raw = document.getElementById('qs_discount').value.replace(/[^0-9]/g, '');
+  if (!raw || raw === '0') {
+    document.getElementById('qs_total').value = _qsOriginalTotal;
+    return;
+  }
+  const discNum = Number(raw);
+  const finalNum = _discountType === 'krw'
+    ? Math.max(0, origNum - discNum)
+    : Math.max(0, Math.round(origNum * (1 - discNum / 100)));
+  document.getElementById('qs_total').value = '₩' + finalNum.toLocaleString('ko-KR');
 }
 
 function getDiscountValue() {
@@ -1991,7 +2009,8 @@ function openQuoteSendModal(idx) {
   phoneEl.textContent = item.phone || '-';
   phoneEl.href = item.phone ? `tel:${item.phone}` : '#';
   document.getElementById('qs_content').value = item.content || '';
-  document.getElementById('qs_total').value = item.total || '';
+  _qsOriginalTotal = item.total || '';
+  document.getElementById('qs_total').value = _qsOriginalTotal;
   setDiscountType('krw');
   document.getElementById('qs_notes').value = '';
 
