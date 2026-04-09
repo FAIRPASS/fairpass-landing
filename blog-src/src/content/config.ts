@@ -16,11 +16,18 @@ const postSchema = z.object({
   faq: z.array(z.object({ q: z.string(), a: z.string() })).optional(),
   translationKey: z.string().optional(),
   snsCopy: z.object({
+    linkedinKrShort:    z.string().default(''),
+    linkedinKrStandard: z.string().default(''),
+    linkedinEnShort:    z.string().default(''),
+    linkedinEnStandard: z.string().default(''),
+    instagramKo:        z.string().default(''),
+    instagramEn:        z.string().default(''),
+    naverBlog:          z.string().default(''),
+    keywords:           z.string().default(''),
+    hiddenPoints:       z.string().default(''),
+    // legacy field aliases (이전 버전 호환)
     linkedinKo: z.string().default(''),
     linkedinEn: z.string().default(''),
-    instagramKo: z.string().default(''),
-    instagramEn: z.string().default(''),
-    naverBlog: z.string().default(''),
   }).optional(),
 });
 
