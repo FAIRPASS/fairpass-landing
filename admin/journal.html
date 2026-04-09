@@ -569,6 +569,7 @@
             <div class="translate-result-body">
               <textarea class="translate-textarea" id="translateOutput" placeholder="영문 번역 결과가 여기에 표시됩니다..."></textarea>
               <div class="translate-actions">
+                <button class="btn btn-ghost btn-sm" onclick="openEnglishPreview()">👁 미리보기</button>
                 <button class="btn btn-primary btn-sm" onclick="saveTranslation()">GitHub에 저장</button>
               </div>
             </div>
@@ -705,7 +706,7 @@
 <div id="previewModal">
   <div class="preview-box">
     <div class="preview-box-header">
-      <span>📄 미리보기</span>
+      <span id="previewModalTitle">📄 미리보기</span>
       <button class="btn btn-ghost btn-sm" onclick="closePreview()">✕ 닫기</button>
     </div>
     <div class="preview-content" id="previewContent"></div>
@@ -852,6 +853,8 @@
       autosave: { enabled: false },
       previewRender: (plainText) => {
         let html = marked.parse(plainText);
+        // 구 경로 패턴 자동 수정 (/journal/journal-images/ → /journal-images/)
+        html = html.replace(/\/journal\/journal-images\//g, '/journal-images/');
         // 방금 업로드한 이미지는 blob URL로 즉시 표시 (Vercel 빌드 전에도 보임)
         for (const [githubUrl, blobUrl] of _uploadedImages) {
           html = html.split(githubUrl).join(blobUrl);
@@ -1192,7 +1195,12 @@
       document.getElementById('fDate').value = fm.pubDate || new Date().toISOString().split('T')[0];
       document.getElementById('fStatus').value = fm.status || 'draft';
       onStatusChange();
-      easyMDE.value(body);
+      // 구 이미지 경로 자동 수정 (/journal/journal-images/ → /journal-images/)
+      const fixedBody = body.replace(/\/journal\/journal-images\//g, '/journal-images/');
+      easyMDE.value(fixedBody);
+      // 이미지 URL을 _uploadedImages에 등록 → EasyMDE 미리보기에서 즉시 표시
+      const imgUrls = [...fixedBody.matchAll(/!\[.*?\]\((\/journal-images\/[^\s)]+)\)/g)].map(m => m[1]);
+      imgUrls.forEach(url => { if (!_uploadedImages.has(url)) _uploadedImages.set(url, url); });
       document.getElementById('saveStatus').textContent = '';
 
       // Restore SNS copy if present
@@ -1550,7 +1558,7 @@ ${body}`;
       const { content } = await r.json();
       const fm = parseFrontmatter(content);
       const body = extractBody(content);
-      const html = marked.parse(body);
+      const html = marked.parse(body).replace(/\/journal\/journal-images\//g, '/journal-images/');
       const status = fm.status || 'draft';
       document.getElementById('previewContent').innerHTML =
         `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">${statusBadgeHtml(status)}${fm.category ? catBadgeHtml(fm.category) : ''}</div>
@@ -1566,12 +1574,31 @@ ${body}`;
   function openPreview() {
     const title = document.getElementById('fTitle').value || '(제목 없음)';
     const body = easyMDE.value();
-    let html = marked.parse(body);
+    let html = marked.parse(body).replace(/\/journal\/journal-images\//g, '/journal-images/');
     for (const [githubUrl, blobUrl] of _uploadedImages) {
       html = html.split(githubUrl).join(blobUrl);
     }
+    document.getElementById('previewModalTitle').textContent = '📄 미리보기 (한국어)';
     document.getElementById('previewContent').innerHTML =
       `<h1>${escHtml(title)}</h1><hr style="margin:16px 0 24px;border-color:rgba(255,255,255,0.1);">` + html;
+    document.getElementById('previewModal').classList.add('open');
+  }
+
+  function openEnglishPreview() {
+    const raw = document.getElementById('translateOutput').value.trim();
+    if (!raw) return;
+    const fm = parseFrontmatter(raw);
+    const body = extractBody(raw);
+    let html = marked.parse(body).replace(/\/journal\/journal-images\//g, '/journal-images/');
+    for (const [githubUrl, blobUrl] of _uploadedImages) {
+      html = html.split(githubUrl).join(blobUrl);
+    }
+    document.getElementById('previewModalTitle').textContent = '📄 미리보기 (English)';
+    document.getElementById('previewContent').innerHTML =
+      `<div style="display:inline-block;padding:2px 8px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:4px;font-size:11px;color:#60a5fa;margin-bottom:12px;">🇺🇸 English Version</div>
+       <h1>${escHtml(fm.title || '(no title)')}</h1>
+       ${fm.description ? `<p style="color:var(--muted);font-size:13px;margin:6px 0 4px;">${escHtml(fm.description)}</p>` : ''}
+       <hr style="margin:16px 0 24px;border-color:rgba(255,255,255,0.1);">` + html;
     document.getElementById('previewModal').classList.add('open');
   }
 
