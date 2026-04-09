@@ -287,7 +287,11 @@ export default async function handler(req, res) {
     );
     await supabase
       .from("inquiries")
-      .update({ quote_sent_at: new Date().toISOString() })
+      .update({
+        quote_sent_at: new Date().toISOString(),
+        total: quoteTotal,
+        content: quoteContent,
+      })
       .eq("id", id);
   } catch (dbErr) {
     console.error("DB update error:", dbErr);

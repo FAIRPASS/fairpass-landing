@@ -2079,8 +2079,13 @@ async function sendQuoteEmail() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || '발송 실패');
 
-    // 메모리 상태 업데이트 → 테이블 즉시 반영
-    quoteItems[_qsIdx] = { ...item, quote_sent_at: new Date().toISOString() };
+    // 메모리 상태 업데이트 → 테이블 즉시 반영 (최종 발송 기준으로 덮어씌움)
+    quoteItems[_qsIdx] = {
+      ...item,
+      quote_sent_at: new Date().toISOString(),
+      total: total,
+      content: document.getElementById('qs_content').value,
+    };
     renderQuoteTable();
     closeQuoteSendModal();
     showToast(`✅ ${item.name || item.email}에게 견적서 발송 완료!`);
