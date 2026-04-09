@@ -1962,7 +1962,6 @@ snsCopy:
     const btn = document.getElementById('publishBtn');
     const origHtml = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '⏳ 배포 중...';
 
     // KO 저장 시 status → published
     if (choice === 'ko' || choice === 'both') {
@@ -1970,9 +1969,13 @@ snsCopy:
       onStatusChange();
     }
 
+    const slug = document.getElementById('fSlug').value.trim();
     let koOk = true, enOk = true;
 
     try {
+      // ── 1단계: GitHub 저장 ──
+      btn.innerHTML = '① GitHub 저장 중...';
+
       if (choice === 'ko' || choice === 'both') {
         await savePost();
         koOk = document.getElementById('saveStatus').classList.contains('ok');
@@ -1980,7 +1983,6 @@ snsCopy:
 
       if (choice === 'en' || choice === 'both') {
         const enContent = easyMDEEn ? easyMDEEn.value().trim() : '';
-        const slug = document.getElementById('fSlug').value.trim();
         if (!enContent || !slug) {
           showErrorDetail('영어 배포 실패', '영문 에디터에 내용이 없거나 슬러그가 비어 있습니다.\n영문 편집 패널을 열고 내용을 확인해주세요.');
           enOk = false;
@@ -2003,15 +2005,53 @@ snsCopy:
         }
       }
 
-      const allOk = (choice === 'ko' ? koOk : choice === 'en' ? enOk : koOk && enOk);
-      if (allOk) {
-        btn.innerHTML = '✅ 배포 완료!';
-        btn.style.background = 'linear-gradient(135deg,#059669,#0891b2)';
-        setTimeout(() => { btn.innerHTML = origHtml; btn.style.background = ''; btn.disabled = false; }, 4000);
-      } else {
+      const allSaved = (choice === 'ko' ? koOk : choice === 'en' ? enOk : koOk && enOk);
+      if (!allSaved) {
         btn.innerHTML = origHtml;
         btn.disabled = false;
+        return;
       }
+
+      // ── 2단계: 랜딩페이지 노출 폴링 ──
+      btn.innerHTML = '② Vercel 빌드 대기 중...';
+
+      // 확인할 URL 결정 (KO 우선, EN only면 EN)
+      const checkLang = (choice === 'en') ? 'en' : 'ko';
+      const checkUrl = `/journal/${checkLang}/${slug}/`;
+
+      const POLL_INTERVAL = 15000; // 15초
+      const POLL_TIMEOUT  = 360000; // 6분
+      const startTime = Date.now();
+      let elapsed = 0;
+
+      const pollInterval = setInterval(async () => {
+        elapsed = Date.now() - startTime;
+        const mins = Math.floor(elapsed / 60000);
+        const secs = Math.floor((elapsed % 60000) / 1000);
+        btn.innerHTML = `② Vercel 빌드 중... (${mins}:${secs.toString().padStart(2,'0')})`;
+
+        if (elapsed > POLL_TIMEOUT) {
+          clearInterval(pollInterval);
+          btn.innerHTML = origHtml;
+          btn.disabled = false;
+          showErrorDetail(
+            '빌드 시간 초과',
+            `GitHub 저장은 성공했지만 ${Math.floor(POLL_TIMEOUT/60000)}분이 지나도 랜딩페이지에 노출되지 않았습니다.\n\n확인 사항:\n• Vercel 대시보드 → 최근 배포 로그 확인\n• GITHUB_OWNER 환경변수가 올바른지 확인 (Vercel이 감시하는 repo)\n• Deploy Hook URL이 유효한지 확인`
+          );
+          return;
+        }
+
+        try {
+          const res = await fetch(checkUrl, { cache: 'no-store' });
+          if (res.ok) {
+            clearInterval(pollInterval);
+            btn.innerHTML = '✅ 랜딩페이지 노출 확인!';
+            btn.style.background = 'linear-gradient(135deg,#059669,#0891b2)';
+            setTimeout(() => { btn.innerHTML = origHtml; btn.style.background = ''; btn.disabled = false; }, 6000);
+          }
+        } catch {}
+      }, POLL_INTERVAL);
+
     } catch (e) {
       showErrorDetail('배포 오류', e.message);
       btn.innerHTML = origHtml;

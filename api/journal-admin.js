@@ -10,7 +10,7 @@
  *   upload     POST {action:'upload', filename, base64, mime}
  */
 
-const GITHUB_OWNER = 'FAIRPASS';
+const GITHUB_OWNER = process.env.GITHUB_OWNER || 'FAIRPASS';
 const GITHUB_REPO = 'fairpass-landing';
 const CONTENT_BASE = 'blog-src/src/content';
 const IMAGES_BASE = 'journal-images';
