@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import BlogLayout from '../../layouts/BlogLayout.astro';
 
-const base = import.meta.env.BASE_URL;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const site = 'https://fairpass.world';
 
 // status === 'published' 만 표시 (draft 여부 무관)

@@ -27,7 +27,7 @@ const {
   type = 'website',
 } = Astro.props;
 
-const base = import.meta.env.BASE_URL; // '/journal'
+const base = import.meta.env.BASE_URL.replace(/\/$/, ''); // '/journal'
 const site = 'https://fairpass.world';
 const ogImage = image || `${site}/images/hero_image.png`;
 const canonical = canonicalURL || `${site}${Astro.url.pathname}`;

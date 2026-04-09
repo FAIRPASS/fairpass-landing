@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import BlogLayout from '../layouts/BlogLayout.astro';
 import BlogCard from '../components/BlogCard.astro';
 
-const base = import.meta.env.BASE_URL;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const site = 'https://fairpass.world';
 
 const koRaw = await getCollection('journal-ko', ({ data }) => data.status === 'published');
