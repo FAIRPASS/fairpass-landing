@@ -71,11 +71,11 @@ const postsData = posts.map(post => {
       </a>
       <h1 class="text-2xl sm:text-3xl font-bold mb-3">
         <span class="bg-gradient-to-r from-fp-purple-light to-fp-cyan-light bg-clip-text text-transparent">
-          행사 담당자를 위한 저널
+          FAIRPASS 저널
         </span>
       </h1>
       <p class="text-fp-muted text-sm leading-relaxed">
-        접수·체크인·명찰·ESG — FAIRPASS가 현장에서 답을 찾았습니다
+        보도자료, 서비스 업데이트, 업계 인사이트 — FAIRPASS의 모든 이야기를 가장 빠르게 확인하세요.
       </p>
     </div>
 
@@ -146,14 +146,12 @@ const postsData = posts.map(post => {
                   </div>
                 </div>
               )}
-              <div class="absolute top-3 left-3">
-                <span class="text-xs px-2.5 py-1 rounded-full font-semibold backdrop-blur-sm"
-                  style={`background:${post.accent}20;color:${post.accent};border:1px solid ${post.accent}50;`}>
-                  {post.category}
-                </span>
-              </div>
             </div>
-            <div class="p-5 flex flex-col gap-2.5 flex-1">
+            <div class="p-5 flex flex-col gap-2 flex-1">
+              <span class="text-xs px-2.5 py-1 rounded-full font-semibold self-start"
+                style={`background:${post.accent}20;color:${post.accent};border:1px solid ${post.accent}50;`}>
+                {post.category}
+              </span>
               <h2 class="text-sm font-semibold text-white group-hover:text-[#a855f7] transition-colors line-clamp-2 leading-snug">
                 {post.title}
               </h2>

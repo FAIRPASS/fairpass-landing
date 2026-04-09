@@ -149,16 +149,14 @@ const postsData = posts.map(post => {
                   </div>
                 </div>
               )}
-              <div class="absolute top-3 left-3">
-                <span class="text-xs px-2.5 py-1 rounded-full font-semibold backdrop-blur-sm"
-                  style={`background:${post.accent}20;color:${post.accent};border:1px solid ${post.accent}50;`}>
-                  {post.category}
-                </span>
-              </div>
             </div>
 
             <!-- Content -->
-            <div class="p-5 flex flex-col gap-2.5 flex-1">
+            <div class="p-5 flex flex-col gap-2 flex-1">
+              <span class="text-xs px-2.5 py-1 rounded-full font-semibold self-start"
+                style={`background:${post.accent}20;color:${post.accent};border:1px solid ${post.accent}50;`}>
+                {post.category}
+              </span>
               <h2 class="text-sm font-semibold text-white group-hover:text-[#a855f7] transition-colors line-clamp-2 leading-snug">
                 {post.title}
               </h2>
