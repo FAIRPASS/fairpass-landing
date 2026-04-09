@@ -6,8 +6,8 @@ category: "지속가능한 행사"
 tags: ["MICE", "ESG경영", "친환경명찰", "행사자동화", "플라스틱제로"]
 author: "전서윤"
 authorTitle: "대표이사"
-draft: true
-status: draft
+draft: false
+status: published
 snsCopy:
   linkedinKo: "행사 끝난 뒤 쓰레기통에 쌓인 플라스틱 명찰 홀더, 보신 적 있으신가요?\n\n운영 인력 30% 절감, 현장 대기 40% 감소 — 명찰 하나를 바꿨을 때 생기는 변화입니다.\n\n그런데 가장 놀라운 건 따로 있습니다. 전체 내용 →\nhttps://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
   linkedinEn: "Still sorting name badges the night before your event?\n\nOne change cut wait times by 40% and slashed plastic waste by 90%.\n\nBut the real ROI? That's in the full story →\nhttps://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
