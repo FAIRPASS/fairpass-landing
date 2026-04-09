@@ -82,13 +82,15 @@ This is NOT a literal translation — adapt context, examples, and tone for an i
 Maintain all facts and data. Keep markdown formatting. Include FAQ section if present.
 SEO target: English-speaking corporate event managers, PCO agencies, academic conference organizers.`;
 
-  const user = `Please recreate the following Korean journal post in English for international B2B event managers.
+  try {
+    const tagsArr = Array.isArray(tags) ? tags : (tags ? String(tags).split(',').map(t => t.trim()).filter(Boolean) : []);
+    const user = `Please recreate the following Korean journal post in English for international B2B event managers.
 
 Original Korean post:
 Title: ${title}
 Description: ${description || ''}
 Category: ${category || ''}
-Tags: ${(tags || []).join(', ')}
+Tags: ${tagsArr.join(', ')}
 
 Body:
 ${body}
@@ -103,8 +105,6 @@ Return JSON format:
 }
 
 Return JSON only. No other text.`;
-
-  try {
     const r = await claudeCall({ system, user, maxTokens: 4096 });
     if (!r.ok) return res.status(500).json({ error: 'Claude API error', detail: await r.text() });
     const result = await r.json();
