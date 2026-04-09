@@ -1,16 +1,79 @@
 ---
 import { getCollection } from 'astro:content';
 import BlogLayout from '../layouts/BlogLayout.astro';
-import BlogCard from '../components/BlogCard.astro';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const site = 'https://fairpass.world';
 
+const KO_CATS = ['FAIRPASS 이야기','FAIRPASS 활용법','운영 사례','지속가능한 행사','업계 트렌드','FAIRPASS 소식','언론 보도'];
+const EN_CATS = ['Our Story','How It Works','In the Field','Sustainable Events','Industry Trends','FAIRPASS News','In the Press'];
+
+const CAT: Record<string, {accent:string; bg:string}> = {
+  'FAIRPASS 이야기': { accent:'#d97706', bg:'linear-gradient(135deg,#451a03 0%,#92400e 100%)' },
+  'FAIRPASS 활용법': { accent:'#a78bfa', bg:'linear-gradient(135deg,#2e1065 0%,#5b21b6 100%)' },
+  '운영 사례':       { accent:'#fb923c', bg:'linear-gradient(135deg,#431407 0%,#9a3412 100%)' },
+  '지속가능한 행사': { accent:'#34d399', bg:'linear-gradient(135deg,#022c22 0%,#065f46 100%)' },
+  '업계 트렌드':     { accent:'#60a5fa', bg:'linear-gradient(135deg,#1e3a5f 0%,#1e40af 100%)' },
+  'FAIRPASS 소식':   { accent:'#9ca3af', bg:'linear-gradient(135deg,#111827 0%,#374151 100%)' },
+  '언론 보도':       { accent:'#fb7185', bg:'linear-gradient(135deg,#500724 0%,#9f1239 100%)' },
+  'Our Story':        { accent:'#d97706', bg:'linear-gradient(135deg,#451a03 0%,#92400e 100%)' },
+  'How It Works':     { accent:'#a78bfa', bg:'linear-gradient(135deg,#2e1065 0%,#5b21b6 100%)' },
+  'In the Field':     { accent:'#fb923c', bg:'linear-gradient(135deg,#431407 0%,#9a3412 100%)' },
+  'Sustainable Events': { accent:'#34d399', bg:'linear-gradient(135deg,#022c22 0%,#065f46 100%)' },
+  'Industry Trends':  { accent:'#60a5fa', bg:'linear-gradient(135deg,#1e3a5f 0%,#1e40af 100%)' },
+  'FAIRPASS News':    { accent:'#9ca3af', bg:'linear-gradient(135deg,#111827 0%,#374151 100%)' },
+  'In the Press':     { accent:'#fb7185', bg:'linear-gradient(135deg,#500724 0%,#9f1239 100%)' },
+};
+const DEFAULT_CAT = { accent:'#6b7280', bg:'linear-gradient(135deg,#111827,#1f2937)' };
+
+function getHeroImage(post: any): string | null {
+  if (post.data.image) return post.data.image;
+  const m = (post.body as string).match(/!\[.*?\]\(([^)]+)\)/);
+  return m ? m[1] : null;
+}
+
 const koRaw = await getCollection('journal-ko', ({ data }) => data.status === 'published');
 const enRaw = await getCollection('journal-en', ({ data }) => data.status === 'published');
 
-const koPosts = koRaw.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
-const enPosts = enRaw.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
+const koPosts = koRaw.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const enPosts = enRaw.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const usedKoCats = KO_CATS.filter(c => koPosts.some(p => p.data.category === c));
+const usedEnCats = EN_CATS.filter(c => enPosts.some(p => p.data.category === c));
+
+const koPostsData = koPosts.map(post => {
+  const c = CAT[post.data.category] ?? DEFAULT_CAT;
+  return {
+    title:       post.data.title,
+    description: post.data.description || '',
+    href:        `${base}/ko/${post.slug}/`,
+    pubDate:     post.data.pubDate.toLocaleDateString('ko-KR',{year:'numeric',month:'short',day:'numeric'}),
+    pubDateISO:  post.data.pubDate.toISOString(),
+    category:    post.data.category || '',
+    tags:        (post.data.tags || []).slice(0,3) as string[],
+    heroImage:   getHeroImage(post),
+    accent:      c.accent,
+    catBg:       c.bg,
+    searchText:  `${post.data.title} ${post.data.description||''} ${(post.data.tags||[]).join(' ')} ${post.data.category}`.toLowerCase(),
+  };
+});
+
+const enPostsData = enPosts.map(post => {
+  const c = CAT[post.data.category] ?? DEFAULT_CAT;
+  return {
+    title:       post.data.title,
+    description: post.data.description || '',
+    href:        `${base}/en/${post.slug}/`,
+    pubDate:     post.data.pubDate.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}),
+    pubDateISO:  post.data.pubDate.toISOString(),
+    category:    post.data.category || '',
+    tags:        (post.data.tags || []).slice(0,3) as string[],
+    heroImage:   getHeroImage(post),
+    accent:      c.accent,
+    catBg:       c.bg,
+    searchText:  `${post.data.title} ${post.data.description||''} ${(post.data.tags||[]).join(' ')} ${post.data.category}`.toLowerCase(),
+  };
+});
 ---
 
 <BlogLayout
@@ -22,80 +85,346 @@ const enPosts = enRaw.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.v
   canonicalURL={`${site}${base}/`}
   type="website"
 >
-  <div class="max-w-5xl mx-auto px-6 py-16">
-    <!-- Hero -->
-    <div class="text-center mb-16">
-      <h1 class="text-3xl sm:text-4xl font-bold text-fp-text mb-4">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+
+    <!-- Header -->
+    <div class="mb-10">
+      <h1 class="text-2xl sm:text-3xl font-bold mb-3">
         <span class="bg-gradient-to-r from-fp-purple-light to-fp-cyan-light bg-clip-text text-transparent">
           FAIRPASS Journal
         </span>
       </h1>
-      <p class="text-fp-muted max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+      <p class="text-fp-muted text-sm leading-relaxed">
         행사 운영의 현장, FAIRPASS가 기록합니다<br class="hidden sm:block" />
-        <span class="text-fp-secondary text-xs sm:text-sm">Insights, Stories and News from the Event Industry</span>
+        <span class="text-xs opacity-60">Insights, Stories and News from the Event Industry</span>
       </p>
-
-      <!-- Language Toggle -->
-      <div class="flex justify-center gap-3 mt-8">
-        <a
-          href={`${base}/ko/`}
-          class="px-6 py-2.5 rounded-full bg-fp-purple text-white text-sm font-medium hover:bg-fp-purple-light transition-colors"
-        >
-          한국어 저널
-        </a>
-        <a
-          href={`${base}/en/`}
-          class="px-6 py-2.5 rounded-full border border-fp-border text-fp-muted text-sm font-medium hover:border-fp-cyan hover:text-fp-text transition-all"
-        >
-          English Journal
-        </a>
-      </div>
     </div>
 
-    <!-- Korean Posts -->
-    {koPosts.length > 0 && (
-      <section class="mb-14">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-semibold text-fp-text">최신 한국어 포스트</h2>
-          <a href={`${base}/ko/`} class="text-xs text-fp-muted hover:text-fp-purple-light transition-colors">전체 보기 →</a>
-        </div>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {koPosts.map(post => (
-            <BlogCard
-              title={post.data.title}
-              description={post.data.description}
-              slug={post.slug}
-              pubDate={post.data.pubDate}
-              category={post.data.category}
-              tags={post.data.tags}
-              lang="ko"
-            />
-          ))}
-        </div>
-      </section>
-    )}
+    <!-- Language Tabs -->
+    <div class="flex gap-2 mb-8" id="langTabs">
+      <button
+        id="tabKo"
+        class="lang-tab px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 border"
+        data-lang="ko"
+        onclick="switchLang('ko')"
+      >
+        🇰🇷 한국어 <span class="ml-1 opacity-60 text-xs font-normal">{koPosts.length}</span>
+      </button>
+      <button
+        id="tabEn"
+        class="lang-tab px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 border"
+        data-lang="en"
+        onclick="switchLang('en')"
+      >
+        🇺🇸 English <span class="ml-1 opacity-60 text-xs font-normal">{enPosts.length}</span>
+      </button>
+    </div>
 
-    <!-- English Posts -->
-    {enPosts.length > 0 && (
-      <section>
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-semibold text-fp-text">Latest in English</h2>
-          <a href={`${base}/en/`} class="text-xs text-fp-muted hover:text-fp-cyan-light transition-colors">View all →</a>
-        </div>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {enPosts.map(post => (
-            <BlogCard
-              title={post.data.title}
-              description={post.data.description}
-              slug={post.slug}
-              pubDate={post.data.pubDate}
-              category={post.data.category}
-              tags={post.data.tags}
-              lang="en"
-            />
-          ))}
-        </div>
-      </section>
-    )}
+    <!-- Search (shared, always visible) -->
+    <div class="relative mb-5">
+      <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none">
+        <svg class="w-4 h-4 text-fp-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="제목, 내용, 태그 검색..."
+        class="w-full pl-10 pr-10 py-2.5 bg-white/[0.04] border border-fp-border rounded-fp-sm text-sm text-fp-text placeholder-[rgba(255,255,255,0.3)] outline-none focus:border-[rgba(168,85,247,0.5)] transition-colors"
+      />
+      <button id="searchClear" class="absolute inset-y-0 right-3 hidden items-center justify-center text-fp-muted hover:text-fp-text transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- KO Category filter -->
+    <div class="flex flex-wrap gap-2 mb-6" id="koCatFilter">
+      <button class="cat-btn text-xs px-3.5 py-1.5 rounded-full font-medium border transition-all duration-150 border-[rgba(168,85,247,0.6)] text-[#a855f7] bg-[rgba(168,85,247,0.1)]" data-cat="전체">
+        전체 <span class="ml-1 opacity-60">{koPosts.length}</span>
+      </button>
+      {usedKoCats.map(cat => {
+        const c = CAT[cat] ?? DEFAULT_CAT;
+        const cnt = koPosts.filter(p => p.data.category === cat).length;
+        return (
+          <button
+            class="cat-btn text-xs px-3.5 py-1.5 rounded-full font-medium border transition-all duration-150 border-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.5)]"
+            data-cat={cat}
+            data-accent={c.accent}
+          >
+            {cat} <span class="ml-1 opacity-50">{cnt}</span>
+          </button>
+        );
+      })}
+    </div>
+
+    <!-- EN Category filter -->
+    <div class="flex flex-wrap gap-2 mb-6 hidden" id="enCatFilter">
+      <button class="cat-btn-en text-xs px-3.5 py-1.5 rounded-full font-medium border transition-all duration-150 border-[rgba(168,85,247,0.6)] text-[#a855f7] bg-[rgba(168,85,247,0.1)]" data-cat="all">
+        All <span class="ml-1 opacity-60">{enPosts.length}</span>
+      </button>
+      {usedEnCats.map(cat => {
+        const c = CAT[cat] ?? DEFAULT_CAT;
+        const cnt = enPosts.filter(p => p.data.category === cat).length;
+        return (
+          <button
+            class="cat-btn-en text-xs px-3.5 py-1.5 rounded-full font-medium border transition-all duration-150 border-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.5)]"
+            data-cat={cat}
+            data-accent={c.accent}
+          >
+            {cat} <span class="ml-1 opacity-50">{cnt}</span>
+          </button>
+        );
+      })}
+    </div>
+
+    <!-- Count -->
+    <p class="text-xs text-fp-muted mb-5" id="resultsCount">{koPosts.length}개의 포스트</p>
+
+    <!-- KO Grid -->
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="koGrid">
+      {koPostsData.map(post => (
+        <article
+          class="ko-card journal-card group rounded-fp border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.18)] hover:bg-[rgba(255,255,255,0.06)] transition-all duration-300 overflow-hidden flex flex-col"
+          data-cat={post.category}
+          data-search={post.searchText}
+        >
+          <a href={post.href} class="flex flex-col h-full">
+            <div class="relative h-44 overflow-hidden flex-shrink-0">
+              {post.heroImage ? (
+                <img
+                  src={post.heroImage}
+                  alt={post.title}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+              ) : (
+                <div class="w-full h-full" style={`background:${post.catBg};`}>
+                  <div class="w-full h-full flex items-center justify-center">
+                    <span class="text-5xl font-black opacity-[0.07] text-white select-none">{post.category.slice(0,2)}</span>
+                  </div>
+                </div>
+              )}
+              <div class="absolute top-3 left-3">
+                <span class="text-xs px-2.5 py-1 rounded-full font-semibold backdrop-blur-sm"
+                  style={`background:${post.accent}20;color:${post.accent};border:1px solid ${post.accent}50;`}>
+                  {post.category}
+                </span>
+              </div>
+            </div>
+            <div class="p-5 flex flex-col gap-2.5 flex-1">
+              <h2 class="text-sm font-semibold text-white group-hover:text-[#a855f7] transition-colors line-clamp-2 leading-snug">
+                {post.title}
+              </h2>
+              <p class="text-xs text-[rgba(255,255,255,0.5)] line-clamp-2 leading-relaxed flex-1">
+                {post.description}
+              </p>
+              <div class="flex items-center justify-between pt-2.5 border-t border-[rgba(255,255,255,0.07)] mt-auto">
+                <time class="text-xs text-[rgba(255,255,255,0.35)]" datetime={post.pubDateISO}>{post.pubDate}</time>
+                {post.tags.length > 0 && (
+                  <div class="flex gap-1">
+                    {post.tags.slice(0,2).map(tag => (
+                      <span class="text-[10px] text-[rgba(255,255,255,0.35)] border border-[rgba(255,255,255,0.08)] px-1.5 py-0.5 rounded-full">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+
+    <!-- EN Grid -->
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 hidden" id="enGrid">
+      {enPostsData.map(post => (
+        <article
+          class="en-card journal-card group rounded-fp border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.18)] hover:bg-[rgba(255,255,255,0.06)] transition-all duration-300 overflow-hidden flex flex-col"
+          data-cat={post.category}
+          data-search={post.searchText}
+        >
+          <a href={post.href} class="flex flex-col h-full">
+            <div class="relative h-44 overflow-hidden flex-shrink-0">
+              {post.heroImage ? (
+                <img
+                  src={post.heroImage}
+                  alt={post.title}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+              ) : (
+                <div class="w-full h-full" style={`background:${post.catBg};`}>
+                  <div class="w-full h-full flex items-center justify-center">
+                    <span class="text-5xl font-black opacity-[0.07] text-white select-none">{post.category.slice(0,2)}</span>
+                  </div>
+                </div>
+              )}
+              <div class="absolute top-3 left-3">
+                <span class="text-xs px-2.5 py-1 rounded-full font-semibold backdrop-blur-sm"
+                  style={`background:${post.accent}20;color:${post.accent};border:1px solid ${post.accent}50;`}>
+                  {post.category}
+                </span>
+              </div>
+            </div>
+            <div class="p-5 flex flex-col gap-2.5 flex-1">
+              <h2 class="text-sm font-semibold text-white group-hover:text-[#a855f7] transition-colors line-clamp-2 leading-snug">
+                {post.title}
+              </h2>
+              <p class="text-xs text-[rgba(255,255,255,0.5)] line-clamp-2 leading-relaxed flex-1">
+                {post.description}
+              </p>
+              <div class="flex items-center justify-between pt-2.5 border-t border-[rgba(255,255,255,0.07)] mt-auto">
+                <time class="text-xs text-[rgba(255,255,255,0.35)]" datetime={post.pubDateISO}>{post.pubDate}</time>
+                {post.tags.length > 0 && (
+                  <div class="flex gap-1">
+                    {post.tags.slice(0,2).map(tag => (
+                      <span class="text-[10px] text-[rgba(255,255,255,0.35)] border border-[rgba(255,255,255,0.08)] px-1.5 py-0.5 rounded-full">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+
+    <!-- Empty state -->
+    <div id="emptyState" class="hidden text-center py-20">
+      <p class="text-4xl mb-4">🔍</p>
+      <p class="text-[rgba(255,255,255,0.4)] text-sm mb-3" id="emptyMsg">검색 결과가 없습니다.</p>
+      <button id="resetBtn" class="text-xs text-[#a855f7] hover:underline">검색 초기화</button>
+    </div>
+
   </div>
+
+  <script is:inline>
+    (function () {
+      const koCards  = Array.from(document.querySelectorAll('.ko-card'));
+      const enCards  = Array.from(document.querySelectorAll('.en-card'));
+      const koGrid   = document.getElementById('koGrid');
+      const enGrid   = document.getElementById('enGrid');
+      const koCatFilter = document.getElementById('koCatFilter');
+      const enCatFilter = document.getElementById('enCatFilter');
+      const koCatBtns = Array.from(document.querySelectorAll('#koCatFilter .cat-btn'));
+      const enCatBtns = Array.from(document.querySelectorAll('#enCatFilter .cat-btn-en'));
+      const input    = document.getElementById('searchInput');
+      const clearBtn = document.getElementById('searchClear');
+      const resetBtn = document.getElementById('resetBtn');
+      const empty    = document.getElementById('emptyState');
+      const emptyMsg = document.getElementById('emptyMsg');
+      const count    = document.getElementById('resultsCount');
+      const tabKo    = document.getElementById('tabKo');
+      const tabEn    = document.getElementById('tabEn');
+
+      let lang = 'ko', koCat = '전체', enCat = 'all', q = '';
+
+      function apply() {
+        const cards = lang === 'ko' ? koCards : enCards;
+        const cat   = lang === 'ko' ? koCat   : enCat;
+        const allVal = lang === 'ko' ? '전체' : 'all';
+        let n = 0;
+        cards.forEach(card => {
+          const show = (cat === allVal || card.dataset.cat === cat) &&
+                       (!q || (card.dataset.search || '').includes(q));
+          card.style.display = show ? '' : 'none';
+          if (show) n++;
+        });
+        if (lang === 'ko') {
+          count.textContent = n + '개의 포스트';
+          emptyMsg.textContent = '검색 결과가 없습니다.';
+          resetBtn.textContent = '검색 초기화';
+        } else {
+          count.textContent = n + (n === 1 ? ' post' : ' posts');
+          emptyMsg.textContent = 'No results found.';
+          resetBtn.textContent = 'Clear search';
+        }
+        empty.style.display = n === 0 ? 'block' : 'none';
+        clearBtn.style.display = q ? 'flex' : 'none';
+      }
+
+      function setCatActive(btns, active) {
+        btns.forEach(b => {
+          b.style.borderColor = 'rgba(255,255,255,0.1)';
+          b.style.color = 'rgba(255,255,255,0.5)';
+          b.style.background = '';
+        });
+        const accent = active.dataset.accent;
+        if (accent) {
+          active.style.borderColor = accent + '88';
+          active.style.color = accent;
+          active.style.background = accent + '18';
+        } else {
+          active.style.borderColor = 'rgba(168,85,247,0.6)';
+          active.style.color = '#a855f7';
+          active.style.background = 'rgba(168,85,247,0.1)';
+        }
+      }
+
+      function setTabStyle(active, inactive) {
+        active.style.background = 'rgba(168,85,247,0.15)';
+        active.style.borderColor = 'rgba(168,85,247,0.6)';
+        active.style.color = '#c084fc';
+        inactive.style.background = '';
+        inactive.style.borderColor = 'rgba(255,255,255,0.1)';
+        inactive.style.color = 'rgba(255,255,255,0.5)';
+      }
+
+      window.switchLang = function(l) {
+        lang = l;
+        input.value = ''; q = '';
+        if (l === 'ko') {
+          koGrid.classList.remove('hidden');
+          enGrid.classList.add('hidden');
+          koCatFilter.classList.remove('hidden');
+          enCatFilter.classList.add('hidden');
+          koCat = '전체';
+          setCatActive(koCatBtns, koCatBtns[0]);
+          input.placeholder = '제목, 내용, 태그 검색...';
+          setTabStyle(tabKo, tabEn);
+        } else {
+          enGrid.classList.remove('hidden');
+          koGrid.classList.add('hidden');
+          enCatFilter.classList.remove('hidden');
+          koCatFilter.classList.add('hidden');
+          enCat = 'all';
+          setCatActive(enCatBtns, enCatBtns[0]);
+          input.placeholder = 'Search by title, content, or tag...';
+          setTabStyle(tabEn, tabKo);
+        }
+        apply();
+        history.replaceState(null, '', '#' + l);
+      };
+
+      input.addEventListener('input', e => { q = e.target.value.toLowerCase().trim(); apply(); });
+      clearBtn.addEventListener('click', () => { input.value = ''; q = ''; apply(); input.focus(); });
+      if (resetBtn) resetBtn.addEventListener('click', () => {
+        input.value = ''; q = '';
+        if (lang === 'ko') { koCat = '전체'; setCatActive(koCatBtns, koCatBtns[0]); }
+        else { enCat = 'all'; setCatActive(enCatBtns, enCatBtns[0]); }
+        apply();
+      });
+
+      koCatBtns.forEach(btn => {
+        btn.addEventListener('click', () => { koCat = btn.dataset.cat; setCatActive(koCatBtns, btn); apply(); });
+      });
+      enCatBtns.forEach(btn => {
+        btn.addEventListener('click', () => { enCat = btn.dataset.cat; setCatActive(enCatBtns, btn); apply(); });
+      });
+
+      // Init: check hash for lang
+      const hash = location.hash.replace('#','');
+      if (hash === 'en') {
+        window.switchLang('en');
+      } else {
+        window.switchLang('ko');
+      }
+    })();
+  </script>
 </BlogLayout>
