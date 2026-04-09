@@ -578,17 +578,29 @@
     <!-- 비용 내역 미리보기 -->
     <div id="qs_billing_preview" style="margin-bottom:16px"></div>
 
-    <!-- 견적 내용 (수정용) -->
-    <div style="margin-bottom:16px">
-      <span class="qs-label">견적 내용 <span style="color:var(--muted);font-weight:400;text-transform:none">(수정 가능)</span></span>
-      <textarea id="qs_content" class="qs-textarea" rows="6"></textarea>
+    <!-- 할인 금액 -->
+    <div style="margin-bottom:12px">
+      <span class="qs-label">할인 금액 <span style="color:var(--muted);font-weight:400;text-transform:none">(없으면 비워두세요 — 이메일에 포함됩니다)</span></span>
+      <input type="text" id="qs_discount" class="qs-total-input" placeholder="예: ₩200,000">
     </div>
 
     <!-- 총 금액 -->
-    <div style="margin-bottom:4px">
-      <span class="qs-label">총 견적 금액 <span style="color:var(--red)">*</span></span>
+    <div style="margin-bottom:12px">
+      <span class="qs-label">최종 견적 금액 <span style="color:var(--red)">*</span></span>
       <input type="text" id="qs_total" class="qs-total-input" placeholder="예: ₩3,500,000">
     </div>
+
+    <!-- 추가 메모 -->
+    <div style="margin-bottom:12px">
+      <span class="qs-label">추가 메모 <span style="color:var(--muted);font-weight:400;text-transform:none">(없으면 비워두세요 — 이메일에 포함됩니다)</span></span>
+      <textarea id="qs_notes" class="qs-textarea" rows="3" placeholder="고객에게 전달할 추가 내용이 있으면 입력하세요"></textarea>
+    </div>
+
+    <!-- 견적 내용 (수정용, 접힘) -->
+    <details style="margin-bottom:12px">
+      <summary style="font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;letter-spacing:0.05em;text-transform:uppercase">원본 견적 텍스트 (수정 가능)</summary>
+      <textarea id="qs_content" class="qs-textarea" rows="5" style="margin-top:8px"></textarea>
+    </details>
 
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeQuoteSendModal()">취소</button>
@@ -1881,6 +1893,8 @@ function openQuoteSendModal(idx) {
   phoneEl.href = item.phone ? `tel:${item.phone}` : '#';
   document.getElementById('qs_content').value = item.content || '';
   document.getElementById('qs_total').value = item.total || '';
+  document.getElementById('qs_discount').value = '';
+  document.getElementById('qs_notes').value = '';
 
   // 비용 내역 미리보기 렌더
   const p = parseQuoteContent(item.content || '');
@@ -1940,6 +1954,8 @@ async function sendQuoteEmail() {
         customerName: item.name,
         quoteContent: document.getElementById('qs_content').value,
         quoteTotal: total,
+        quoteDiscount: document.getElementById('qs_discount').value.trim(),
+        quoteNotes: document.getElementById('qs_notes').value.trim(),
       }),
     });
     const data = await res.json();

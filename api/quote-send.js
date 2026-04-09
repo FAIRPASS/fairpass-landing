@@ -1,11 +1,26 @@
 // ========================================
 // FAIRPASS — Quote Send API (관리자 수동 발송)
-// 관리자 페이지에서 "견적 발송" 클릭 시 호출
-// 인증: ADMIN_PASSWORD
+// 관리자 페이지에서 "고객에게 발송" 클릭 시 호출
 // ========================================
 
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
+
+function parseQuoteContent(content) {
+  const get = (label) => {
+    const m = (content || "").match(new RegExp("- " + label + ": ([^\n]+)"));
+    return m ? m[1].trim() : "";
+  };
+  const detailMatch = (content || "").match(/\[비용 상세\]([\s\S]*?)(\[총계\]|$)/);
+  return {
+    담당자: get("담당자"),
+    소속: get("소속"),
+    행사명: get("행사명"),
+    행사장소: get("행사 장소"),
+    비용상세: detailMatch ? detailMatch[1].trim() : "",
+    총계: (content || "").match(/\[총계\] (.+)/)?.[1]?.trim() || "",
+  };
+}
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -14,7 +29,10 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).end();
 
-  const { password, id, customerEmail, customerName, quoteContent, quoteTotal } = req.body;
+  const {
+    password, id, customerEmail, customerName,
+    quoteContent, quoteTotal, quoteDiscount, quoteNotes,
+  } = req.body;
 
   if (password !== process.env.ADMIN_PASSWORD) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -30,60 +48,125 @@ export default async function handler(req, res) {
     year: "numeric", month: "long", day: "numeric",
   });
 
-  // 고객 견적 이메일 발송
-  await resend.emails.send({
-    from: fromEmail,
-    to: customerEmail,
-    subject: `[FAIRPASS] ${name}님, 맞춤 견적서를 보내드립니다`,
-    html: `<!DOCTYPE html>
+  const p = parseQuoteContent(quoteContent || "");
+  const hasDiscount = quoteDiscount && quoteDiscount.trim() && quoteDiscount.trim() !== "0";
+
+  // 비용 내역 행 생성
+  const billingRows = (p.비용상세 || "").split("\n").filter(l => l.trim()).map(l => {
+    const parts = l.replace(/^- /, "").split(": ");
+    const label = parts[0] || "";
+    const val = parts.slice(1).join(": ") || "";
+    return `<tr>
+      <td style="padding:9px 0;font-size:13px;color:#444;border-bottom:1px solid #f0f1f5;">${label}</td>
+      <td style="padding:9px 0;font-size:13px;font-weight:600;text-align:right;border-bottom:1px solid #f0f1f5;">${val}</td>
+    </tr>`;
+  }).join("");
+
+  // 할인 행 (조건부)
+  const discountRow = hasDiscount ? `<tr>
+    <td style="padding:9px 0;font-size:13px;color:#16a34a;font-weight:600;border-bottom:1px solid #f0f1f5;">할인</td>
+    <td style="padding:9px 0;font-size:13px;font-weight:700;text-align:right;color:#16a34a;border-bottom:1px solid #f0f1f5;">- ${quoteDiscount.trim()}</td>
+  </tr>` : "";
+
+  // 신청자 정보 행
+  const infoRows = [
+    p.담당자 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;width:28%;border-bottom:1px solid #f0f1f5;background:#fafbff;">담당자</td><td style="padding:8px 14px;font-size:13px;font-weight:600;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.담당자}</td></tr>` : "",
+    p.소속 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">소속</td><td style="padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.소속}</td></tr>` : "",
+  ].filter(Boolean).join("");
+
+  // 행사 정보 행
+  const eventRows = [
+    p.행사명 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;width:28%;border-bottom:1px solid #f0f1f5;background:#fafbff;">행사명</td><td style="padding:8px 14px;font-size:13px;font-weight:600;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.행사명}</td></tr>` : "",
+    p.행사장소 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">장소</td><td style="padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.행사장소}</td></tr>` : "",
+  ].filter(Boolean).join("");
+
+  // 추가 메모 섹션 (조건부)
+  const notesSection = (quoteNotes && quoteNotes.trim()) ? `
+    <tr><td style="padding:0 40px 24px;">
+      <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#7c3aed;letter-spacing:0.08em;text-transform:uppercase;">추가 안내</p>
+      <div style="background:#f9f7ff;border-left:3px solid #8b5cf6;border-radius:0 6px 6px 0;padding:12px 16px;">
+        <p style="margin:0;font-size:13px;color:#444;line-height:1.8;white-space:pre-wrap;">${quoteNotes.trim()}</p>
+      </div>
+    </td></tr>` : "";
+
+  const html = `<!DOCTYPE html>
 <html lang="ko">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#f4f4f7;font-family:'Apple SD Gothic Neo',Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f7;padding:40px 0;">
     <tr><td align="center">
       <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+
         <!-- 헤더 -->
         <tr>
-          <td style="background:linear-gradient(135deg,#8b5cf6,#22d3ee);padding:32px 40px;text-align:center;">
-            <div style="color:#ffffff;font-size:26px;font-weight:800;letter-spacing:1px;">FAIRPASS</div>
-            <div style="color:rgba(255,255,255,0.85);font-size:13px;margin-top:6px;">맞춤 견적서</div>
+          <td style="background:linear-gradient(135deg,#1a1a2e 0%,#2d1b69 60%,#0e4f6b 100%);padding:32px 40px;text-align:center;">
+            <div style="color:#ffffff;font-size:26px;font-weight:800;letter-spacing:2px;">FAIRPASS</div>
+            <div style="color:rgba(255,255,255,0.7);font-size:13px;margin-top:6px;letter-spacing:0.05em;">맞춤 견적서 · Quotation</div>
           </td>
         </tr>
+
         <!-- 인사말 -->
         <tr>
           <td style="padding:32px 40px 0;">
-            <p style="margin:0 0 8px;font-size:16px;color:#1a1a2e;font-weight:600">${name}님, 안녕하세요.</p>
+            <p style="margin:0 0 8px;font-size:16px;color:#1a1a2e;font-weight:600;">${name}님, 안녕하세요.</p>
             <p style="margin:0;font-size:14px;color:#555;line-height:1.7;">요청하신 FAIRPASS 맞춤 견적서를 보내드립니다.<br>아래 내용을 확인하시고, 추가 문의사항이 있으시면 언제든지 연락해 주세요.</p>
           </td>
         </tr>
-        <!-- 발행일 -->
         <tr>
-          <td style="padding:16px 40px 0;">
+          <td style="padding:10px 40px 20px;">
             <p style="margin:0;font-size:12px;color:#999;">발행일: ${dateStr}</p>
           </td>
         </tr>
-        <!-- 구분선 -->
-        <tr><td style="padding:20px 40px 0;"><hr style="border:none;border-top:1px solid #e8e8f0;margin:0;"></td></tr>
-        <!-- 견적 내용 -->
+
+        <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid #e8e8f0;margin:0;"></td></tr>
+
+        ${infoRows || eventRows ? `
+        <!-- 신청자 + 행사 정보 -->
         <tr>
-          <td style="padding:24px 40px;">
-            <pre style="margin:0;font-size:13px;color:#333;line-height:1.8;white-space:pre-wrap;font-family:'Apple SD Gothic Neo',Arial,sans-serif;">${quoteContent || ''}</pre>
+          <td style="padding:24px 40px 0;">
+            ${infoRows ? `
+            <p style="margin:0 0 8px;font-size:10px;font-weight:800;letter-spacing:0.12em;color:#8b5cf6;text-transform:uppercase;">신청자 정보</p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8eaf0;border-radius:8px;overflow:hidden;margin-bottom:20px;">
+              ${infoRows}
+            </table>` : ""}
+            ${eventRows ? `
+            <p style="margin:0 0 8px;font-size:10px;font-weight:800;letter-spacing:0.12em;color:#8b5cf6;text-transform:uppercase;">행사 정보</p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8eaf0;border-radius:8px;overflow:hidden;margin-bottom:8px;">
+              ${eventRows}
+            </table>` : ""}
           </td>
         </tr>
-        ${quoteTotal ? `
-        <!-- 총 견적 금액 -->
+        <tr><td style="padding:16px 40px 0;"><hr style="border:none;border-top:1px solid #e8e8f0;margin:0;"></td></tr>
+        ` : ""}
+
+        <!-- 비용 내역 -->
         <tr>
-          <td style="padding:0 40px 24px;">
+          <td style="padding:24px 40px ${notesSection ? '8px' : '0'};">
+            <p style="margin:0 0 12px;font-size:10px;font-weight:800;letter-spacing:0.12em;color:#8b5cf6;text-transform:uppercase;">비용 내역</p>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              ${billingRows}
+              ${discountRow}
+            </table>
+          </td>
+        </tr>
+
+        <!-- 최종 금액 -->
+        ${quoteTotal ? `
+        <tr>
+          <td style="padding:16px 40px 24px;">
             <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#1a1a2e,#2d1b69);border-radius:10px;padding:16px 22px;">
               <tr>
-                <td style="font-size:13px;color:rgba(255,255,255,0.7);">총 견적 금액</td>
-                <td style="text-align:right;font-size:20px;font-weight:800;color:#fff;">${quoteTotal}</td>
+                <td style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:600;">최종 견적 금액</td>
+                <td style="text-align:right;font-size:22px;font-weight:800;color:#fff;">${quoteTotal}</td>
               </tr>
             </table>
           </td>
-        </tr>` : ''}
-        <!-- 구분선 -->
+        </tr>` : ""}
+
+        ${notesSection}
+
         <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid #e8e8f0;margin:0;"></td></tr>
+
         <!-- CTA -->
         <tr>
           <td style="padding:28px 40px;text-align:center;">
@@ -100,9 +183,10 @@ export default async function handler(req, res) {
             </table>
           </td>
         </tr>
-        <!-- 구분선 -->
+
         <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid #e8e8f0;margin:0;"></td></tr>
-        <!-- 추가 안내 섹션 -->
+
+        <!-- 상세 안내 -->
         <tr>
           <td style="padding:24px 40px 32px;">
             <table width="100%" cellpadding="0" cellspacing="0">
@@ -166,6 +250,7 @@ export default async function handler(req, res) {
             </table>
           </td>
         </tr>
+
         <!-- 푸터 -->
         <tr>
           <td style="background:#f9f9fc;padding:20px 40px;border-top:1px solid #e8e8f0;text-align:center;">
@@ -173,12 +258,24 @@ export default async function handler(req, res) {
             <p style="margin:0;font-size:12px;color:#aaa;">FAIRPASS · fairpass.co.kr</p>
           </td>
         </tr>
+
       </table>
     </td></tr>
   </table>
 </body>
-</html>`,
+</html>`;
+
+  const { error: resendErr } = await resend.emails.send({
+    from: fromEmail,
+    to: customerEmail,
+    subject: `[FAIRPASS] ${name}님, 맞춤 견적서를 보내드립니다`,
+    html,
   });
+
+  if (resendErr) {
+    console.error("Resend 발송 오류:", JSON.stringify(resendErr));
+    return res.status(500).json({ error: "Email send failed", detail: resendErr.message });
+  }
 
   // DB: quote_sent_at 업데이트
   try {
