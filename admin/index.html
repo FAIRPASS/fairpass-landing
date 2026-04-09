@@ -558,10 +558,13 @@
     <button class="modal-close-btn" onclick="closeQuoteSendModal()">&times;</button>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div class="modal-title" style="margin-bottom:0">견적서 상세</div>
-      <button class="btn btn-primary btn-sm" id="qs_topSendBtn" onclick="sendQuoteEmail()" style="white-space:nowrap">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        견적서 발송
-      </button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="openQuotePdf(_qsIdx)" style="white-space:nowrap">🖨️ PDF</button>
+        <button class="btn btn-primary btn-sm" id="qs_topSendBtn" onclick="sendQuoteEmail()" style="white-space:nowrap">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          고객에게 발송
+        </button>
+      </div>
     </div>
 
     <!-- 고객 정보 -->
@@ -572,10 +575,13 @@
       <div class="qs-info-item"><span>전화번호</span><a id="qs_phone" href="#">-</a></div>
     </div>
 
-    <!-- 견적 내용 -->
+    <!-- 비용 내역 미리보기 -->
+    <div id="qs_billing_preview" style="margin-bottom:16px"></div>
+
+    <!-- 견적 내용 (수정용) -->
     <div style="margin-bottom:16px">
       <span class="qs-label">견적 내용 <span style="color:var(--muted);font-weight:400;text-transform:none">(수정 가능)</span></span>
-      <textarea id="qs_content" class="qs-textarea" rows="9"></textarea>
+      <textarea id="qs_content" class="qs-textarea" rows="6"></textarea>
     </div>
 
     <!-- 총 금액 -->
@@ -1406,7 +1412,7 @@ function renderQuoteTable() {
       <td class="td-muted" style="text-align:right">${p.참가자수||'-'}</td>
       <td class="td-muted" style="text-align:right">${p.운영일수||'-'}</td>
       <td style="font-weight:700;white-space:nowrap;color:var(--cyan-light)">${item.total||p.총계||'-'}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="openQuotePdf(${idx})" style="white-space:nowrap">📄 보기</button></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openQuoteSendModal(${idx})" style="white-space:nowrap">📄 보기</button></td>
       <td>${item.quote_sent_at ? `<span class="sent-badge">✓ 발송</span>` : `<button class="btn btn-primary btn-sm" onclick="openQuoteSendModal(${idx})" style="white-space:nowrap;font-size:11px">발송</button>`}</td>
       <td><button class="btn btn-danger btn-sm" onclick="deleteQuote(${item.id})" style="white-space:nowrap">삭제</button></td>
     </tr>`;
@@ -1875,6 +1881,26 @@ function openQuoteSendModal(idx) {
   phoneEl.href = item.phone ? `tel:${item.phone}` : '#';
   document.getElementById('qs_content').value = item.content || '';
   document.getElementById('qs_total').value = item.total || '';
+
+  // 비용 내역 미리보기 렌더
+  const p = parseQuoteContent(item.content || '');
+  const billingRows = (p.비용상세 || '').split('\n').filter(l => l.trim()).map(l => {
+    const parts = l.replace(/^- /, '').split(': ');
+    const label = parts[0] || '';
+    const val = parts.slice(1).join(': ') || '';
+    return `<tr>
+      <td style="padding:8px 2px;font-size:13px;color:var(--muted);border-bottom:1px solid rgba(255,255,255,0.06)">${label}</td>
+      <td style="padding:8px 2px;font-size:13px;font-weight:600;text-align:right;border-bottom:1px solid rgba(255,255,255,0.06)">${val}</td>
+    </tr>`;
+  }).join('');
+  const total = item.total || p.총계 || '-';
+  document.getElementById('qs_billing_preview').innerHTML = billingRows ? `
+    <p style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:#8b5cf6;text-transform:uppercase;margin:0 0 8px">비용 내역</p>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:10px">${billingRows}</table>
+    <div style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.05em">합계</span>
+      <span style="font-size:18px;font-weight:900;color:#fff">${total}</span>
+    </div>` : '';
 
   const btn = document.getElementById('qs_sendBtn');
   document.getElementById('qs_sendLabel').textContent = '고객에게 발송하기';
