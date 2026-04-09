@@ -30,42 +30,106 @@ function parseJson(text) {
 
 // ── SNS 생성 ──────────────────────────────────────────────
 async function handleSns(req, res) {
-  const { title, body, slug, lang = 'ko' } = req.body;
+  const { title, body, slug, lang = 'ko', category = '', keywords = '', figures = '' } = req.body;
   if (!title || !body) return res.status(400).json({ error: 'title and body required' });
 
   const journalUrl = `https://fairpass.world/journal/${lang}/${slug}/`;
 
   const system = `당신은 FAIRPASS B2B 이벤트 플랫폼의 콘텐츠 마케터입니다.
 FAIRPASS는 행사 온라인 접수, 현장 QR 체크인, 무인 명찰 출력을 하나로 통합한 B2B SaaS+HW 플랫폼입니다.
-SNS 콘텐츠의 핵심 목적: 독자가 fairpass.world/journal/ 을 방문하게 만드는 것.
-절대 금지: 글의 핵심 결론·수치를 SNS에서 완전히 공개하는 것.
-전략: 가장 궁금한 부분은 숨기고, "링크를 클릭해야만 알 수 있다"는 느낌을 만든다.`;
 
-  const user = `다음 저널 포스트를 기반으로 SNS 콘텐츠 5종을 생성해주세요.
+## 공통 원칙
+- 모든 결과물은 저널 원문을 기반으로 작성한다. 원문에 없는 사실·수치·고객명·사례·결과를 임의로 만들지 않는다.
+- 사실과 해석을 구분하고, 과장·낚시성 표현·근거 없는 단정을 피한다.
+- 최종 목적은 독자가 저널을 방문하게 만드는 것이나, 브랜드 신뢰를 해치지 않는 선에서 작성한다.
+- 독자가 얻을 수 있는 인사이트 1개는 반드시 제공하되, 핵심 결론 전체·상세 사례·전체 수치·실행 방법 전체는 저널에서 확인하도록 유도한다.
+- 독자가 "그래서 실제 방법은?", "결과는?", "우리 행사에도 적용 가능할까?"를 자연스럽게 떠올리게 한다.
+- 억지 클릭 유도 문구보다 전문성·신뢰·공감을 우선한다.
+
+## 금지
+- 원문에 없는 정보 생성
+- 확인되지 않은 수치 생성
+- 1등/최초/압도적 등 과장 표현 남용
+- SNS만 읽어도 저널을 볼 필요 없게 쓰기
+- 정보가 너무 없어 낚시처럼 보이게 쓰기
+
+## 카테고리별 추가 지시
+- FAIRPASS 이야기: 브랜드 스토리 중심, 진솔하고 인간적인 톤, 감성 있되 과장 금지
+- FAIRPASS 활용법: 실용적, 구매 검토자/운영 실무자 관점, 문제→해결 힌트→저널 유도 구조
+- 운영 사례: before/after 구조 우선, 공개 가능한 수치가 있을 때만 사용, 수치 없으면 수치처럼 보이는 표현 금지
+- 지속가능한 행사: ESG 담당자/행사 기획자 타겟, 책임감 있고 신뢰감 있는 톤, 환경 관련 표현은 과장 없이 검증 가능한 범위만
+- 업계 트렌드: 분석적·권위 있는 톤, 단정 대신 해석 중심, "왜 지금 중요한가"를 먼저 제시
+- FAIRPASS 소식: 공식적·간결, 파트너/투자자/미디어도 읽는다는 전제, 업데이트 내용·의미·다음 기대 포인트 중심`;
+
+  const categoryNote = category ? `카테고리: ${category}` : '';
+  const keywordsNote = keywords ? `핵심 키워드: ${keywords}` : '';
+  const figuresNote = figures ? `공개 가능한 수치/사례: ${figures}` : '공개 가능한 수치/사례: 없음 (임의 생성 금지)';
+
+  const user = `다음 저널 포스트를 기반으로 SNS 콘텐츠 9종을 생성해주세요.
 
 제목: ${title}
-본문 요약:
-${body.slice(0, 2000)}
+${categoryNote}
+${keywordsNote}
+${figuresNote}
+저널 링크: ${journalUrl}
 
-링크: ${journalUrl}
+본문:
+${body.slice(0, 3000)}
 
-JSON 형식으로 반환하세요:
-{
-  "linkedinKo": "LinkedIn 국문 (200자 이내, 핵심 인사이트 1개 공개 후 '→ 전체 내용' 링크 유도, B2B 담당자 타겟, 말미에 링크 포함)",
-  "linkedinEn": "LinkedIn English (under 200 chars, same strategy, targeting Singapore/global B2B event managers, include link at end)",
-  "instagramKo": "Instagram 국문 (감성적 첫 문장 + 궁금증 유발 3줄 + 해시태그 10개 + '더 읽기 → 프로필 링크' 유도)",
-  "instagramEn": "Instagram English (same structure, English hashtags, global audience)",
-  "naverBlog": "네이버 블로그 국문 (본문 핵심 500자 요약, 결론은 숨기고, 마지막에 '전체 내용 보기 → ${journalUrl}' CTA 포함)"
-}
+---
+반드시 아래 형식으로 정확히 출력하세요. 각 섹션 마커 사이에 해당 내용만 작성:
 
-JSON만 반환하세요. 다른 텍스트 없이.`;
+[LINKEDIN_KR_SHORT]
+LinkedIn 국문 짧은 버전 (220자 이내 / 첫 줄: 숫자·질문·반전·현장 문제 중 하나 / 핵심 인사이트 1개 공개 / 해시태그 5개 이내 / 말미에 저널 링크 / B2B 행사 담당자 HR·마케팅·총무·PCO 타겟)
+
+[LINKEDIN_KR_STANDARD]
+LinkedIn 국문 표준 버전 (350자 이내 / 동일 원칙 / 짧은 버전보다 맥락 추가)
+
+[LINKEDIN_EN_SHORT]
+LinkedIn English short (under 220 chars / targeting Singapore/Global MICE/Event Manager/PCO / clear, credible, professional / hashtags 5 or less / include journal link)
+
+[LINKEDIN_EN_STANDARD]
+LinkedIn English standard (under 350 chars / same principles / more context than short version)
+
+[INSTAGRAM_KR]
+Instagram 국문 (첫 줄: 행사 운영자/기획자가 공감할 감정 또는 문제 상황 / 짧은 문장·줄바꿈 위주 / 가장 궁금한 지점 직전까지만 공개 / CTA 고정: "전체 내용은 프로필 링크에서 확인하세요 🔗" / 해시태그 10개 이내 / 필수 해시태그: #페어패스 #FAIRPASS #행사등록 #기업행사 #MICE 포함)
+
+[INSTAGRAM_EN]
+Instagram English (same structure / CTA: "Full story in profile link 🔗" / hashtags 10 or less / required: #FAIRPASS #EventTech #MICE #EventManagement #SustainableEvents)
+
+[NAVER_BLOG]
+네이버 블로그 요약 (500자 내외 / 검색 키워드 자연스럽게 포함 / 결론 전체·상세 실행안은 숨기기 / 마지막 문장 고정: "전체 내용 보기 → ${journalUrl}")
+
+[KEYWORDS]
+이 SNS 콘텐츠에 사용한 핵심 키워드 (쉼표 구분)
+
+[HIDDEN_POINTS]
+저널로 넘긴 포인트 목록 (독자가 저널을 읽어야 알 수 있는 내용, 불릿 형태)`;
 
   try {
-    const r = await claudeCall({ system, user, maxTokens: 2048 });
+    const r = await claudeCall({ system, user, maxTokens: 3500 });
     if (!r.ok) return res.status(500).json({ error: 'Claude API error', detail: await r.text() });
     const result = await r.json();
-    const snsCopy = parseJson(result.content[0].text);
-    return res.status(200).json({ success: true, ...snsCopy });
+    const text = result.content[0].text;
+
+    function extractSection(name) {
+      const re = new RegExp(`\\[${name}\\]\\s*\\n([\\s\\S]*?)(?=\\n\\[[A-Z_]+\\]|$)`);
+      const m = text.match(re);
+      return m ? m[1].trim() : '';
+    }
+
+    return res.status(200).json({
+      success: true,
+      linkedinKrShort:    extractSection('LINKEDIN_KR_SHORT'),
+      linkedinKrStandard: extractSection('LINKEDIN_KR_STANDARD'),
+      linkedinEnShort:    extractSection('LINKEDIN_EN_SHORT'),
+      linkedinEnStandard: extractSection('LINKEDIN_EN_STANDARD'),
+      instagramKo:        extractSection('INSTAGRAM_KR'),
+      instagramEn:        extractSection('INSTAGRAM_EN'),
+      naverBlog:          extractSection('NAVER_BLOG'),
+      keywords:           extractSection('KEYWORDS'),
+      hiddenPoints:       extractSection('HIDDEN_POINTS'),
+    });
   } catch (e) {
     return res.status(500).json({ error: 'SNS generation failed', detail: e.message });
   }

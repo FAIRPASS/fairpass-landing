@@ -508,44 +508,82 @@
             <span class="sns-chevron" id="snsChevron">▼</span>
           </div>
           <div class="sns-panel-body" id="snsPanelBody">
-            <div class="sns-generate-row">
-              <button class="btn btn-ghost btn-sm" onclick="generateSns()">✨ SNS 생성</button>
-              <span class="sns-loading" id="snsLoading">생성 중...</span>
+            <div class="sns-generate-row" style="flex-direction:column;align-items:stretch;gap:10px;">
+              <div style="display:flex;gap:10px;">
+                <div style="flex:1;">
+                  <label class="form-label" style="font-size:11px;margin-bottom:4px;">핵심 키워드 (선택)</label>
+                  <input class="form-input" id="snsKeywords" type="text" placeholder="예: QR 체크인, 무인 명찰, 친환경 행사" style="font-size:12px;padding:6px 10px;" />
+                </div>
+                <div style="flex:1;">
+                  <label class="form-label" style="font-size:11px;margin-bottom:4px;">공개 가능한 수치/사례 (없으면 비워두세요)</label>
+                  <input class="form-input" id="snsFigures" type="text" placeholder="예: 체크인 시간 70% 단축, 800+ 조직 도입" style="font-size:12px;padding:6px 10px;" />
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <button class="btn btn-ghost btn-sm" onclick="generateSns()">✨ SNS 생성</button>
+                <span class="sns-loading" id="snsLoading">생성 중... (30~60초)</span>
+              </div>
             </div>
             <div class="sns-outputs">
               <div class="sns-output-group">
-                <div class="sns-output-label">LinkedIn 국문</div>
+                <div class="sns-output-label">LinkedIn 국문 — 짧은 버전 <span style="font-size:10px;color:var(--muted2);">220자 이내</span></div>
                 <div class="sns-output-wrap">
-                  <textarea class="sns-textarea" id="snsLinkedinKo" rows="4" placeholder="LinkedIn 한국어 콘텐츠"></textarea>
-                  <button class="copy-btn" onclick="copySns('snsLinkedinKo', this)">복사</button>
+                  <textarea class="sns-textarea" id="snsLinkedinKrShort" rows="4" placeholder="LinkedIn KR 짧은 버전"></textarea>
+                  <button class="copy-btn" onclick="copySns('snsLinkedinKrShort', this)">복사</button>
                 </div>
               </div>
               <div class="sns-output-group">
-                <div class="sns-output-label">LinkedIn 영문</div>
+                <div class="sns-output-label">LinkedIn 국문 — 표준 버전 <span style="font-size:10px;color:var(--muted2);">350자 이내</span></div>
                 <div class="sns-output-wrap">
-                  <textarea class="sns-textarea" id="snsLinkedinEn" rows="4" placeholder="LinkedIn English content"></textarea>
-                  <button class="copy-btn" onclick="copySns('snsLinkedinEn', this)">복사</button>
+                  <textarea class="sns-textarea" id="snsLinkedinKrStandard" rows="5" placeholder="LinkedIn KR 표준 버전"></textarea>
+                  <button class="copy-btn" onclick="copySns('snsLinkedinKrStandard', this)">복사</button>
+                </div>
+              </div>
+              <div class="sns-output-group">
+                <div class="sns-output-label">LinkedIn EN — Short <span style="font-size:10px;color:var(--muted2);">under 220 chars</span></div>
+                <div class="sns-output-wrap">
+                  <textarea class="sns-textarea" id="snsLinkedinEnShort" rows="4" placeholder="LinkedIn EN short"></textarea>
+                  <button class="copy-btn" onclick="copySns('snsLinkedinEnShort', this)">복사</button>
+                </div>
+              </div>
+              <div class="sns-output-group">
+                <div class="sns-output-label">LinkedIn EN — Standard <span style="font-size:10px;color:var(--muted2);">under 350 chars</span></div>
+                <div class="sns-output-wrap">
+                  <textarea class="sns-textarea" id="snsLinkedinEnStandard" rows="5" placeholder="LinkedIn EN standard"></textarea>
+                  <button class="copy-btn" onclick="copySns('snsLinkedinEnStandard', this)">복사</button>
                 </div>
               </div>
               <div class="sns-output-group">
                 <div class="sns-output-label">Instagram 국문</div>
                 <div class="sns-output-wrap">
-                  <textarea class="sns-textarea" id="snsInstagramKo" rows="4" placeholder="Instagram 한국어 콘텐츠"></textarea>
+                  <textarea class="sns-textarea" id="snsInstagramKo" rows="6" placeholder="Instagram KR"></textarea>
                   <button class="copy-btn" onclick="copySns('snsInstagramKo', this)">복사</button>
                 </div>
               </div>
               <div class="sns-output-group">
-                <div class="sns-output-label">Instagram 영문</div>
+                <div class="sns-output-label">Instagram EN</div>
                 <div class="sns-output-wrap">
-                  <textarea class="sns-textarea" id="snsInstagramEn" rows="4" placeholder="Instagram English content"></textarea>
+                  <textarea class="sns-textarea" id="snsInstagramEn" rows="6" placeholder="Instagram EN"></textarea>
                   <button class="copy-btn" onclick="copySns('snsInstagramEn', this)">복사</button>
                 </div>
               </div>
               <div class="sns-output-group full">
-                <div class="sns-output-label">네이버 블로그 국문</div>
+                <div class="sns-output-label">네이버 블로그 요약</div>
                 <div class="sns-output-wrap">
-                  <textarea class="sns-textarea" id="snsNaverBlog" rows="4" placeholder="네이버 블로그 콘텐츠"></textarea>
+                  <textarea class="sns-textarea" id="snsNaverBlog" rows="5" placeholder="네이버 블로그 요약 (500자 내외)"></textarea>
                   <button class="copy-btn" onclick="copySns('snsNaverBlog', this)">복사</button>
+                </div>
+              </div>
+              <div class="sns-output-group full" id="snsMetaGroup" style="display:none;">
+                <div style="display:flex;gap:12px;">
+                  <div style="flex:1;">
+                    <div class="sns-output-label" style="font-size:11px;">사용한 키워드</div>
+                    <div id="snsResultKeywords" style="font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 10px;min-height:32px;line-height:1.6;"></div>
+                  </div>
+                  <div style="flex:1;">
+                    <div class="sns-output-label" style="font-size:11px;">저널로 넘긴 포인트</div>
+                    <div id="snsHiddenPoints" style="font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 10px;min-height:32px;line-height:1.8;white-space:pre-wrap;"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1209,11 +1247,13 @@
       }
       const snsCopy = parseSnsCopy(content);
       if (snsCopy) {
-        document.getElementById('snsLinkedinKo').value = snsCopy.linkedinKo || '';
-        document.getElementById('snsLinkedinEn').value = snsCopy.linkedinEn || '';
-        document.getElementById('snsInstagramKo').value = snsCopy.instagramKo || '';
-        document.getElementById('snsInstagramEn').value = snsCopy.instagramEn || '';
-        document.getElementById('snsNaverBlog').value = snsCopy.naverBlog || '';
+        document.getElementById('snsLinkedinKrShort').value    = snsCopy.linkedinKrShort    || snsCopy.linkedinKo || '';
+        document.getElementById('snsLinkedinKrStandard').value = snsCopy.linkedinKrStandard || '';
+        document.getElementById('snsLinkedinEnShort').value    = snsCopy.linkedinEnShort    || snsCopy.linkedinEn || '';
+        document.getElementById('snsLinkedinEnStandard').value = snsCopy.linkedinEnStandard || '';
+        document.getElementById('snsInstagramKo').value        = snsCopy.instagramKo        || '';
+        document.getElementById('snsInstagramEn').value        = snsCopy.instagramEn        || '';
+        document.getElementById('snsNaverBlog').value          = snsCopy.naverBlog          || '';
       }
     } catch (e) {
       document.getElementById('saveStatus').className = 'save-status err';
@@ -1623,6 +1663,9 @@ ${body}`;
     const title = document.getElementById('fTitle').value.trim();
     const body = easyMDE.value();
     const slug = document.getElementById('fSlug').value.trim();
+    const category = document.getElementById('fCategory').value;
+    const keywords = document.getElementById('snsKeywords').value.trim();
+    const figures = document.getElementById('snsFigures').value.trim();
     if (!title || !body) {
       alert('제목과 본문을 먼저 입력해주세요.');
       return;
@@ -1635,15 +1678,20 @@ ${body}`;
       const r = await fetch('/api/journal-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'sns', title, body, slug, lang: currentLang, password: pw }),
+        body: JSON.stringify({ action: 'sns', title, body, slug, lang: currentLang, category, keywords, figures, password: pw }),
       });
       const data = await r.json();
       if (r.ok) {
-        document.getElementById('snsLinkedinKo').value = data.linkedinKo || '';
-        document.getElementById('snsLinkedinEn').value = data.linkedinEn || '';
-        document.getElementById('snsInstagramKo').value = data.instagramKo || '';
-        document.getElementById('snsInstagramEn').value = data.instagramEn || '';
-        document.getElementById('snsNaverBlog').value = data.naverBlog || '';
+        document.getElementById('snsLinkedinKrShort').value    = data.linkedinKrShort    || '';
+        document.getElementById('snsLinkedinKrStandard').value = data.linkedinKrStandard || '';
+        document.getElementById('snsLinkedinEnShort').value    = data.linkedinEnShort    || '';
+        document.getElementById('snsLinkedinEnStandard').value = data.linkedinEnStandard || '';
+        document.getElementById('snsInstagramKo').value        = data.instagramKo        || '';
+        document.getElementById('snsInstagramEn').value        = data.instagramEn        || '';
+        document.getElementById('snsNaverBlog').value          = data.naverBlog          || '';
+        document.getElementById('snsResultKeywords').textContent = data.keywords     || '';
+        document.getElementById('snsHiddenPoints').textContent   = data.hiddenPoints || '';
+        document.getElementById('snsMetaGroup').style.display = (data.keywords || data.hiddenPoints) ? '' : 'none';
       } else {
         const detail = data.detail ? '\n\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
         showErrorDetail('SNS 생성 실패', (data.error || '알 수 없는 오류') + detail);
@@ -1676,18 +1724,23 @@ ${body}`;
 
   function collectSnsCopy() {
     return {
-      linkedinKo:  document.getElementById('snsLinkedinKo').value,
-      linkedinEn:  document.getElementById('snsLinkedinEn').value,
-      instagramKo: document.getElementById('snsInstagramKo').value,
-      instagramEn: document.getElementById('snsInstagramEn').value,
-      naverBlog:   document.getElementById('snsNaverBlog').value,
+      linkedinKrShort:    document.getElementById('snsLinkedinKrShort').value,
+      linkedinKrStandard: document.getElementById('snsLinkedinKrStandard').value,
+      linkedinEnShort:    document.getElementById('snsLinkedinEnShort').value,
+      linkedinEnStandard: document.getElementById('snsLinkedinEnStandard').value,
+      instagramKo:        document.getElementById('snsInstagramKo').value,
+      instagramEn:        document.getElementById('snsInstagramEn').value,
+      naverBlog:          document.getElementById('snsNaverBlog').value,
     };
   }
 
   function clearSnsFields() {
-    ['snsLinkedinKo','snsLinkedinEn','snsInstagramKo','snsInstagramEn','snsNaverBlog'].forEach(id => {
+    ['snsLinkedinKrShort','snsLinkedinKrStandard','snsLinkedinEnShort','snsLinkedinEnStandard','snsInstagramKo','snsInstagramEn','snsNaverBlog'].forEach(id => {
       document.getElementById(id).value = '';
     });
+    document.getElementById('snsResultKeywords').textContent = '';
+    document.getElementById('snsHiddenPoints').textContent = '';
+    document.getElementById('snsMetaGroup').style.display = 'none';
   }
 
   function buildSnsCopyYaml(sns) {
@@ -1696,8 +1749,10 @@ ${body}`;
     const esc = v => (v || '').replace(/"/g, '\\"').replace(/\n/g, '\\n');
     return `
 snsCopy:
-  linkedinKo: "${esc(sns.linkedinKo)}"
-  linkedinEn: "${esc(sns.linkedinEn)}"
+  linkedinKrShort: "${esc(sns.linkedinKrShort)}"
+  linkedinKrStandard: "${esc(sns.linkedinKrStandard)}"
+  linkedinEnShort: "${esc(sns.linkedinEnShort)}"
+  linkedinEnStandard: "${esc(sns.linkedinEnStandard)}"
   instagramKo: "${esc(sns.instagramKo)}"
   instagramEn: "${esc(sns.instagramEn)}"
   naverBlog: "${esc(sns.naverBlog)}"`;
@@ -1848,11 +1903,13 @@ snsCopy:
       status:      document.getElementById('fStatus').value,
       body:        easyMDE ? easyMDE.value() : '',
       sns: {
-        linkedinKo:  document.getElementById('snsLinkedinKo').value,
-        linkedinEn:  document.getElementById('snsLinkedinEn').value,
-        instagramKo: document.getElementById('snsInstagramKo').value,
-        instagramEn: document.getElementById('snsInstagramEn').value,
-        naverBlog:   document.getElementById('snsNaverBlog').value,
+        linkedinKrShort:    document.getElementById('snsLinkedinKrShort').value,
+        linkedinKrStandard: document.getElementById('snsLinkedinKrStandard').value,
+        linkedinEnShort:    document.getElementById('snsLinkedinEnShort').value,
+        linkedinEnStandard: document.getElementById('snsLinkedinEnStandard').value,
+        instagramKo:        document.getElementById('snsInstagramKo').value,
+        instagramEn:        document.getElementById('snsInstagramEn').value,
+        naverBlog:          document.getElementById('snsNaverBlog').value,
       },
       lang: currentLang,
       path: currentPath,
@@ -1900,11 +1957,13 @@ snsCopy:
       onStatusChange();
       easyMDE.value(d.body || '');
       if (d.sns) {
-        document.getElementById('snsLinkedinKo').value = d.sns.linkedinKo || '';
-        document.getElementById('snsLinkedinEn').value = d.sns.linkedinEn || '';
-        document.getElementById('snsInstagramKo').value = d.sns.instagramKo || '';
-        document.getElementById('snsInstagramEn').value = d.sns.instagramEn || '';
-        document.getElementById('snsNaverBlog').value = d.sns.naverBlog || '';
+        document.getElementById('snsLinkedinKrShort').value    = d.sns.linkedinKrShort    || d.sns.linkedinKo || '';
+        document.getElementById('snsLinkedinKrStandard').value = d.sns.linkedinKrStandard || '';
+        document.getElementById('snsLinkedinEnShort').value    = d.sns.linkedinEnShort    || d.sns.linkedinEn || '';
+        document.getElementById('snsLinkedinEnStandard').value = d.sns.linkedinEnStandard || '';
+        document.getElementById('snsInstagramKo').value        = d.sns.instagramKo        || '';
+        document.getElementById('snsInstagramEn').value        = d.sns.instagramEn        || '';
+        document.getElementById('snsNaverBlog').value          = d.sns.naverBlog          || '';
       }
       if (d.path) currentPath = d.path;
       if (d.sha)  currentSha = d.sha;
