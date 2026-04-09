@@ -98,7 +98,7 @@ Instagram 국문 (첫 줄: 행사 운영자/기획자가 공감할 감정 또는
 Instagram English (same structure / CTA: "Full story in profile link 🔗" / hashtags 10 or less / required: #FAIRPASS #EventTech #MICE #EventManagement #SustainableEvents)
 
 [NAVER_BLOG]
-네이버 블로그 요약 (500자 내외 / 검색 키워드 자연스럽게 포함 / 결론 전체·상세 실행안은 숨기기 / 마지막 문장 고정: "전체 내용 보기 → ${journalUrl}")
+네이버 블로그 요약 (1000~1500자 / 검색 키워드 자연스럽게 포함 / 도입 문단 → 핵심 인사이트 2~3개 소개 → 결론은 저널로 유도 구조 / 본문에 소제목(##) 2개 이상 사용 / 상세 실행안·최종 결론은 숨기기 / 마지막 문장 고정: "전체 내용 보기 → ${journalUrl}")
 
 [KEYWORDS]
 이 SNS 콘텐츠에 사용한 핵심 키워드 (쉼표 구분)
@@ -107,7 +107,7 @@ Instagram English (same structure / CTA: "Full story in profile link 🔗" / has
 저널로 넘긴 포인트 목록 (독자가 저널을 읽어야 알 수 있는 내용, 불릿 형태)`;
 
   try {
-    const r = await claudeCall({ system, user, maxTokens: 3500 });
+    const r = await claudeCall({ system, user, maxTokens: 4500 });
     if (!r.ok) return res.status(500).json({ error: 'Claude API error', detail: await r.text() });
     const result = await r.json();
     const text = result.content[0].text;
