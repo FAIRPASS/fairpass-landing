@@ -10,7 +10,7 @@
  *   upload     POST {action:'upload', filename, base64, mime}
  */
 
-const GITHUB_OWNER = 'blueorigin2021';
+const GITHUB_OWNER = 'FAIRPASS';
 const GITHUB_REPO = 'fairpass-landing';
 const CONTENT_BASE = 'blog-src/src/content';
 const IMAGES_BASE = 'journal-images';
@@ -107,6 +107,13 @@ export default async function handler(req, res) {
       }
 
       if (!result.ok) return res.status(500).json({ error: 'GitHub write failed', detail: result.data });
+
+      // Vercel Deploy Hook 트리거 (GitHub webhook이 안 잡힐 경우 대비)
+      const deployHook = process.env.VERCEL_DEPLOY_HOOK;
+      if (deployHook) {
+        fetch(deployHook, { method: 'POST' }).catch(() => {});
+      }
+
       return res.status(200).json({ success: true, sha: result.data.content?.sha });
     }
 
