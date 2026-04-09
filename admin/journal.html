@@ -471,6 +471,7 @@
             🎬 영상 삽입
           </button>
           <span id="imgUploadStatus" style="font-size:12px;color:var(--muted);">커서 위치에 삽입됩니다</span>
+          <span style="font-size:11px;color:var(--muted2);margin-left:4px;">📐 권장: 1200×675px (16:9) · JPEG · 500KB 이하</span>
         </div>
         <div id="imgProgress" style="display:none;margin-bottom:12px;">
           <div style="font-size:12px;color:var(--muted);margin-bottom:6px;" id="imgProgressText"></div>
@@ -612,6 +613,7 @@
                 <label class="img-upload-label" style="cursor:pointer;font-size:12px;" onclick="saveCursorPosEn(); document.getElementById('enImgInput').click();">🖼️ 이미지 삽입</label>
                 <input type="file" id="enImgInput" accept="image/*" multiple style="display:none;" onchange="uploadImages(this, easyMDEEn)" />
                 <span id="enImgStatus" style="font-size:11px;color:var(--muted);"></span>
+                <span style="font-size:11px;color:var(--muted2);">📐 권장: 1200×675px (16:9) · JPEG · 500KB 이하</span>
               </div>
               <textarea id="translateOutputMde" placeholder="영문 번역 결과가 여기에 표시됩니다..."></textarea>
               <div class="translate-actions">
