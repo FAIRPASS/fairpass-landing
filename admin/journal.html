@@ -1901,9 +1901,30 @@ snsCopy:
   }
 
   async function publishPost() {
+    if (!confirm('이 포스트를 최종 배포하시겠습니까?\nstatus: published로 저장 → GitHub push → Vercel 자동 빌드 (1~2분)')) return;
+    const btn = document.getElementById('publishBtn');
+    const origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ 배포 중...';
+
     document.getElementById('fStatus').value = 'published';
     onStatusChange();
-    await savePost();
+
+    try {
+      await savePost();
+      const ok = document.getElementById('saveStatus').classList.contains('ok');
+      if (ok) {
+        btn.innerHTML = '✅ 배포 완료!';
+        btn.style.background = 'linear-gradient(135deg,#059669,#0891b2)';
+        setTimeout(() => { btn.innerHTML = origHtml; btn.style.background = ''; btn.disabled = false; }, 4000);
+      } else {
+        btn.innerHTML = origHtml;
+        btn.disabled = false;
+      }
+    } catch {
+      btn.innerHTML = origHtml;
+      btn.disabled = false;
+    }
   }
 
   async function saveTranslation() {
