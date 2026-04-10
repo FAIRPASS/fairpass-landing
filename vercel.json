@@ -11,6 +11,15 @@
     { "source": "/ko", "destination": "/?lang=ko", "permanent": false },
     { "source": "/ko/(.*)", "destination": "/$1?lang=ko", "permanent": false }
   ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+      ]
+    }
+  ],
   "crons": [
     {
       "path": "/api/followup-cron",
