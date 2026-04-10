@@ -139,8 +139,7 @@ snsCopy:
 - **참가자에게 더 나은 경험**을 제공할 것인가?
 
 
-
-![KakaoTalk_20260222_181622693.png](/journal-images/1775536881976_kakaotalk_20260222_181622693.jpg)
+![KakaoTalk_20260222_181622693.png](/journal-images/1775796981413_kakaotalk_20260222_181622693.jpg)
 
 
 
