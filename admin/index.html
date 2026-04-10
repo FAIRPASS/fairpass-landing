@@ -6,6 +6,9 @@
   <title>FAIRPASS Admin</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -297,6 +300,193 @@
     .country-picker-input { width: 100%; box-sizing: border-box; padding: 9px 12px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; cursor: pointer; }
     .country-picker-input:focus { border-color: var(--purple-light); }
     .country-picker-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #1e1e2e; border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; max-height: 220px; overflow-y: auto; z-index: 999; }
+
+    /* ── Journal tab: extra vars ── */
+    :root { --muted2: rgba(255,255,255,0.30); --yellow: #f59e0b; --blue: #3b82f6; }
+
+    /* ── Journal: post list ── */
+    .post-list { display: flex; flex-direction: column; gap: 8px; }
+    .post-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); transition: all 0.15s; }
+    .post-item:hover { border-color: rgba(139,92,246,0.4); background: var(--surface2); }
+    .post-item-left { flex: 1; min-width: 0; }
+    .post-item-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .post-item-meta { font-size: 12px; color: var(--muted); margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .post-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    /* ── Journal: tabs ── */
+    .j-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px; width: fit-content; margin-bottom: 20px; }
+    .j-tab { padding: 7px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; background: none; color: var(--muted); transition: all 0.15s; cursor: pointer; }
+    .j-tab.active { background: var(--purple); color: #fff; }
+    .j-tab:hover:not(.active) { color: var(--text); }
+
+    /* ── Journal: badges ── */
+    .badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+    .badge-draft     { background: rgba(239,68,68,0.2);   color: #f87171; }
+    .badge-review    { background: rgba(245,158,11,0.2);  color: #fbbf24; }
+    .badge-approved  { background: rgba(59,130,246,0.2);  color: #93c5fd; }
+    .badge-published { background: rgba(16,185,129,0.2);  color: #34d399; }
+    .badge-lang      { background: rgba(255,255,255,0.08); color: var(--muted); border: 1px solid var(--border); }
+    .cat-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+
+    /* ── Journal: editor panel ── */
+    #jEditorPanel { display: none; }
+    #jEditorPanel.open { display: block; }
+    .editor-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .editor-header h2 { font-size: 17px; font-weight: 700; flex: 1; }
+    .btn-icon { padding: 6px 10px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Journal: markdown editor overrides ── */
+    .editor-wrapper { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 16px; }
+    .EasyMDEContainer { background: transparent; }
+    .EasyMDEContainer .CodeMirror { background: rgba(255,255,255,0.03); color: var(--text); border: none; font-size: 14px; min-height: 380px; padding: 12px; }
+    .EasyMDEContainer .CodeMirror-cursor { border-left-color: var(--purple-light); }
+    .EasyMDEContainer .editor-toolbar { background: rgba(10,10,18,0.96); border: none; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 30; backdrop-filter: blur(8px); }
+    .EasyMDEContainer .editor-toolbar button { color: var(--muted) !important; border: none !important; }
+    .EasyMDEContainer .editor-toolbar button:hover, .EasyMDEContainer .editor-toolbar button.active { background: rgba(139,92,246,0.2) !important; color: var(--purple-light) !important; border-radius: 4px !important; }
+    .EasyMDEContainer .editor-toolbar i.separator { border-color: var(--border); }
+    .EasyMDEContainer .editor-preview { background: rgba(10,10,18,0.9); color: var(--text); }
+    .EasyMDEContainer .editor-statusbar { display: none; }
+
+    /* ── Journal: image upload zone ── */
+    .img-upload-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .img-upload-label { display: flex; align-items: center; gap: 6px; padding: 7px 14px; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius-xs); font-size: 12px; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+    .img-upload-label:hover { border-color: var(--purple); color: var(--purple-light); }
+    #jImgFileInput { display: none; }
+
+    /* ── Journal: save bar ── */
+    .j-save-bar { position: sticky; bottom: 0; background: var(--bg); border-top: 1px solid var(--border); padding: 14px 0; margin-top: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 10; flex-wrap: wrap; }
+    .save-status { font-size: 13px; color: var(--muted); }
+    .save-status.ok { color: var(--green); }
+    .save-status.err { color: var(--red); }
+
+    /* ── Journal: autosave indicator ── */
+    .autosave-bar { display: flex; align-items: center; gap: 8px; padding: 6px 0 10px; font-size: 12px; color: var(--muted2); }
+    .autosave-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted2); flex-shrink: 0; }
+    .autosave-dot.saved { background: var(--green); }
+    .autosave-dot.saving { background: var(--cyan); animation: pulse 0.8s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── Journal: SNS Panel ── */
+    .sns-panel { border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 16px; overflow: hidden; }
+    .sns-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--surface); cursor: pointer; user-select: none; transition: background 0.15s; }
+    .sns-panel-header:hover { background: var(--surface2); }
+    .sns-panel-title { font-size: 13px; font-weight: 700; }
+    .sns-chevron { font-size: 12px; color: var(--muted); transition: transform 0.2s; }
+    .sns-chevron.open { transform: rotate(180deg); }
+    .sns-panel-body { display: none; padding: 16px; border-top: 1px solid var(--border); }
+    .sns-panel-body.open { display: block; }
+    .sns-generate-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .sns-outputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .sns-output-group { display: flex; flex-direction: column; gap: 6px; }
+    .sns-output-group.full { grid-column: span 2; }
+    .sns-output-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .sns-output-wrap { position: relative; }
+    .sns-textarea { width: 100%; padding: 8px 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-xs); color: var(--text); font-size: 12px; line-height: 1.6; resize: vertical; outline: none; transition: border-color 0.2s; font-family: inherit; }
+    .sns-textarea:focus { border-color: var(--purple-light); }
+    .copy-btn { position: absolute; top: 6px; right: 6px; padding: 3px 8px; font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.08); border: 1px solid var(--border); border-radius: 4px; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+    .copy-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+    .copy-btn.copied { color: var(--green); border-color: var(--green); }
+    .sns-save-row { display: flex; justify-content: flex-end; margin-top: 12px; }
+    .sns-loading { font-size: 12px; color: var(--cyan); display: none; }
+
+    /* ── Journal: Translate Panel ── */
+    .translate-section { margin-bottom: 16px; }
+    .translate-result { display: none; margin-top: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+    .translate-result.open { display: block; }
+    .translate-result-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .translate-result-header span { font-size: 12px; font-weight: 700; color: var(--muted); }
+    .translate-result-body { padding: 12px 14px; }
+    .translate-textarea { width: 100%; padding: 8px 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-xs); color: var(--text); font-size: 12px; line-height: 1.6; resize: vertical; outline: none; font-family: monospace; min-height: 200px; }
+    .translate-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+    .translate-result-body .EasyMDEContainer .CodeMirror { min-height: 250px; }
+    .translate-loading { font-size: 12px; color: var(--cyan); display: none; }
+
+    /* ── Journal: Generate Panel ── */
+    .generate-view { max-width: 560px; }
+    .generate-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+    .generate-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .generate-desc { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+    .generate-result { margin-top: 16px; padding: 14px 16px; border-radius: var(--radius-xs); font-size: 13px; display: none; }
+    .generate-result.ok { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #34d399; display: block; }
+    .generate-result.err { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #f87171; display: block; }
+
+    /* ── Journal: misc ── */
+    .loading { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
+    .empty { text-align: center; padding: 48px; color: var(--muted2); font-size: 14px; }
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+    .slug-hint { font-size: 11px; color: var(--muted2); margin-top: 4px; }
+
+    /* ── Journal: Publish Choice Modal ── */
+    #jPublishModal { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 24px; }
+    #jPublishModal.open { display: flex; }
+    .publish-box { background: #12121f; border: 1px solid rgba(139,92,246,0.4); border-radius: var(--radius); width: 100%; max-width: 420px; overflow: hidden; }
+    .publish-box-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: rgba(139,92,246,0.12); border-bottom: 1px solid rgba(139,92,246,0.2); }
+    .publish-box-header span { font-size: 14px; font-weight: 700; color: #c084fc; }
+    .publish-box-body { padding: 20px 18px; }
+    .publish-box-body p { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+    .publish-choices { display: flex; flex-direction: column; gap: 10px; }
+    .publish-choice-btn { width: 100%; padding: 12px 16px; border-radius: var(--radius-xs); font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid; text-align: left; transition: all 0.15s; }
+    .publish-choice-btn:hover { opacity: 0.85; }
+    .publish-choice-ko { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.5); color: #c084fc; }
+    .publish-choice-en { background: rgba(6,182,212,0.12); border-color: rgba(6,182,212,0.4); color: #22d3ee; }
+    .publish-choice-both { background: linear-gradient(135deg,rgba(139,92,246,0.2),rgba(6,182,212,0.15)); border-color: rgba(255,255,255,0.2); color: #fff; }
+    .publish-choice-cancel { background: transparent; border-color: rgba(255,255,255,0.1); color: var(--muted); margin-top: 4px; }
+
+    /* ── Journal: Error Detail Modal ── */
+    #jErrorModal { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 24px; }
+    #jErrorModal.open { display: flex; }
+    .error-box { background: #12121f; border: 1px solid rgba(239,68,68,0.4); border-radius: var(--radius); width: 100%; max-width: 560px; overflow: hidden; }
+    .error-box-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: rgba(239,68,68,0.12); border-bottom: 1px solid rgba(239,68,68,0.2); }
+    .error-box-header span { font-size: 14px; font-weight: 700; color: #f87171; }
+    .error-box-body { padding: 16px 18px; }
+    .error-detail-text { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: #fca5a5; font-size: 12px; font-family: monospace; line-height: 1.6; padding: 10px 12px; resize: vertical; min-height: 100px; outline: none; }
+    .error-copy-btn { margin-top: 10px; padding: 7px 16px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; color: #f87171; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+    .error-copy-btn:hover { background: rgba(239,68,68,0.25); }
+    .error-copy-btn.copied { color: var(--green); border-color: var(--green); background: rgba(16,185,129,0.1); }
+
+    /* ── Journal: Import Modal ── */
+    #jImportModal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+    #jImportModal.open { display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px; overflow-y: auto; }
+    .import-box { background: #0e0e1a; border: 1px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 720px; overflow: hidden; }
+    .import-box-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .import-box-header span { font-size: 14px; font-weight: 700; }
+    .import-body { padding: 24px; }
+    .import-result { display: none; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; margin-top: 20px; }
+    .import-result.open { display: block; }
+    .import-result-header { padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; color: var(--muted); }
+    .import-result-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 14px; border-bottom: 1px solid var(--border); }
+    .import-meta-item { font-size: 12px; }
+    .import-meta-label { color: var(--muted); margin-bottom: 2px; font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em; }
+    .import-meta-val { color: var(--text); }
+    .import-preview-body { padding: 14px; max-height: 300px; overflow-y: auto; }
+    .import-preview-body pre { white-space: pre-wrap; font-size: 12px; color: rgba(255,255,255,0.7); font-family: monospace; line-height: 1.6; }
+    .import-actions { display: flex; gap: 8px; justify-content: flex-end; padding: 14px; border-top: 1px solid var(--border); }
+
+    /* ── Journal: Preview Modal ── */
+    #jPreviewModal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+    #jPreviewModal.open { display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px; overflow-y: auto; }
+    .preview-box { background: #0e0e1a; border: 1px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 760px; overflow: hidden; }
+    .preview-box-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .preview-box-header span { font-size: 14px; font-weight: 700; }
+    .preview-content { padding: 32px 36px; color: rgba(255,255,255,0.82); font-size: 15px; line-height: 1.8; }
+    .preview-content h1 { font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .preview-content h2 { font-size: 1.2rem; font-weight: 700; color: #fff; margin: 2rem 0 0.8rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    .preview-content h3 { font-size: 1.05rem; font-weight: 600; color: #fff; margin: 1.5rem 0 0.6rem; }
+    .preview-content p { margin-bottom: 1.1rem; }
+    .preview-content ul, .preview-content ol { padding-left: 1.5rem; margin-bottom: 1.1rem; }
+    .preview-content ul { list-style: disc; }
+    .preview-content ol { list-style: decimal; }
+    .preview-content li { margin-bottom: 0.3rem; }
+    .preview-content strong { color: #fff; font-weight: 600; }
+    .preview-content a { color: var(--purple-light); text-decoration: underline; }
+    .preview-content blockquote { border-left: 3px solid var(--purple); padding-left: 1rem; color: var(--muted); font-style: italic; margin: 1.2rem 0; }
+    .preview-content code { background: rgba(255,255,255,0.08); border-radius: 4px; padding: 0.1em 0.4em; font-size: 0.875em; }
+    .preview-content table { width: 100%; border-collapse: collapse; margin-bottom: 1.2rem; font-size: 0.875rem; }
+    .preview-content th { padding: 0.6rem 0.75rem; background: rgba(255,255,255,0.06); border-bottom: 1px solid var(--border); color: #fff; font-weight: 600; text-align: left; }
+    .preview-content td { padding: 0.6rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .preview-content img { max-width: 100%; border-radius: var(--radius-sm); margin: 0.5rem 0; }
+    .preview-content hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
     .country-picker-dropdown.open { display: block; }
     .country-search { width: 100%; box-sizing: border-box; padding: 8px 12px; background: rgba(255,255,255,0.05); border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; font-family: inherit; outline: none; }
     .country-option { padding: 8px 12px; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
@@ -335,7 +525,7 @@
         <button class="nav-item" data-page="quote"><span class="nav-icon">📋</span>견적 문의</button>
         <button class="nav-item" data-page="brochure"><span class="nav-icon">📄</span>소개서 요청</button>
         <button class="nav-item" data-page="kiosk"><span class="nav-icon">🔑</span>키오스크 문의</button>
-        <a class="nav-item" href="/admin/journal.html"><span class="nav-icon">✍️</span>저널</a>
+        <button class="nav-item" data-page="journal"><span class="nav-icon">✍️</span>저널</button>
         <button class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span>설정</button>
       </nav>
       <div class="sidebar-bottom">
@@ -532,6 +722,350 @@
       <div id="page-kiosk" class="page">
         <div class="page-title">키오스크 문의</div>
         <div class="empty-state">키오스크 문의 폼이 아직 준비 중입니다.</div>
+      </div>
+
+      <!-- ── 저널 ── -->
+      <div id="page-journal" class="page">
+
+        <!-- LIST VIEW -->
+        <div id="jListView">
+          <div class="page-header">
+            <h1 class="page-title">저널 관리</h1>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="jLoadList()">↺ 새로고침</button>
+              <button class="btn btn-ghost btn-sm" onclick="jOpenImportModal()">📥 가져오기</button>
+              <button class="btn btn-primary" onclick="jOpenNew()">+ 새 포스트</button>
+            </div>
+          </div>
+
+          <div class="j-tabs">
+            <button class="j-tab active" id="jTabKo" onclick="jSwitchLang('ko')">🇰🇷 한국어</button>
+            <button class="j-tab" id="jTabEn" onclick="jSwitchLang('en')">🇺🇸 English</button>
+          </div>
+
+          <div id="jPostListContainer" class="post-list">
+            <div class="loading">불러오는 중...</div>
+          </div>
+        </div>
+
+        <!-- SUBSCRIBERS VIEW -->
+        <div id="jSubscribersView" style="display:none;">
+          <div class="page-header">
+            <h1 class="page-title">뉴스레터 구독자</h1>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="jLoadSubscribers()">🔄 새로고침</button>
+              <button class="btn btn-primary btn-sm" onclick="jExportSubscribers()">⬇️ CSV 다운로드</button>
+            </div>
+          </div>
+          <div style="padding:0 0 24px;">
+            <div id="jSubStats" style="display:flex;gap:12px;margin-bottom:20px;"></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;">
+              <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                <thead>
+                  <tr style="background:rgba(255,255,255,0.04);border-bottom:1px solid var(--border);">
+                    <th style="padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;">이메일</th>
+                    <th style="padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;">언어</th>
+                    <th style="padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;">출처</th>
+                    <th style="padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;">구독일</th>
+                    <th style="padding:10px 14px;text-align:left;color:var(--muted);font-weight:600;">상태</th>
+                  </tr>
+                </thead>
+                <tbody id="jSubTableBody">
+                  <tr><td colspan="5" style="padding:40px;text-align:center;color:var(--muted);">불러오는 중...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- GENERATE VIEW -->
+        <div id="jGenerateView" style="display:none;">
+          <div class="page-header">
+            <h1 class="page-title">즉시 초안 생성</h1>
+          </div>
+          <div class="generate-view">
+            <div class="generate-card">
+              <div class="generate-title">✍️ 특별 주제 초안 생성 요청</div>
+              <div class="generate-desc">
+                AI가 지정한 주제와 카테고리로 저널 초안을 생성합니다.<br>
+                완료 시 GitHub PR이 생성되고 이메일로 알림이 전송됩니다 (약 2~3분 소요).
+              </div>
+              <div class="form-grid" style="grid-template-columns:1fr;">
+                <div class="form-group">
+                  <label class="form-label">주제 힌트 (선택)</label>
+                  <input class="form-input" id="jGenTopic" type="text" placeholder="예: 새학기 특별 안내, APEC 2026 대비 행사 운영 팁..." />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">카테고리</label>
+                  <select class="form-select" id="jGenCategory">
+                    <option value="auto">자동 선택</option>
+                    <option value="FAIRPASS 이야기">FAIRPASS 이야기</option>
+                    <option value="FAIRPASS 활용법">FAIRPASS 활용법</option>
+                    <option value="운영 사례">운영 사례</option>
+                    <option value="지속가능한 행사">지속가능한 행사</option>
+                    <option value="업계 트렌드">업계 트렌드</option>
+                    <option value="FAIRPASS 소식">FAIRPASS 소식</option>
+                    <option value="언론 보도">언론 보도</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-top:16px;">
+                <button class="btn btn-primary" id="jGenBtn" onclick="jTriggerGenerate()">🚀 초안 생성 요청</button>
+                <span id="jGenLoading" style="font-size:12px;color:var(--cyan);margin-left:12px;display:none;">요청 중...</span>
+              </div>
+              <div class="generate-result" id="jGenResult"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EDITOR VIEW -->
+        <div id="jEditorPanel">
+          <div class="editor-header">
+            <button class="btn btn-ghost btn-sm" onclick="jShowList()">← 목록으로</button>
+            <h2 id="jEditorTitle">새 포스트</h2>
+            <span id="jEditorLangBadge" style="font-size:12px;color:var(--muted);"></span>
+          </div>
+
+          <!-- Frontmatter fields -->
+          <div class="form-grid">
+            <div class="form-group form-full">
+              <label class="form-label">제목 (title)</label>
+              <input class="form-input" id="jFTitle" type="text" placeholder="저널 포스트 제목" />
+            </div>
+            <div class="form-group form-full">
+              <label class="form-label">설명 (description) — SEO용 160자 이내</label>
+              <input class="form-input" id="jFDesc" type="text" placeholder="검색 결과에 표시될 설명" maxlength="160" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">슬러그 (slug) — URL</label>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <input class="form-input" id="jFSlug" type="text" placeholder="url-friendly-slug" style="flex:1;" />
+                <button type="button" class="btn btn-ghost btn-sm" id="jSlugAiBtn" onclick="jGenerateSlugAI()" title="AI가 제목 기반으로 슬러그 생성" style="white-space:nowrap;flex-shrink:0;">✨ AI</button>
+              </div>
+              <div class="slug-hint" id="jSlugHint"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">카테고리</label>
+              <select class="form-select" id="jFCategory"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">저자</label>
+              <select class="form-select" id="jFAuthor" onchange="jOnAuthorChange()">
+                <option value="전서윤">전서윤</option>
+                <option value="최윤지">최윤지</option>
+                <option value="FAIRPASS 팀">FAIRPASS 팀</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">저자 직함 (authorTitle)</label>
+              <input class="form-input" id="jFAuthorTitle" type="text" placeholder="직함 (선택)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">태그 (쉼표 구분)</label>
+              <input class="form-input" id="jFTags" type="text" placeholder="태그1, 태그2, 태그3" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">게시일 (pubDate)</label>
+              <input class="form-input" id="jFDate" type="date" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">상태</label>
+              <select class="form-select" id="jFStatus" onchange="jOnStatusChange()">
+                <option value="draft">🔴 초안</option>
+                <option value="review">🟡 검토 중</option>
+                <option value="approved">🔵 승인됨</option>
+                <option value="published">🟢 배포 완료</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Image / Video upload -->
+          <div class="img-upload-row">
+            <label class="img-upload-label" for="jImgFileInput" onclick="jSaveCursorPos()">
+              🖼️ 이미지 삽입
+            </label>
+            <input type="file" id="jImgFileInput" accept="image/*" multiple onchange="jUploadImages(this)" />
+            <button class="img-upload-label" onclick="jOpenVideoEmbed()" type="button" style="cursor:pointer;">
+              🎬 영상 삽입
+            </button>
+            <span id="jImgUploadStatus" style="font-size:12px;color:var(--muted);">커서 위치에 삽입됩니다</span>
+            <span style="font-size:11px;color:var(--muted2);margin-left:4px;">📐 권장: 1200×675px (16:9) · JPEG · 500KB 이하</span>
+          </div>
+          <div id="jImgProgress" style="display:none;margin-bottom:12px;">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:6px;" id="jImgProgressText"></div>
+            <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+              <div id="jImgProgressBar" style="height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));width:0%;transition:width 0.3s;"></div>
+            </div>
+          </div>
+          <!-- Video embed modal (inline) -->
+          <div id="jVideoEmbedBox" style="display:none;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xs);margin-bottom:12px;">
+            <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;">🎬 영상 URL 삽입</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input id="jVideoUrlInput" class="form-input" type="text" placeholder="https://youtube.com/watch?v=... 또는 https://vimeo.com/..." style="flex:1;font-size:13px;" />
+              <button class="btn btn-primary btn-sm" onclick="jInsertVideoEmbed()">삽입</button>
+              <button class="btn btn-ghost btn-sm" onclick="document.getElementById('jVideoEmbedBox').style.display='none'">✕</button>
+            </div>
+            <div style="font-size:11px;color:var(--muted2);margin-top:6px;">YouTube · Vimeo · mp4 직접 링크 지원</div>
+          </div>
+
+          <!-- Editor toolbar row -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+            <button class="btn btn-ghost btn-sm" onclick="jOpenPreview()">👁️ 미리보기</button>
+            <div class="autosave-bar">
+              <div class="autosave-dot" id="jAutosaveDot"></div>
+              <span id="jAutosaveLabel">임시저장 대기 중</span>
+            </div>
+          </div>
+
+          <!-- Markdown editor -->
+          <div class="editor-wrapper">
+            <textarea id="jMdEditor"></textarea>
+          </div>
+
+          <!-- SNS Panel -->
+          <div class="sns-panel">
+            <div class="sns-panel-header" onclick="jToggleSnsPanel()">
+              <span class="sns-panel-title">📱 SNS 콘텐츠 생성</span>
+              <span class="sns-chevron" id="jSnsChevron">▼</span>
+            </div>
+            <div class="sns-panel-body" id="jSnsPanelBody">
+              <div class="sns-generate-row" style="flex-direction:column;align-items:stretch;gap:10px;">
+                <div style="display:flex;gap:10px;">
+                  <div style="flex:1;">
+                    <label class="form-label" style="font-size:11px;margin-bottom:4px;">핵심 키워드 (선택)</label>
+                    <input class="form-input" id="jSnsKeywords" type="text" placeholder="예: QR 체크인, 무인 명찰, 친환경 행사" style="font-size:12px;padding:6px 10px;" />
+                  </div>
+                  <div style="flex:1;">
+                    <label class="form-label" style="font-size:11px;margin-bottom:4px;">공개 가능한 수치/사례</label>
+                    <input class="form-input" id="jSnsFigures" type="text" placeholder="예: 체크인 시간 70% 단축" style="font-size:12px;padding:6px 10px;" />
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <button class="btn btn-ghost btn-sm" onclick="jGenerateSns()">✨ SNS 생성</button>
+                  <span class="sns-loading" id="jSnsLoading">생성 중... (30~60초)</span>
+                </div>
+              </div>
+              <div class="sns-outputs">
+                <div class="sns-output-group">
+                  <div class="sns-output-label">LinkedIn 국문 — 짧은 버전 <span style="font-size:10px;color:var(--muted2);">220자 이내</span></div>
+                  <div class="sns-output-wrap">
+                    <textarea class="sns-textarea" id="jSnsLinkedinKrShort" rows="4" placeholder="LinkedIn KR 짧은 버전"></textarea>
+                    <button class="copy-btn" onclick="jCopySns('jSnsLinkedinKrShort', this)">복사</button>
+                  </div>
+                </div>
+                <div class="sns-output-group">
+                  <div class="sns-output-label">LinkedIn 국문 — 표준 버전 <span style="font-size:10px;color:var(--muted2);">350자 이내</span></div>
+                  <div class="sns-output-wrap">
+                    <textarea class="sns-textarea" id="jSnsLinkedinKrStandard" rows="5" placeholder="LinkedIn KR 표준 버전"></textarea>
+                    <button class="copy-btn" onclick="jCopySns('jSnsLinkedinKrStandard', this)">복사</button>
+                  </div>
+                </div>
+                <div class="sns-output-group">
+                  <div class="sns-output-label">LinkedIn EN — Short</div>
+                  <div class="sns-output-wrap">
+                    <textarea class="sns-textarea" id="jSnsLinkedinEnShort" rows="4" placeholder="LinkedIn EN short"></textarea>
+                    <button class="copy-btn" onclick="jCopySns('jSnsLinkedinEnShort', this)">복사</button>
+                  </div>
+                </div>
+                <div class="sns-output-group">
+                  <div class="sns-output-label">LinkedIn EN — Standard</div>
+                  <div class="sns-output-wrap">
+                    <textarea class="sns-textarea" id="jSnsLinkedinEnStandard" rows="5" placeholder="LinkedIn EN standard"></textarea>
+                    <button class="copy-btn" onclick="jCopySns('jSnsLinkedinEnStandard', this)">복사</button>
+                  </div>
+                </div>
+                <div class="sns-output-group">
+                  <div class="sns-output-label">Instagram 국문</div>
+                  <div class="sns-output-wrap">
+                    <textarea class="sns-textarea" id="jSnsInstagramKo" rows="6" placeholder="Instagram KR"></textarea>
+                    <button class="copy-btn" onclick="jCopySns('jSnsInstagramKo', this)">복사</button>
+                  </div>
+                </div>
+                <div class="sns-output-group">
+                  <div class="sns-output-label">Instagram EN</div>
+                  <div class="sns-output-wrap">
+                    <textarea class="sns-textarea" id="jSnsInstagramEn" rows="6" placeholder="Instagram EN"></textarea>
+                    <button class="copy-btn" onclick="jCopySns('jSnsInstagramEn', this)">복사</button>
+                  </div>
+                </div>
+                <div class="sns-output-group full">
+                  <div class="sns-output-label">네이버 블로그 요약</div>
+                  <div class="sns-output-wrap">
+                    <textarea class="sns-textarea" id="jSnsNaverBlog" rows="5" placeholder="네이버 블로그 요약 (500자 내외)"></textarea>
+                    <button class="copy-btn" onclick="jCopySns('jSnsNaverBlog', this)">복사</button>
+                  </div>
+                </div>
+                <div class="sns-output-group full" id="jSnsMetaGroup" style="display:none;">
+                  <div style="display:flex;gap:12px;">
+                    <div style="flex:1;">
+                      <div class="sns-output-label" style="font-size:11px;">사용한 키워드</div>
+                      <div id="jSnsResultKeywords" style="font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 10px;min-height:32px;line-height:1.6;"></div>
+                    </div>
+                    <div style="flex:1;">
+                      <div class="sns-output-label" style="font-size:11px;">저널로 넘긴 포인트</div>
+                      <div id="jSnsHiddenPoints" style="font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 10px;min-height:32px;line-height:1.8;white-space:pre-wrap;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="sns-save-row">
+                <button class="btn btn-success btn-sm" onclick="jSaveSns()">💾 SNS 저장</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Translate Section (ko only) -->
+          <div class="translate-section" id="jTranslateSection">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-ghost btn-sm" onclick="jToggleEnglishPanel()" id="jEnOpenBtn">📝 영문 편집</button>
+              <button class="btn btn-ghost btn-sm" onclick="jConfirmGenerateTranslation()" id="jTranslateBtn">🌐 AI 번역 생성</button>
+              <span class="translate-loading" id="jTranslateLoading">번역 생성 중...</span>
+            </div>
+            <div class="translate-result" id="jTranslateResult">
+              <div class="translate-result-header">
+                <span>🇺🇸 영문 버전 편집</span>
+                <button class="btn btn-ghost btn-sm" onclick="jCloseTranslateResult()">✕ 접기</button>
+              </div>
+              <div class="translate-result-body">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <label class="img-upload-label" style="cursor:pointer;font-size:12px;" onclick="jSaveCursorPosEn(); document.getElementById('jEnImgInput').click();">🖼️ 이미지 삽입</label>
+                  <input type="file" id="jEnImgInput" accept="image/*" multiple style="display:none;" onchange="jUploadImages(this, jEasyMDEEn)" />
+                  <span id="jEnImgStatus" style="font-size:11px;color:var(--muted);"></span>
+                </div>
+                <textarea id="jTranslateOutputMde" placeholder="영문 번역 결과가 여기에 표시됩니다..."></textarea>
+                <div class="translate-actions">
+                  <button class="btn btn-ghost btn-sm" onclick="jOpenEnglishPreview()">👁 미리보기</button>
+                  <button class="btn btn-primary btn-sm" onclick="jSaveTranslation()">💾 GitHub에 저장</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Save bar -->
+          <div class="j-save-bar">
+            <span class="save-status" id="jSaveStatus"></span>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button class="btn btn-danger btn-sm" id="jDeleteBtn" onclick="jDeletePost()" style="display:none;">삭제</button>
+              <button class="btn btn-ghost" onclick="jShowList()">취소</button>
+              <button class="btn btn-primary" onclick="jSavePost()" id="jSaveBtn">저장 (초안)</button>
+              <button class="btn btn-success" onclick="jPublishPost()" id="jPublishBtn" style="background:linear-gradient(135deg,#10b981,#06b6d4);">🚀 최종 배포</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Journal sub-nav (shown below main nav when journal tab is active) -->
+        <div id="jSubNav" style="display:none;position:fixed;bottom:60px;left:0;width:182px;border-top:1px solid var(--border);background:var(--sidebar-bg);padding:8px 0;">
+          <button class="nav-item" id="jNavList" onclick="jShowList()" style="font-size:13px;">
+            <span class="nav-icon">📋</span>포스트 목록
+          </button>
+          <button class="nav-item" id="jNavGenerate" onclick="jShowGenerate()" style="font-size:13px;">
+            <span class="nav-icon">🚀</span>초안 요청
+          </button>
+          <button class="nav-item" id="jNavSubscribers" onclick="jShowSubscribers()" style="font-size:13px;">
+            <span class="nav-icon">📧</span>구독자
+          </button>
+        </div>
+
       </div>
 
       <!-- ── 설정 ── -->
@@ -775,6 +1309,136 @@
       <button class="btn btn-ghost" id="cancelBtn">취소</button>
       <button class="btn btn-primary" id="saveBtn">저장</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ 저널: Publish Choice Modal ══ -->
+<div id="jPublishModal">
+  <div class="publish-box">
+    <div class="publish-box-header">
+      <span>🚀 배포 언어 선택</span>
+      <button class="btn btn-ghost btn-sm" onclick="jClosePublishModal()">✕</button>
+    </div>
+    <div class="publish-box-body">
+      <p>status를 <strong style="color:#c084fc">published</strong>로 변경하고 GitHub에 저장합니다.<br>배포할 언어를 선택하세요.</p>
+      <div class="publish-choices">
+        <button class="publish-choice-btn publish-choice-ko" onclick="jExecutePublish('ko')">🇰🇷 한국어만 배포</button>
+        <button class="publish-choice-btn publish-choice-en" onclick="jExecutePublish('en')">🇺🇸 영어만 배포</button>
+        <button class="publish-choice-btn publish-choice-both" onclick="jExecutePublish('both')">🌐 한국어 + 영어 모두 배포</button>
+        <button class="publish-choice-btn publish-choice-cancel" onclick="jClosePublishModal()">취소</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 저널: Error Detail Modal ══ -->
+<div id="jErrorModal">
+  <div class="error-box">
+    <div class="error-box-header">
+      <span id="jErrorModalTitle">⚠️ 오류</span>
+      <button class="btn btn-ghost btn-sm" onclick="jCloseErrorModal()">✕</button>
+    </div>
+    <div class="error-box-body">
+      <textarea class="error-detail-text" id="jErrorDetailText" readonly></textarea>
+      <button class="error-copy-btn" id="jErrorCopyBtn" onclick="jCopyErrorDetail()">📋 전체 복사</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 저널: Import Modal ══ -->
+<div id="jImportModal">
+  <div class="import-box">
+    <div class="import-box-header">
+      <span>📥 기존 글 가져오기 — AI 정리</span>
+      <button class="btn btn-ghost btn-sm" onclick="jCloseImportModal()">✕ 닫기</button>
+    </div>
+    <div class="import-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;">
+        네이버 블로그·카카오·다른 플랫폼에서 복사한 텍스트를 붙여넣으세요.<br>
+        AI가 마크다운으로 재편집하고, 제목·카테고리·태그도 자동 추출합니다.
+      </p>
+      <!-- 언론 보도 URL 가져오기 -->
+      <div style="background:rgba(159,18,57,0.1);border:1px solid rgba(159,18,57,0.3);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:#fda4af;margin-bottom:10px;">🗞️ 언론 보도 URL로 가져오기</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+          <input id="jPressUrl" type="url" placeholder="https://... (기사 URL 붙여넣기)"
+            style="flex:1;min-width:200px;padding:8px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius-xs);color:var(--text);font-size:13px;outline:none;" />
+          <select id="jPressLang" style="padding:8px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius-xs);color:var(--text);font-size:13px;outline:none;">
+            <option value="ko">한국어 기사</option>
+            <option value="en">영어 기사</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="btn btn-sm" id="jPressImportBtn" onclick="jRunPressImport()" style="background:rgba(159,18,57,0.7);border:1px solid rgba(159,18,57,0.8);color:#fff;font-size:12px;padding:6px 14px;border-radius:var(--radius-xs);">📥 가져오기</button>
+          <span id="jPressImportLoading" style="font-size:12px;color:var(--cyan);display:none;">기사 분석 중...</span>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label class="form-label">카테고리 힌트 (선택)</label>
+        <select class="form-select" id="jImportCategory">
+          <option value="">자동 판단</option>
+          <option value="FAIRPASS 이야기">FAIRPASS 이야기</option>
+          <option value="FAIRPASS 활용법">FAIRPASS 활용법</option>
+          <option value="운영 사례">운영 사례</option>
+          <option value="지속가능한 행사">지속가능한 행사</option>
+          <option value="업계 트렌드">업계 트렌드</option>
+          <option value="FAIRPASS 소식">FAIRPASS 소식</option>
+          <option value="언론 보도">언론 보도</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label class="form-label">원문 텍스트 붙여넣기</label>
+        <textarea class="form-textarea" id="jImportRawText" rows="10" placeholder="네이버 블로그, 카카오, 워드 문서 등에서 복사한 텍스트를 여기에 붙여넣으세요..."></textarea>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="jImportConvertBtn" onclick="jRunImportConvert('format')">✨ 서식만</button>
+        <button class="btn btn-ghost" id="jImportRewriteBtn" onclick="jRunImportConvert('rewrite')">✏️ 내용 다듬기</button>
+        <span id="jImportLoading" style="font-size:12px;color:var(--cyan);display:none;">AI가 작업 중...</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:6px;line-height:1.7;">
+        <b style="color:var(--muted);">서식만</b> — 내용 그대로, 마크다운 구조화만<br>
+        <b style="color:var(--muted);">내용 다듬기</b> — 구어체·이모티콘 제거, B2B 저널 톤으로 재작성 + 서식
+      </div>
+      <div class="import-result" id="jImportResult">
+        <div class="import-result-header">✅ AI 정리 결과 — 에디터에 적용하기 전에 확인하세요</div>
+        <div class="import-result-meta">
+          <div class="import-meta-item">
+            <div class="import-meta-label">제목</div>
+            <div class="import-meta-val" id="jImportResTitle">—</div>
+          </div>
+          <div class="import-meta-item">
+            <div class="import-meta-label">카테고리</div>
+            <div class="import-meta-val" id="jImportResCategory">—</div>
+          </div>
+          <div class="import-meta-item" style="grid-column:span 2;">
+            <div class="import-meta-label">설명 (description)</div>
+            <div class="import-meta-val" id="jImportResDesc">—</div>
+          </div>
+          <div class="import-meta-item" style="grid-column:span 2;">
+            <div class="import-meta-label">태그</div>
+            <div class="import-meta-val" id="jImportResTags">—</div>
+          </div>
+        </div>
+        <div class="import-preview-body">
+          <pre id="jImportResBody"></pre>
+        </div>
+        <div class="import-actions">
+          <button class="btn btn-ghost btn-sm" onclick="jCloseImportModal()">취소</button>
+          <button class="btn btn-primary btn-sm" onclick="jApplyImportToEditor()">에디터에 적용 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 저널: Preview Modal ══ -->
+<div id="jPreviewModal">
+  <div class="preview-box">
+    <div class="preview-box-header">
+      <span id="jPreviewModalTitle">📄 미리보기</span>
+      <button class="btn btn-ghost btn-sm" onclick="jClosePreview()">✕ 닫기</button>
+    </div>
+    <div class="preview-content" id="jPreviewContent"></div>
   </div>
 </div>
 
@@ -2094,6 +2758,1349 @@ async function sendQuoteEmail() {
     document.getElementById('qs_sendLabel').textContent = '고객에게 발송하기';
     btn.disabled = false;
   }
+}
+
+// ════════════════════════════════════════════════════
+//  저널 탭 — 통합 JS (journal.html에서 이전, 모두 j_ 접두어)
+// ════════════════════════════════════════════════════
+
+// ── Journal: nav activation hook ──
+// When journal nav-item is clicked, initialise the journal tab once
+document.querySelector('[data-page="journal"]').addEventListener('click', function() {
+  // Show sub-nav
+  document.getElementById('jSubNav').style.display = 'block';
+  // Init journal (load list) once sessionPw is available
+  if (!jInited && sessionPw) {
+    jPw = sessionPw;
+    jInited = true;
+    jInitApp();
+  } else if (sessionPw) {
+    jPw = sessionPw; // keep in sync
+    jLoadList();
+  }
+});
+
+// Hide jSubNav when other tabs are clicked
+document.querySelectorAll('.nav-item:not([data-page="journal"])').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.getElementById('jSubNav').style.display = 'none';
+  });
+});
+
+// ── Journal: Constants ──
+const J_KO_CATEGORIES = [
+  'FAIRPASS 이야기', 'FAIRPASS 활용법', '운영 사례',
+  '지속가능한 행사', '업계 트렌드', 'FAIRPASS 소식', '언론 보도',
+];
+const J_EN_CATEGORIES = [
+  'Our Story', 'How It Works', 'In the Field',
+  'Sustainable Events', 'Industry Trends', 'FAIRPASS News', 'In the Press',
+];
+const J_CAT_COLORS = {
+  'FAIRPASS 이야기': { bg: '#BA7517', text: '#fff' },
+  'Our Story':       { bg: '#BA7517', text: '#fff' },
+  'FAIRPASS 활용법': { bg: '#534AB7', text: '#fff' },
+  'How It Works':    { bg: '#534AB7', text: '#fff' },
+  '운영 사례':        { bg: '#D85A30', text: '#fff' },
+  'In the Field':    { bg: '#D85A30', text: '#fff' },
+  '지속가능한 행사':  { bg: '#059669', text: '#fff' },
+  'Sustainable Events': { bg: '#059669', text: '#fff' },
+  '업계 트렌드':      { bg: '#185FA5', text: '#fff' },
+  'Industry Trends': { bg: '#185FA5', text: '#fff' },
+  'FAIRPASS 소식':   { bg: '#0F172A', text: '#9ca3af', border: '#4B5563' },
+  'FAIRPASS News':   { bg: '#0F172A', text: '#9ca3af', border: '#4B5563' },
+  '언론 보도':        { bg: '#9F1239', text: '#fff' },
+  'In the Press':    { bg: '#9F1239', text: '#fff' },
+};
+const J_AUTHOR_TITLES = {
+  '전서윤': '대표이사',
+  '최윤지': 'CSO',
+  'FAIRPASS 팀': '',
+};
+
+// ── Journal: State ──
+let jPw = '';
+let jInited = false;
+let jCurrentLang = 'ko';
+let jCurrentSha = null;
+let jCurrentPath = null;
+let jEasyMDE = null;
+let jIsNew = false;
+let jAutosaveTimer = null;
+let _jImportData = null;
+const _jUploadedImages = new Map();
+let jEasyMDEEn = null;
+let jCurrentEnSha = null;
+let jCurrentEnPath = null;
+
+// ── Journal: Init ──
+function jInitApp() {
+  jInitEditor();
+  jStartAutosave();
+  jLoadList();
+
+  document.getElementById('jFTitle').addEventListener('input', function() {
+    const slugEl = document.getElementById('jFSlug');
+    if (slugEl.dataset.manual === 'true') return;
+    const generated = jGenerateSlug(this.value);
+    slugEl.value = generated;
+    document.getElementById('jSlugHint').textContent = generated
+      ? `URL: /journal/${jCurrentLang}/${generated}/` : '';
+  });
+
+  document.getElementById('jFSlug').addEventListener('input', function() {
+    this.dataset.manual = this.value ? 'true' : 'false';
+    document.getElementById('jSlugHint').textContent = this.value
+      ? `URL: /journal/${jCurrentLang}/${this.value}/` : '';
+  });
+}
+
+// ── Journal: Editor Init ──
+function jInitEditor() {
+  if (jEasyMDE) return;
+  jEasyMDE = new EasyMDE({
+    element: document.getElementById('jMdEditor'),
+    spellChecker: false,
+    autosave: { enabled: false },
+    previewRender: (plainText) => {
+      let html = marked.parse(plainText);
+      html = html.replace(/\/journal\/journal-images\//g, '/journal-images/');
+      for (const [githubUrl, blobUrl] of _jUploadedImages) {
+        html = html.split(githubUrl).join(blobUrl);
+      }
+      return html;
+    },
+    toolbar: [
+      'bold', 'italic', 'heading', '|',
+      'quote', 'unordered-list', 'ordered-list', '|',
+      'link',
+      { name: 'image', action: () => { jSaveCursorPos(); document.getElementById('jImgFileInput').click(); }, className: 'fa fa-image', title: '이미지 업로드' },
+      '|', 'table', 'horizontal-rule', '|',
+      'preview', 'side-by-side', 'fullscreen', '|', 'guide'
+    ],
+    placeholder: '마크다운으로 본문을 작성하세요...',
+    minHeight: '380px',
+  });
+  jEasyMDE.codemirror.on('change', () => {
+    clearTimeout(window._jAsDebounce);
+    window._jAsDebounce = setTimeout(jDoAutosave, 5000);
+  });
+}
+
+// ── Journal: Category select ──
+function jPopulateCategorySelect(lang) {
+  const sel = document.getElementById('jFCategory');
+  const cats = lang === 'ko' ? J_KO_CATEGORIES : J_EN_CATEGORIES;
+  const current = sel.value;
+  sel.innerHTML = '';
+  cats.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+  if (cats.includes(current)) sel.value = current;
+}
+
+// ── Journal: Sub-views ──
+function jShowList() {
+  document.getElementById('jListView').style.display = 'block';
+  document.getElementById('jGenerateView').style.display = 'none';
+  document.getElementById('jSubscribersView').style.display = 'none';
+  document.getElementById('jEditorPanel').classList.remove('open');
+  document.getElementById('jNavList').classList.add('active');
+  document.getElementById('jNavGenerate').classList.remove('active');
+  document.getElementById('jNavSubscribers').classList.remove('active');
+  jLoadList();
+}
+
+function jShowGenerate() {
+  document.getElementById('jListView').style.display = 'none';
+  document.getElementById('jGenerateView').style.display = 'block';
+  document.getElementById('jSubscribersView').style.display = 'none';
+  document.getElementById('jEditorPanel').classList.remove('open');
+  document.getElementById('jNavList').classList.remove('active');
+  document.getElementById('jNavGenerate').classList.add('active');
+  document.getElementById('jNavSubscribers').classList.remove('active');
+  document.getElementById('jGenResult').className = 'generate-result';
+  document.getElementById('jGenResult').textContent = '';
+}
+
+function jShowSubscribers() {
+  document.getElementById('jListView').style.display = 'none';
+  document.getElementById('jGenerateView').style.display = 'none';
+  document.getElementById('jSubscribersView').style.display = 'block';
+  document.getElementById('jEditorPanel').classList.remove('open');
+  document.getElementById('jNavList').classList.remove('active');
+  document.getElementById('jNavGenerate').classList.remove('active');
+  document.getElementById('jNavSubscribers').classList.add('active');
+  jLoadSubscribers();
+}
+
+// ── Journal: Subscribers ──
+async function jLoadSubscribers() {
+  const tbody = document.getElementById('jSubTableBody');
+  const stats = document.getElementById('jSubStats');
+  tbody.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--muted);">불러오는 중...</td></tr>';
+  try {
+    const r = await fetch('/api/newsletter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'list', password: jPw }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || '불러오기 실패');
+    const subs = data.subscribers || [];
+    const active = subs.filter(s => !s.unsubscribed_at);
+    const ko = active.filter(s => s.lang === 'ko').length;
+    const en = active.filter(s => s.lang === 'en').length;
+    stats.innerHTML = `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 18px;font-size:12px;">
+        <div style="color:var(--muted);margin-bottom:2px;">전체 구독자</div>
+        <div style="font-size:22px;font-weight:800;color:var(--purple-light);">${active.length}</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 18px;font-size:12px;">
+        <div style="color:var(--muted);margin-bottom:2px;">한국어</div>
+        <div style="font-size:22px;font-weight:800;color:var(--cyan-light);">${ko}</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 18px;font-size:12px;">
+        <div style="color:var(--muted);margin-bottom:2px;">영어</div>
+        <div style="font-size:22px;font-weight:800;color:var(--cyan-light);">${en}</div>
+      </div>`;
+    if (subs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--muted);">구독자가 없습니다.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = subs.map(s => {
+      const date = new Date(s.subscribed_at).toLocaleDateString('ko-KR', { year:'numeric', month:'short', day:'numeric' });
+      const isActive = !s.unsubscribed_at;
+      return `<tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:10px 14px;">${s.email}</td>
+        <td style="padding:10px 14px;color:var(--muted);">${s.lang === 'ko' ? '🇰🇷 KO' : '🇺🇸 EN'}</td>
+        <td style="padding:10px 14px;color:var(--muted);">${s.source}</td>
+        <td style="padding:10px 14px;color:var(--muted);">${date}</td>
+        <td style="padding:10px 14px;">
+          <span style="font-size:11px;padding:2px 8px;border-radius:20px;${isActive ? 'background:rgba(16,185,129,0.15);color:#34d399;' : 'background:rgba(255,255,255,0.05);color:var(--muted);'}">
+            ${isActive ? '구독 중' : '해지'}
+          </span>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--red);">${e.message}</td></tr>`;
+  }
+}
+
+async function jExportSubscribers() {
+  try {
+    const r = await fetch('/api/newsletter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'export', password: jPw }),
+    });
+    if (!r.ok) { alert('내보내기 실패'); return; }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `newsletter_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('CSV 다운로드 실패: ' + e.message);
+  }
+}
+
+// ── Journal: Generate ──
+async function jTriggerGenerate() {
+  const topic = document.getElementById('jGenTopic').value.trim();
+  const category = document.getElementById('jGenCategory').value;
+  const btn = document.getElementById('jGenBtn');
+  const loading = document.getElementById('jGenLoading');
+  const result = document.getElementById('jGenResult');
+  btn.disabled = true;
+  loading.style.display = 'inline';
+  result.className = 'generate-result';
+  result.textContent = '';
+  try {
+    const r = await fetch('/api/journal-trigger', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: jPw, topic, category }),
+    });
+    const data = await r.json();
+    if (r.ok && data.ok) {
+      result.className = 'generate-result ok';
+      result.textContent = '✓ ' + data.message;
+      document.getElementById('jGenTopic').value = '';
+      document.getElementById('jGenCategory').value = 'auto';
+    } else {
+      result.className = 'generate-result err';
+      result.textContent = '오류: ' + (data.error || '알 수 없는 오류');
+    }
+  } catch (e) {
+    result.className = 'generate-result err';
+    result.textContent = '요청 실패: ' + e.message;
+  } finally {
+    btn.disabled = false;
+    loading.style.display = 'none';
+  }
+}
+
+// ── Journal: Lang switch ──
+function jSwitchLang(lang) {
+  jCurrentLang = lang;
+  document.getElementById('jTabKo').classList.toggle('active', lang === 'ko');
+  document.getElementById('jTabEn').classList.toggle('active', lang === 'en');
+  jPopulateCategorySelect(lang);
+  jUpdateTranslateVisibility();
+  jLoadList();
+}
+
+// ── Journal: Load list ──
+async function jLoadList() {
+  const container = document.getElementById('jPostListContainer');
+  container.innerHTML = '<div class="loading">불러오는 중...</div>';
+  try {
+    const r = await fetch(`/api/journal-admin?action=list&lang=${jCurrentLang}&password=${encodeURIComponent(jPw)}`);
+    if (!r.ok) throw new Error('Failed');
+    const { files } = await r.json();
+    if (!files || files.length === 0) {
+      container.innerHTML = '<div class="empty">포스트가 없습니다. 새 포스트를 작성해보세요.</div>';
+      return;
+    }
+    container.innerHTML = '';
+    for (const f of files) {
+      const item = document.createElement('div');
+      item.className = 'post-item';
+      item.dataset.path = f.path;
+      item.innerHTML = `
+        <div class="post-item-left">
+          <div class="post-item-title">${f.slug}</div>
+          <div class="post-item-meta">
+            <span style="font-size:11px;color:var(--muted2);">${f.path}</span>
+          </div>
+        </div>
+        <div class="post-item-actions">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="jOpenListPreview('${jEscHtml(f.path)}')" title="미리보기">👁️</button>
+          <button class="btn btn-ghost btn-sm" onclick="jOpenEdit('${jEscHtml(f.path)}','${jEscHtml(f.sha || '')}')">편집</button>
+        </div>`;
+      container.appendChild(item);
+    }
+    jEnrichList(files, container);
+  } catch (e) {
+    container.innerHTML = '<div class="empty">불러오기 실패. 새로고침 해주세요.</div>';
+  }
+}
+
+async function jEnrichList(files, container) {
+  for (const f of files) {
+    try {
+      const r = await fetch(`/api/journal-admin?action=read&path=${encodeURIComponent(f.path)}&password=${encodeURIComponent(jPw)}`);
+      if (!r.ok) continue;
+      const { content } = await r.json();
+      const fm = jParseFrontmatter(content);
+      const items = container.querySelectorAll('.post-item');
+      for (const item of items) {
+        if (item.dataset.path === f.path) {
+          const titleEl = item.querySelector('.post-item-title');
+          if (fm.title) titleEl.textContent = fm.title;
+          const meta = item.querySelector('.post-item-meta');
+          const status = fm.status || 'draft';
+          const catHtml = fm.category ? jCatBadgeHtml(fm.category) : '';
+          meta.innerHTML = `
+            ${jStatusBadgeHtml(status)}
+            ${catHtml}
+            <span style="color:var(--muted2);font-size:11px;">${fm.pubDate || ''}</span>
+            <span class="badge badge-lang">${jCurrentLang === 'ko' ? '🇰🇷 KO' : '🇺🇸 EN'}</span>`;
+        }
+      }
+    } catch {}
+  }
+}
+
+// ── Journal: Open new / edit ──
+function jOpenNew() {
+  jIsNew = true;
+  jCurrentSha = null;
+  jCurrentPath = null;
+  jCurrentEnSha = null;
+  jCurrentEnPath = null;
+  if (jEasyMDEEn) jEasyMDEEn.value('');
+  jCloseTranslateResult();
+  document.getElementById('jEditorTitle').textContent = '새 포스트';
+  document.getElementById('jEditorLangBadge').textContent = jCurrentLang === 'ko' ? '🇰🇷 한국어' : '🇺🇸 English';
+  document.getElementById('jFTitle').value = '';
+  document.getElementById('jFDesc').value = '';
+  document.getElementById('jFSlug').value = '';
+  document.getElementById('jFSlug').dataset.manual = 'false';
+  document.getElementById('jSlugHint').textContent = '';
+  jPopulateCategorySelect(jCurrentLang);
+  document.getElementById('jFAuthor').value = '전서윤';
+  document.getElementById('jFAuthorTitle').value = J_AUTHOR_TITLES['전서윤'];
+  document.getElementById('jFTags').value = '';
+  document.getElementById('jFDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('jFStatus').value = 'draft';
+  jOnStatusChange();
+  document.getElementById('jDeleteBtn').style.display = 'none';
+  document.getElementById('jSaveStatus').textContent = '';
+  jClearSnsFields();
+  jCloseTranslateResult();
+  jUpdateTranslateVisibility();
+  jEasyMDE.value('');
+  document.getElementById('jListView').style.display = 'none';
+  document.getElementById('jEditorPanel').classList.add('open');
+  setTimeout(() => jRestoreDraft('new'), 100);
+}
+
+async function jOpenEdit(path, sha) {
+  jIsNew = false;
+  jCurrentSha = sha;
+  jCurrentPath = path;
+  document.getElementById('jSaveStatus').textContent = '불러오는 중...';
+  document.getElementById('jListView').style.display = 'none';
+  document.getElementById('jEditorPanel').classList.add('open');
+  document.getElementById('jDeleteBtn').style.display = '';
+  jCloseTranslateResult();
+  jUpdateTranslateVisibility();
+  try {
+    const r = await fetch(`/api/journal-admin?action=read&path=${encodeURIComponent(path)}&password=${encodeURIComponent(jPw)}`);
+    const { content, sha: latestSha } = await r.json();
+    jCurrentSha = latestSha;
+    const fm = jParseFrontmatter(content);
+    const body = jExtractBody(content);
+    document.getElementById('jEditorTitle').textContent = fm.title || path.split('/').pop();
+    document.getElementById('jEditorLangBadge').textContent = jCurrentLang === 'ko' ? '🇰🇷 한국어' : '🇺🇸 English';
+    document.getElementById('jFTitle').value = fm.title || '';
+    document.getElementById('jFDesc').value = fm.description || '';
+    const slug = path.split('/').pop().replace('.md', '');
+    document.getElementById('jFSlug').value = slug;
+    document.getElementById('jFSlug').dataset.manual = 'true';
+    document.getElementById('jSlugHint').textContent = `URL: /journal/${jCurrentLang}/${slug}/`;
+    jPopulateCategorySelect(jCurrentLang);
+    if (fm.category) document.getElementById('jFCategory').value = fm.category;
+    const author = fm.author || '전서윤';
+    document.getElementById('jFAuthor').value = author;
+    document.getElementById('jFAuthorTitle').value = fm.authorTitle !== undefined ? fm.authorTitle : (J_AUTHOR_TITLES[author] || '');
+    document.getElementById('jFTags').value = (fm.tags || '').replace(/[\[\]"]/g, '');
+    document.getElementById('jFDate').value = fm.pubDate || new Date().toISOString().split('T')[0];
+    document.getElementById('jFStatus').value = fm.status || 'draft';
+    jOnStatusChange();
+    const fixedBody = body.replace(/\/journal\/journal-images\//g, '/journal-images/');
+    jEasyMDE.value(fixedBody);
+    const imgUrls = [...fixedBody.matchAll(/!\[.*?\]\((\/journal-images\/[^\s)]+)\)/g)].map(m => m[1]);
+    imgUrls.forEach(url => { if (!_jUploadedImages.has(url)) _jUploadedImages.set(url, url); });
+    document.getElementById('jSaveStatus').textContent = '';
+    const snsCopy = jParseSnsCopy(content);
+    if (snsCopy) {
+      document.getElementById('jSnsLinkedinKrShort').value    = snsCopy.linkedinKrShort    || snsCopy.linkedinKo || '';
+      document.getElementById('jSnsLinkedinKrStandard').value = snsCopy.linkedinKrStandard || '';
+      document.getElementById('jSnsLinkedinEnShort').value    = snsCopy.linkedinEnShort    || snsCopy.linkedinEn || '';
+      document.getElementById('jSnsLinkedinEnStandard').value = snsCopy.linkedinEnStandard || '';
+      document.getElementById('jSnsInstagramKo').value        = snsCopy.instagramKo        || '';
+      document.getElementById('jSnsInstagramEn').value        = snsCopy.instagramEn        || '';
+      document.getElementById('jSnsNaverBlog').value          = snsCopy.naverBlog          || '';
+    }
+    jCurrentEnSha = null;
+    jCurrentEnPath = null;
+    if (jCurrentLang === 'ko') {
+      const slug2 = path.split('/').pop().replace('.md', '');
+      const enPath = `blog-src/src/content/journal-en/${slug2}.md`;
+      try {
+        const enR = await fetch(`/api/journal-admin?action=read&path=${encodeURIComponent(enPath)}&password=${encodeURIComponent(jPw)}`);
+        if (enR.ok) {
+          const { content: enContent, sha: enSha } = await enR.json();
+          jCurrentEnSha = enSha;
+          jCurrentEnPath = enPath;
+          jInitEnglishEditor();
+          jEasyMDEEn.value(enContent);
+          document.getElementById('jTranslateResult').classList.add('open');
+        }
+      } catch {}
+    }
+  } catch (e) {
+    document.getElementById('jSaveStatus').className = 'save-status err';
+    document.getElementById('jSaveStatus').textContent = '불러오기 실패';
+  }
+}
+
+// ── Journal: Save ──
+async function jSavePost() {
+  const title = document.getElementById('jFTitle').value.trim();
+  const desc = document.getElementById('jFDesc').value.trim();
+  const slug = document.getElementById('jFSlug').value.trim().replace(/\s+/g, '-').toLowerCase();
+  const category = document.getElementById('jFCategory').value;
+  const author = document.getElementById('jFAuthor').value;
+  const authorTitle = document.getElementById('jFAuthorTitle').value.trim();
+  const tags = document.getElementById('jFTags').value.split(',').map(t => t.trim()).filter(Boolean);
+  const date = document.getElementById('jFDate').value;
+  const status = document.getElementById('jFStatus').value;
+  const draft = status !== 'published';
+  const body = jEasyMDE.value();
+  const snsCopy = jCollectSnsCopy();
+  if (!title || !slug) {
+    document.getElementById('jSaveStatus').className = 'save-status err';
+    document.getElementById('jSaveStatus').textContent = '제목과 슬러그는 필수입니다.';
+    return;
+  }
+  const tagsYaml = tags.length ? `tags: [${tags.map(t => `"${t}"`).join(', ')}]` : 'tags: []';
+  const snsCopyYaml = jBuildSnsCopyYaml(snsCopy);
+  const content = `---
+title: "${title.replace(/"/g, '\\"')}"
+description: "${desc.replace(/"/g, '\\"')}"
+pubDate: ${date}
+category: "${category}"
+${tagsYaml}
+author: "${author.replace(/"/g, '\\"')}"
+authorTitle: "${authorTitle.replace(/"/g, '\\"')}"
+draft: ${draft}
+status: ${status}${snsCopyYaml}
+---
+
+${body}`;
+
+  const path = jCurrentPath || `blog-src/src/content/journal-${jCurrentLang}/${slug}.md`;
+  document.getElementById('jSaveBtn').disabled = true;
+  document.getElementById('jSaveStatus').className = 'save-status';
+  document.getElementById('jSaveStatus').textContent = '저장 중...';
+  try {
+    const r = await fetch('/api/journal-admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'save', path, content, sha: jCurrentSha || undefined, password: jPw }),
+    });
+    const data = await r.json();
+    if (r.ok) {
+      jCurrentSha = data.sha;
+      jCurrentPath = path;
+      jIsNew = false;
+      document.getElementById('jDeleteBtn').style.display = '';
+      document.getElementById('jSaveStatus').className = 'save-status ok';
+      document.getElementById('jSaveStatus').textContent = '✓ 저장 완료 — Vercel이 자동 빌드합니다';
+      jClearDraft();
+    } else {
+      const detailStr = data.detail ? (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
+      throw new Error((data.error || 'Save failed') + (detailStr ? '\n\n' + detailStr : ''));
+    }
+  } catch (e) {
+    document.getElementById('jSaveStatus').className = 'save-status err';
+    document.getElementById('jSaveStatus').textContent = `저장 실패 (아래 상세 확인)`;
+    jShowErrorDetail('저장 실패', e.message);
+  } finally {
+    document.getElementById('jSaveBtn').disabled = false;
+  }
+}
+
+// ── Journal: Delete ──
+async function jDeletePost() {
+  if (!jCurrentPath || !jCurrentSha) return;
+  const slug = jCurrentPath.split('/').pop();
+  if (!confirm(`"${slug}" 포스트를 삭제하시겠습니까? 되돌릴 수 없습니다.`)) return;
+  document.getElementById('jSaveStatus').className = 'save-status';
+  document.getElementById('jSaveStatus').textContent = '삭제 중...';
+  try {
+    const r = await fetch('/api/journal-admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', path: jCurrentPath, sha: jCurrentSha, password: jPw }),
+    });
+    if (r.ok) { jShowList(); }
+    else {
+      const d = await r.json();
+      throw new Error(d.error);
+    }
+  } catch (e) {
+    document.getElementById('jSaveStatus').className = 'save-status err';
+    document.getElementById('jSaveStatus').textContent = `삭제 실패: ${e.message}`;
+  }
+}
+
+// ── Journal: Error modal ──
+function jShowErrorDetail(title, msg) {
+  document.getElementById('jErrorModalTitle').textContent = '⚠️ ' + title;
+  document.getElementById('jErrorDetailText').value = msg;
+  document.getElementById('jErrorCopyBtn').textContent = '📋 전체 복사';
+  document.getElementById('jErrorCopyBtn').classList.remove('copied');
+  document.getElementById('jErrorModal').classList.add('open');
+}
+function jCloseErrorModal() { document.getElementById('jErrorModal').classList.remove('open'); }
+function jCopyErrorDetail() {
+  const text = document.getElementById('jErrorDetailText').value;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('jErrorCopyBtn');
+    btn.textContent = '✓ 복사됨';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 전체 복사'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+document.getElementById('jErrorModal').addEventListener('click', function(e) { if (e.target === this) jCloseErrorModal(); });
+
+// ── Journal: Cursor / Video ──
+function jSaveCursorPos() { if (jEasyMDE) window._jSavedCursor = jEasyMDE.codemirror.getCursor(); }
+function jOpenVideoEmbed() {
+  const box = document.getElementById('jVideoEmbedBox');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  if (box.style.display === 'block') document.getElementById('jVideoUrlInput').focus();
+}
+function jInsertVideoEmbed() {
+  const url = document.getElementById('jVideoUrlInput').value.trim();
+  if (!url) return;
+  let md = '';
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (ytMatch) {
+    md = `<iframe width="100%" style="aspect-ratio:16/9;" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen></iframe>`;
+  } else if (vimeoMatch) {
+    md = `<iframe width="100%" style="aspect-ratio:16/9;" src="https://player.vimeo.com/video/${vimeoMatch[1]}" frameborder="0" allowfullscreen></iframe>`;
+  } else if (url.match(/\.(mp4|webm|mov)(\?|$)/i)) {
+    md = `<video controls width="100%" style="border-radius:8px;">\n  <source src="${url}" type="video/mp4">\n</video>`;
+  } else { alert('YouTube, Vimeo URL 또는 .mp4 직접 링크를 입력해주세요.'); return; }
+  const cm = jEasyMDE.codemirror;
+  const cursor = cm.getCursor();
+  const currentLine = cm.getLine(cursor.line);
+  const prefix = currentLine.trim() ? '\n\n' : '';
+  cm.replaceRange(prefix + md + '\n\n', cursor);
+  document.getElementById('jVideoUrlInput').value = '';
+  document.getElementById('jVideoEmbedBox').style.display = 'none';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.activeElement === document.getElementById('jVideoUrlInput')) {
+    jInsertVideoEmbed();
+  }
+});
+
+// ── Journal: Image compression ──
+async function jCompressImage(file) {
+  const MAX_DIM = 1600, QUALITY = 0.82;
+  const shouldCompress = file.size > 400 * 1024 && /^image\/(jpeg|png|webp|bmp)/i.test(file.type);
+  if (!shouldCompress) {
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    return { base64, filename: file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_') };
+  }
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objUrl);
+      let { width, height } = img;
+      if (width > MAX_DIM || height > MAX_DIM) {
+        if (width >= height) { height = Math.round(height * MAX_DIM / width); width = MAX_DIM; }
+        else { width = Math.round(width * MAX_DIM / height); height = MAX_DIM; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      const base64 = canvas.toDataURL('image/jpeg', QUALITY).split(',')[1];
+      const baseName = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      resolve({ base64, filename: `${baseName}.jpg` });
+    };
+    img.onerror = reject;
+    img.src = objUrl;
+  });
+}
+
+// ── Journal: Image upload ──
+async function jUploadImages(input, targetEditor) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  const statusEl = document.getElementById('jImgUploadStatus');
+  const progressEl = document.getElementById('jImgProgress');
+  const progressText = document.getElementById('jImgProgressText');
+  const progressBar = document.getElementById('jImgProgressBar');
+  progressEl.style.display = 'block';
+  statusEl.textContent = '';
+  let done = 0;
+  const results = [];
+  for (const file of files) {
+    progressText.textContent = `업로드 중 ${done + 1} / ${files.length} — ${file.name}`;
+    progressBar.style.width = `${(done / files.length) * 100}%`;
+    try {
+      const { base64, filename: compName } = await jCompressImage(file);
+      const filename = `${Date.now()}_${compName}`;
+      const r = await fetch('/api/journal-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'upload', filename, base64, mime: file.type, password: jPw }),
+      });
+      const data = await r.json();
+      if (r.ok) {
+        results.push({ name: file.name, url: data.url, ok: true });
+        try {
+          const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+          const blob = new Blob([bytes], { type: 'image/jpeg' });
+          _jUploadedImages.set(data.url, URL.createObjectURL(blob));
+        } catch {}
+      } else {
+        const errDetail = data.detail ? '\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
+        results.push({ name: file.name, error: (data.error || 'Upload failed') + errDetail, ok: false });
+      }
+    } catch (err) {
+      results.push({ name: file.name, error: err.message, ok: false });
+    }
+    done++;
+  }
+  const mdImages = results.filter(r => r.ok).map(r => `![${r.name}](${r.url})`).join('\n\n');
+  if (mdImages) {
+    const targetEd = targetEditor || jEasyMDE;
+    if (targetEd && targetEd.codemirror) {
+      const cm = targetEd.codemirror;
+      const cursor = window._jSavedCursor || cm.getCursor();
+      const currentLine = cm.getLine(cursor.line) || '';
+      const prefix = currentLine.trim() ? '\n\n' : '';
+      cm.replaceRange(prefix + mdImages + '\n\n', cursor);
+      cm.focus();
+    }
+    window._jSavedCursor = null;
+  }
+  progressBar.style.width = '100%';
+  const okCount = results.filter(r => r.ok).length;
+  const failCount = results.filter(r => !r.ok).length;
+  progressText.textContent = `완료: ${okCount}개 성공${failCount ? ` / ${failCount}개 실패` : ''}`;
+  statusEl.style.color = failCount ? 'var(--red)' : 'var(--green)';
+  if (failCount) {
+    const failMsgs = results.filter(r => !r.ok).map(r => `[${r.name}] ${r.error}`).join('\n\n');
+    jShowErrorDetail('이미지 업로드 실패', failMsgs);
+  }
+  setTimeout(() => { progressEl.style.display = 'none'; }, 5000);
+  input.value = '';
+}
+
+// ── Journal: Author / Status helpers ──
+function jOnAuthorChange() {
+  const author = document.getElementById('jFAuthor').value;
+  const title = J_AUTHOR_TITLES[author];
+  document.getElementById('jFAuthorTitle').value = title !== undefined ? title : '';
+}
+function jOnStatusChange() {
+  const status = document.getElementById('jFStatus').value;
+  const saveBtn = document.getElementById('jSaveBtn');
+  const labels = { draft: '저장 (초안)', review: '저장 (검토중)', approved: '저장 (승인)', published: '저장 (배포)' };
+  saveBtn.textContent = labels[status] || '저장';
+  if (status === 'published') saveBtn.style.background = 'linear-gradient(135deg,#10b981,#06b6d4)';
+  else if (status === 'approved') saveBtn.style.background = 'linear-gradient(135deg,#3b82f6,#8b5cf6)';
+  else saveBtn.style.background = '';
+}
+function jStatusBadgeHtml(status) {
+  const map = {
+    draft:     '<span class="badge badge-draft">🔴 초안</span>',
+    review:    '<span class="badge badge-review">🟡 검토 중</span>',
+    approved:  '<span class="badge badge-approved">🔵 승인됨</span>',
+    published: '<span class="badge badge-published">🟢 배포 완료</span>',
+  };
+  return map[status] || map.draft;
+}
+function jCatBadgeHtml(cat) {
+  const c = J_CAT_COLORS[cat];
+  if (!c) return `<span class="cat-badge" style="background:rgba(255,255,255,0.08);color:var(--muted);">${jEscHtml(cat)}</span>`;
+  const border = c.border ? `border:1px solid ${c.border};` : '';
+  return `<span class="cat-badge" style="background:${c.bg};color:${c.text};${border}">${jEscHtml(cat)}</span>`;
+}
+
+// ── Journal: Preview ──
+async function jOpenListPreview(path) {
+  document.getElementById('jPreviewContent').innerHTML = '<div style="padding:40px;color:var(--muted);text-align:center;">불러오는 중...</div>';
+  document.getElementById('jPreviewModal').classList.add('open');
+  try {
+    const r = await fetch(`/api/journal-admin?action=read&path=${encodeURIComponent(path)}&password=${encodeURIComponent(jPw)}`);
+    const { content } = await r.json();
+    const fm = jParseFrontmatter(content);
+    const body = jExtractBody(content);
+    const html = marked.parse(body).replace(/\/journal\/journal-images\//g, '/journal-images/');
+    const status = fm.status || 'draft';
+    document.getElementById('jPreviewContent').innerHTML =
+      `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">${jStatusBadgeHtml(status)}${fm.category ? jCatBadgeHtml(fm.category) : ''}</div>
+       <h1>${jEscHtml(fm.title || '(제목 없음)')}</h1>
+       ${fm.description ? `<p style="color:var(--muted);font-size:13px;margin:6px 0 4px;">${jEscHtml(fm.description)}</p>` : ''}
+       <p style="color:var(--muted2);font-size:12px;margin-bottom:16px;">${jEscHtml(fm.author || '')}${fm.authorTitle ? ' · ' + jEscHtml(fm.authorTitle) : ''}${fm.pubDate ? ' · ' + jEscHtml(fm.pubDate) : ''}</p>
+       <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin-bottom:24px;">` + html;
+  } catch (e) {
+    document.getElementById('jPreviewContent').innerHTML = '<div style="padding:40px;color:var(--red);text-align:center;">불러오기 실패</div>';
+  }
+}
+function jOpenPreview() {
+  const title = document.getElementById('jFTitle').value || '(제목 없음)';
+  const body = jEasyMDE.value();
+  let html = marked.parse(body).replace(/\/journal\/journal-images\//g, '/journal-images/');
+  for (const [githubUrl, blobUrl] of _jUploadedImages) html = html.split(githubUrl).join(blobUrl);
+  document.getElementById('jPreviewModalTitle').textContent = '📄 미리보기 (한국어)';
+  document.getElementById('jPreviewContent').innerHTML =
+    `<h1>${jEscHtml(title)}</h1><hr style="margin:16px 0 24px;border-color:rgba(255,255,255,0.1);">` + html;
+  document.getElementById('jPreviewModal').classList.add('open');
+}
+function jOpenEnglishPreview() {
+  const raw = jEasyMDEEn ? jEasyMDEEn.value().trim() : '';
+  if (!raw) return;
+  const fm = jParseFrontmatter(raw);
+  const body = jExtractBody(raw);
+  let html = marked.parse(body).replace(/\/journal\/journal-images\//g, '/journal-images/');
+  for (const [githubUrl, blobUrl] of _jUploadedImages) html = html.split(githubUrl).join(blobUrl);
+  document.getElementById('jPreviewModalTitle').textContent = '📄 미리보기 (English)';
+  document.getElementById('jPreviewContent').innerHTML =
+    `<div style="display:inline-block;padding:2px 8px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:4px;font-size:11px;color:#60a5fa;margin-bottom:12px;">🇺🇸 English Version</div>
+     <h1>${jEscHtml(fm.title || '(no title)')}</h1>
+     ${fm.description ? `<p style="color:var(--muted);font-size:13px;margin:6px 0 4px;">${jEscHtml(fm.description)}</p>` : ''}
+     <hr style="margin:16px 0 24px;border-color:rgba(255,255,255,0.1);">` + html;
+  document.getElementById('jPreviewModal').classList.add('open');
+}
+function jClosePreview() { document.getElementById('jPreviewModal').classList.remove('open'); }
+document.getElementById('jPreviewModal').addEventListener('click', function(e) { if (e.target === this) jClosePreview(); });
+
+// ── Journal: SNS Panel ──
+function jToggleSnsPanel() {
+  const body = document.getElementById('jSnsPanelBody');
+  const chevron = document.getElementById('jSnsChevron');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+}
+async function jGenerateSns() {
+  const title = document.getElementById('jFTitle').value.trim();
+  const body = jEasyMDE.value();
+  const slug = document.getElementById('jFSlug').value.trim();
+  const category = document.getElementById('jFCategory').value;
+  const keywords = document.getElementById('jSnsKeywords').value.trim();
+  const figures = document.getElementById('jSnsFigures').value.trim();
+  if (!title || !body) { alert('제목과 본문을 먼저 입력해주세요.'); return; }
+  const loadingEl = document.getElementById('jSnsLoading');
+  loadingEl.style.display = 'inline';
+  try {
+    const r = await fetch('/api/journal-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'sns', title, body, slug, lang: jCurrentLang, category, keywords, figures, password: jPw }),
+    });
+    const data = await r.json();
+    if (r.ok) {
+      document.getElementById('jSnsLinkedinKrShort').value    = data.linkedinKrShort    || '';
+      document.getElementById('jSnsLinkedinKrStandard').value = data.linkedinKrStandard || '';
+      document.getElementById('jSnsLinkedinEnShort').value    = data.linkedinEnShort    || '';
+      document.getElementById('jSnsLinkedinEnStandard').value = data.linkedinEnStandard || '';
+      document.getElementById('jSnsInstagramKo').value        = data.instagramKo        || '';
+      document.getElementById('jSnsInstagramEn').value        = data.instagramEn        || '';
+      document.getElementById('jSnsNaverBlog').value          = data.naverBlog          || '';
+      document.getElementById('jSnsResultKeywords').textContent = data.keywords     || '';
+      document.getElementById('jSnsHiddenPoints').textContent   = data.hiddenPoints || '';
+      document.getElementById('jSnsMetaGroup').style.display = (data.keywords || data.hiddenPoints) ? '' : 'none';
+    } else {
+      const detail = data.detail ? '\n\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
+      jShowErrorDetail('SNS 생성 실패', (data.error || '알 수 없는 오류') + detail);
+    }
+  } catch (e) {
+    jShowErrorDetail('SNS 생성 오류', e.message);
+  } finally {
+    loadingEl.style.display = 'none';
+  }
+}
+function jCopySns(id, btn) {
+  const val = document.getElementById(id).value;
+  if (!val) return;
+  navigator.clipboard.writeText(val).then(() => {
+    btn.textContent = '✓'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+async function jSaveSns() {
+  if (!jCurrentPath && !document.getElementById('jFSlug').value.trim()) {
+    alert('먼저 포스트를 저장한 후 SNS를 저장해주세요.'); return;
+  }
+  await jSavePost();
+}
+function jCollectSnsCopy() {
+  return {
+    linkedinKrShort:    document.getElementById('jSnsLinkedinKrShort').value,
+    linkedinKrStandard: document.getElementById('jSnsLinkedinKrStandard').value,
+    linkedinEnShort:    document.getElementById('jSnsLinkedinEnShort').value,
+    linkedinEnStandard: document.getElementById('jSnsLinkedinEnStandard').value,
+    instagramKo:        document.getElementById('jSnsInstagramKo').value,
+    instagramEn:        document.getElementById('jSnsInstagramEn').value,
+    naverBlog:          document.getElementById('jSnsNaverBlog').value,
+  };
+}
+function jClearSnsFields() {
+  ['jSnsLinkedinKrShort','jSnsLinkedinKrStandard','jSnsLinkedinEnShort','jSnsLinkedinEnStandard',
+   'jSnsInstagramKo','jSnsInstagramEn','jSnsNaverBlog'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('jSnsResultKeywords').textContent = '';
+  document.getElementById('jSnsHiddenPoints').textContent = '';
+  document.getElementById('jSnsMetaGroup').style.display = 'none';
+}
+function jBuildSnsCopyYaml(sns) {
+  const hasAny = Object.values(sns).some(v => v && v.trim());
+  if (!hasAny) return '';
+  const esc = v => (v || '').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+  return `
+snsCopy:
+  linkedinKrShort: "${esc(sns.linkedinKrShort)}"
+  linkedinKrStandard: "${esc(sns.linkedinKrStandard)}"
+  linkedinEnShort: "${esc(sns.linkedinEnShort)}"
+  linkedinEnStandard: "${esc(sns.linkedinEnStandard)}"
+  instagramKo: "${esc(sns.instagramKo)}"
+  instagramEn: "${esc(sns.instagramEn)}"
+  naverBlog: "${esc(sns.naverBlog)}"`;
+}
+
+// ── Journal: Translation ──
+function jUpdateTranslateVisibility() {
+  const section = document.getElementById('jTranslateSection');
+  section.style.display = jCurrentLang === 'ko' ? 'block' : 'none';
+}
+async function jGenerateTranslation() {
+  const title = document.getElementById('jFTitle').value.trim();
+  const desc = document.getElementById('jFDesc').value.trim();
+  const body = jEasyMDE.value();
+  const category = document.getElementById('jFCategory').value;
+  const tags = document.getElementById('jFTags').value;
+  const slug = document.getElementById('jFSlug').value.trim();
+  if (!title || !body) { alert('제목과 본문을 먼저 입력해주세요.'); return; }
+  const loadingEl = document.getElementById('jTranslateLoading');
+  const btn = document.getElementById('jTranslateBtn');
+  loadingEl.style.display = 'inline';
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/journal-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'translate', title, description: desc, body, category, tags, slug, password: jPw }),
+    });
+    let data;
+    let rawText = '';
+    try {
+      rawText = await r.clone().text();
+      data = JSON.parse(rawText);
+    } catch {
+      throw new Error(`서버 응답 오류 (HTTP ${r.status})\n${rawText.slice(0, 800)}`);
+    }
+    if (r.ok) {
+      jInitEnglishEditor();
+      jEasyMDEEn.value(data.content || data.markdown || '');
+      document.getElementById('jTranslateResult').classList.add('open');
+    } else {
+      const detail = data.detail ? '\n\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
+      jShowErrorDetail('번역 실패', `HTTP ${r.status}\n${data.error || '알 수 없는 오류'}${detail}`);
+    }
+  } catch (e) {
+    jShowErrorDetail('번역 오류', e.message);
+  } finally {
+    loadingEl.style.display = 'none';
+    btn.disabled = false;
+  }
+}
+function jCloseTranslateResult() { document.getElementById('jTranslateResult').classList.remove('open'); }
+function jToggleEnglishPanel() {
+  const panel = document.getElementById('jTranslateResult');
+  if (panel.classList.contains('open')) { panel.classList.remove('open'); }
+  else { jInitEnglishEditor(); panel.classList.add('open'); }
+}
+function jConfirmGenerateTranslation() {
+  const hasContent = jEasyMDEEn && jEasyMDEEn.value().trim().length > 0;
+  if (hasContent && !confirm('이미 영문 버전이 있습니다. AI로 재생성하면 현재 내용이 덮어씌워집니다.\n\n계속하시겠습니까?')) return;
+  jGenerateTranslation();
+}
+function jSaveCursorPosEn() { if (jEasyMDEEn) window._jSavedCursor = jEasyMDEEn.codemirror.getCursor(); }
+function jInitEnglishEditor() {
+  if (jEasyMDEEn) return;
+  const el = document.getElementById('jTranslateOutputMde');
+  if (!el) return;
+  jEasyMDEEn = new EasyMDE({
+    element: el,
+    spellChecker: false,
+    autosave: { enabled: false },
+    previewRender: (plainText) => {
+      let html = marked.parse(plainText).replace(/\/journal\/journal-images\//g, '/journal-images/');
+      for (const [githubUrl, blobUrl] of _jUploadedImages) html = html.split(githubUrl).join(blobUrl);
+      return html;
+    },
+    toolbar: ['bold','italic','heading','|','quote','unordered-list','ordered-list','|','link','table','horizontal-rule','|','preview','side-by-side','fullscreen'],
+    status: false,
+    minHeight: '250px',
+  });
+}
+async function jSaveTranslation() {
+  const content = jEasyMDEEn ? jEasyMDEEn.value().trim() : '';
+  const slug = document.getElementById('jFSlug').value.trim();
+  if (!content || !slug) { alert('번역 내용 또는 슬러그가 없습니다.'); return; }
+  const path = jCurrentEnPath || `blog-src/src/content/journal-en/${slug}.md`;
+  try {
+    const r = await fetch('/api/journal-admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'save', path, content, password: jPw, sha: jCurrentEnSha || undefined }),
+    });
+    const data = await r.json();
+    if (r.ok) {
+      jCurrentEnSha = data.sha; jCurrentEnPath = path;
+      alert('✓ 영문 버전이 GitHub에 저장되었습니다!');
+    } else {
+      const detail = data.detail ? '\n\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
+      jShowErrorDetail('번역 저장 실패', (data.error || '알 수 없는 오류') + detail);
+    }
+  } catch (e) { jShowErrorDetail('번역 저장 오류', e.message); }
+}
+
+// ── Journal: Publish ──
+function jPublishPost() { document.getElementById('jPublishModal').classList.add('open'); }
+function jClosePublishModal() { document.getElementById('jPublishModal').classList.remove('open'); }
+document.getElementById('jPublishModal').addEventListener('click', function(e) { if (e.target === this) jClosePublishModal(); });
+async function jExecutePublish(choice) {
+  jClosePublishModal();
+  const btn = document.getElementById('jPublishBtn');
+  const origHtml = btn.innerHTML;
+  btn.disabled = true;
+  if (choice === 'ko' || choice === 'both') {
+    document.getElementById('jFStatus').value = 'published';
+    jOnStatusChange();
+  }
+  const slug = document.getElementById('jFSlug').value.trim();
+  let koOk = true, enOk = true;
+  try {
+    btn.innerHTML = '① GitHub 저장 중...';
+    if (choice === 'ko' || choice === 'both') {
+      await jSavePost();
+      koOk = document.getElementById('jSaveStatus').classList.contains('ok');
+    }
+    if (choice === 'en' || choice === 'both') {
+      const enContent = jEasyMDEEn ? jEasyMDEEn.value().trim() : '';
+      if (!enContent || !slug) {
+        jShowErrorDetail('영어 배포 실패', '영문 에디터에 내용이 없거나 슬러그가 비어 있습니다.');
+        enOk = false;
+      } else {
+        const path = jCurrentEnPath || `blog-src/src/content/journal-en/${slug}.md`;
+        const r = await fetch('/api/journal-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'save', path, content: enContent, password: jPw, sha: jCurrentEnSha || undefined }),
+        });
+        const data = await r.json();
+        if (r.ok) { jCurrentEnSha = data.sha; jCurrentEnPath = path; }
+        else {
+          const detail = data.detail ? '\n\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
+          jShowErrorDetail('영어 배포 실패', (data.error || '알 수 없는 오류') + detail);
+          enOk = false;
+        }
+      }
+    }
+    const allSaved = (choice === 'ko' ? koOk : choice === 'en' ? enOk : koOk && enOk);
+    if (!allSaved) { btn.innerHTML = origHtml; btn.disabled = false; return; }
+    btn.innerHTML = '② Vercel 빌드 대기 중...';
+    const checkLang = (choice === 'en') ? 'en' : 'ko';
+    const checkUrl = `/journal/${checkLang}/${slug}/`;
+    const POLL_INTERVAL = 15000, POLL_TIMEOUT = 360000;
+    const startTime = Date.now();
+    const pollInterval = setInterval(async () => {
+      const elapsed = Date.now() - startTime;
+      const mins = Math.floor(elapsed / 60000);
+      const secs = Math.floor((elapsed % 60000) / 1000);
+      btn.innerHTML = `② Vercel 빌드 중... (${mins}:${secs.toString().padStart(2,'0')})`;
+      if (elapsed > POLL_TIMEOUT) {
+        clearInterval(pollInterval);
+        btn.innerHTML = origHtml; btn.disabled = false;
+        jShowErrorDetail('빌드 시간 초과',
+          `GitHub 저장은 성공했지만 ${Math.floor(POLL_TIMEOUT/60000)}분이 지나도 랜딩페이지에 노출되지 않았습니다.\n\n확인 사항:\n• Vercel 대시보드 → 최근 배포 로그 확인\n• VERCEL_DEPLOY_HOOK 환경변수가 Vercel에 설정되어 있는지 확인\n• GITHUB_OWNER 환경변수가 올바른지 확인`);
+        return;
+      }
+      try {
+        const res = await fetch(checkUrl, { cache: 'no-store' });
+        if (res.ok) {
+          clearInterval(pollInterval);
+          btn.innerHTML = '✅ 랜딩페이지 노출 확인!';
+          btn.style.background = 'linear-gradient(135deg,#059669,#0891b2)';
+          setTimeout(() => { btn.innerHTML = origHtml; btn.style.background = ''; btn.disabled = false; }, 6000);
+        }
+      } catch {}
+    }, POLL_INTERVAL);
+  } catch (e) {
+    jShowErrorDetail('배포 오류', e.message);
+    btn.innerHTML = origHtml; btn.disabled = false;
+  }
+}
+
+// ── Journal: Frontmatter helpers ──
+function jParseFrontmatter(content) {
+  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) return {};
+  const result = {};
+  const lines = match[1].split('\n');
+  let inSnsCopy = false;
+  for (const line of lines) {
+    if (line.trim() === 'snsCopy:') { inSnsCopy = true; continue; }
+    if (inSnsCopy && line.startsWith('  ')) continue;
+    if (!line.startsWith('  ') && inSnsCopy) inSnsCopy = false;
+    const colonIdx = line.indexOf(':');
+    if (colonIdx === -1) continue;
+    const key = line.slice(0, colonIdx).trim();
+    const val = line.slice(colonIdx + 1).trim().replace(/^["']|["']$/g, '');
+    if (key && !inSnsCopy) result[key] = val;
+  }
+  return result;
+}
+function jParseSnsCopy(content) {
+  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) return null;
+  const snsMatch = match[1].match(/snsCopy:\n((?:  .+\n?)+)/);
+  if (!snsMatch) return null;
+  const result = {};
+  const lines = snsMatch[1].split('\n');
+  for (const line of lines) {
+    const colonIdx = line.indexOf(':');
+    if (colonIdx === -1) continue;
+    const key = line.slice(0, colonIdx).trim();
+    const val = line.slice(colonIdx + 1).trim().replace(/^["']|["']$/g, '').replace(/\\n/g, '\n');
+    if (key) result[key] = val;
+  }
+  return result;
+}
+function jExtractBody(content) {
+  const match = content.match(/^---\n[\s\S]*?\n---\n+([\s\S]*)$/);
+  return match ? match[1].trim() : content;
+}
+
+// ── Journal: Autosave ──
+const J_DRAFT_KEY = () => `fp-journal-draft-${jCurrentLang}-${document.getElementById('jFSlug').value || 'new'}`;
+function jAutosaveState() {
+  return {
+    title: document.getElementById('jFTitle').value,
+    desc:  document.getElementById('jFDesc').value,
+    slug:  document.getElementById('jFSlug').value,
+    category:    document.getElementById('jFCategory').value,
+    author:      document.getElementById('jFAuthor').value,
+    authorTitle: document.getElementById('jFAuthorTitle').value,
+    tags:        document.getElementById('jFTags').value,
+    date:        document.getElementById('jFDate').value,
+    status:      document.getElementById('jFStatus').value,
+    body:        jEasyMDE ? jEasyMDE.value() : '',
+    sns: {
+      linkedinKrShort:    document.getElementById('jSnsLinkedinKrShort').value,
+      linkedinKrStandard: document.getElementById('jSnsLinkedinKrStandard').value,
+      linkedinEnShort:    document.getElementById('jSnsLinkedinEnShort').value,
+      linkedinEnStandard: document.getElementById('jSnsLinkedinEnStandard').value,
+      instagramKo:        document.getElementById('jSnsInstagramKo').value,
+      instagramEn:        document.getElementById('jSnsInstagramEn').value,
+      naverBlog:          document.getElementById('jSnsNaverBlog').value,
+    },
+    lang: jCurrentLang, path: jCurrentPath, sha: jCurrentSha,
+    savedAt: new Date().toISOString(),
+  };
+}
+function jDoAutosave() {
+  if (!jEasyMDE) return;
+  const dot = document.getElementById('jAutosaveDot');
+  const label = document.getElementById('jAutosaveLabel');
+  dot.className = 'autosave-dot saving';
+  label.textContent = '임시저장 중...';
+  try {
+    localStorage.setItem(J_DRAFT_KEY(), JSON.stringify(jAutosaveState()));
+    dot.className = 'autosave-dot saved';
+    const t = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    label.textContent = `임시저장 완료 ${t}`;
+  } catch {
+    dot.className = 'autosave-dot';
+    label.textContent = '임시저장 실패';
+  }
+}
+function jRestoreDraft(slug) {
+  const key = `fp-journal-draft-${jCurrentLang}-${slug || 'new'}`;
+  const raw = localStorage.getItem(key);
+  if (!raw) return false;
+  try {
+    const d = JSON.parse(raw);
+    const savedAt = new Date(d.savedAt).toLocaleString('ko-KR');
+    if (!confirm(`임시저장된 내용이 있습니다 (${savedAt}).\n불러올까요?`)) return false;
+    document.getElementById('jFTitle').value = d.title || '';
+    document.getElementById('jFDesc').value  = d.desc  || '';
+    document.getElementById('jFSlug').value  = d.slug  || '';
+    document.getElementById('jSlugHint').textContent = d.slug ? `URL: /journal/${jCurrentLang}/${d.slug}/` : '';
+    jPopulateCategorySelect(jCurrentLang);
+    if (d.category) document.getElementById('jFCategory').value = d.category;
+    if (d.author)   document.getElementById('jFAuthor').value   = d.author;
+    document.getElementById('jFAuthorTitle').value = d.authorTitle || '';
+    document.getElementById('jFTags').value   = d.tags   || '';
+    document.getElementById('jFDate').value   = d.date   || '';
+    document.getElementById('jFStatus').value = d.status || 'draft';
+    jOnStatusChange();
+    jEasyMDE.value(d.body || '');
+    if (d.sns) {
+      document.getElementById('jSnsLinkedinKrShort').value    = d.sns.linkedinKrShort    || '';
+      document.getElementById('jSnsLinkedinKrStandard').value = d.sns.linkedinKrStandard || '';
+      document.getElementById('jSnsLinkedinEnShort').value    = d.sns.linkedinEnShort    || '';
+      document.getElementById('jSnsLinkedinEnStandard').value = d.sns.linkedinEnStandard || '';
+      document.getElementById('jSnsInstagramKo').value        = d.sns.instagramKo        || '';
+      document.getElementById('jSnsInstagramEn').value        = d.sns.instagramEn        || '';
+      document.getElementById('jSnsNaverBlog').value          = d.sns.naverBlog          || '';
+    }
+    if (d.path) jCurrentPath = d.path;
+    if (d.sha)  jCurrentSha  = d.sha;
+    return true;
+  } catch { return false; }
+}
+function jClearDraft() { try { localStorage.removeItem(J_DRAFT_KEY()); } catch {} }
+function jStartAutosave() {
+  if (jAutosaveTimer) clearInterval(jAutosaveTimer);
+  jAutosaveTimer = setInterval(jDoAutosave, 30000);
+}
+
+// ── Journal: Import Modal ──
+function jOpenImportModal() {
+  document.getElementById('jImportRawText').value = '';
+  document.getElementById('jImportCategory').value = '';
+  document.getElementById('jImportResult').classList.remove('open');
+  document.getElementById('jImportLoading').style.display = 'none';
+  document.getElementById('jImportConvertBtn').disabled = false;
+  _jImportData = null;
+  document.getElementById('jImportModal').classList.add('open');
+}
+function jCloseImportModal() { document.getElementById('jImportModal').classList.remove('open'); }
+document.getElementById('jImportModal').addEventListener('click', function(e) { if (e.target === this) jCloseImportModal(); });
+
+async function jRunPressImport() {
+  const url = document.getElementById('jPressUrl').value.trim();
+  if (!url || !url.startsWith('http')) { alert('올바른 URL을 입력해주세요.'); return; }
+  const sourceLang = document.getElementById('jPressLang').value;
+  const btn = document.getElementById('jPressImportBtn');
+  const loading = document.getElementById('jPressImportLoading');
+  btn.disabled = true; loading.style.display = 'inline';
+  document.getElementById('jImportResult').classList.remove('open');
+  try {
+    const r = await fetch('/api/journal-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'pressImport', url, sourceLang, password: jPw }),
+    });
+    let data;
+    try { data = await r.json(); } catch { throw new Error('서버 응답 오류'); }
+    if (!r.ok) throw new Error((data.error || '가져오기 실패') + (data.detail ? ': ' + data.detail : ''));
+    _jImportData = data;
+    document.getElementById('jImportResTitle').textContent    = data.title || '—';
+    document.getElementById('jImportResDesc').textContent     = data.description || '—';
+    document.getElementById('jImportResCategory').textContent = data.category || '—';
+    document.getElementById('jImportResTags').textContent     = (data.tags || []).join(', ') || '—';
+    document.getElementById('jImportResBody').textContent     = data.body || '';
+    document.getElementById('jImportResult').classList.add('open');
+  } catch (e) {
+    jShowErrorDetail('언론 보도 가져오기 실패', e.message);
+  } finally {
+    btn.disabled = false; loading.style.display = 'none';
+  }
+}
+
+async function jRunImportConvert(mode) {
+  const rawText = document.getElementById('jImportRawText').value.trim();
+  if (rawText.length < 50) { alert('최소 50자 이상의 텍스트를 붙여넣어 주세요.'); return; }
+  const category = document.getElementById('jImportCategory').value;
+  const btn = document.getElementById('jImportConvertBtn');
+  const btn2 = document.getElementById('jImportRewriteBtn');
+  const loading = document.getElementById('jImportLoading');
+  btn.disabled = true; btn2.disabled = true;
+  loading.style.display = 'inline';
+  loading.textContent = mode === 'rewrite' ? '내용 다듬는 중...' : 'AI가 정리 중...';
+  document.getElementById('jImportResult').classList.remove('open');
+  try {
+    const r = await fetch('/api/journal-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'import', mode: mode || 'format', rawText, category, password: jPw }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error((data.error || '변환 실패') + (data.detail ? ': ' + data.detail : ''));
+    _jImportData = data;
+    document.getElementById('jImportResTitle').textContent    = data.title || '—';
+    document.getElementById('jImportResDesc').textContent     = data.description || '—';
+    document.getElementById('jImportResCategory').textContent = data.category || '—';
+    document.getElementById('jImportResTags').textContent     = (data.tags || []).join(', ') || '—';
+    document.getElementById('jImportResBody').textContent     = data.body || '';
+    document.getElementById('jImportResult').classList.add('open');
+  } catch (e) {
+    jShowErrorDetail('AI 정리 실패', e.message);
+  } finally {
+    btn.disabled = false; btn2.disabled = false;
+    loading.style.display = 'none';
+    loading.textContent = 'AI가 작업 중...';
+  }
+}
+
+function jApplyImportToEditor() {
+  if (!_jImportData) return;
+  jCloseImportModal();
+  jIsNew = true; jCurrentSha = null; jCurrentPath = null;
+  document.getElementById('jEditorTitle').textContent = '새 포스트';
+  document.getElementById('jEditorLangBadge').textContent = '🇰🇷 한국어';
+  document.getElementById('jFTitle').value = _jImportData.title || '';
+  document.getElementById('jFDesc').value  = _jImportData.description || '';
+  const autoSlug = _jImportData.slug || jGenerateSlug(_jImportData.title || '', 'ko');
+  document.getElementById('jFSlug').value = autoSlug;
+  document.getElementById('jFSlug').dataset.manual = 'false';
+  document.getElementById('jSlugHint').textContent = autoSlug ? `URL: /journal/ko/${autoSlug}/` : '';
+  jPopulateCategorySelect('ko');
+  if (_jImportData.category && J_KO_CATEGORIES.includes(_jImportData.category)) {
+    document.getElementById('jFCategory').value = _jImportData.category;
+  }
+  document.getElementById('jFAuthor').value = '전서윤';
+  document.getElementById('jFAuthorTitle').value = J_AUTHOR_TITLES['전서윤'];
+  document.getElementById('jFTags').value = (_jImportData.tags || []).join(', ');
+  document.getElementById('jFDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('jFStatus').value = 'draft';
+  jOnStatusChange();
+  document.getElementById('jDeleteBtn').style.display = 'none';
+  document.getElementById('jSaveStatus').textContent = '';
+  jClearSnsFields(); jCloseTranslateResult();
+  jCurrentLang = 'ko'; jUpdateTranslateVisibility();
+  let importBody = (_jImportData.body || '').replace(/^\s*#\s+[^\n]*\n+/, '').trimStart();
+  jEasyMDE.value(importBody);
+  document.getElementById('jListView').style.display = 'none';
+  document.getElementById('jGenerateView').style.display = 'none';
+  document.getElementById('jEditorPanel').classList.add('open');
+  window.scrollTo(0, 0);
+}
+
+// ── Journal: AI Slug ──
+async function jGenerateSlugAI() {
+  const title = document.getElementById('jFTitle').value.trim();
+  if (!title) { alert('제목을 먼저 입력해주세요.'); return; }
+  const btn = document.getElementById('jSlugAiBtn');
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    const r = await fetch('/api/journal-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'slug', title, lang: jCurrentLang, password: jPw }),
+    });
+    const data = await r.json();
+    if (r.ok && data.slug) {
+      const suffix = jCurrentLang === 'en' ? '-en' : '-kr';
+      const full = data.slug + suffix;
+      document.getElementById('jFSlug').value = full;
+      document.getElementById('jFSlug').dataset.manual = 'true';
+      document.getElementById('jSlugHint').textContent = `URL: /journal/${jCurrentLang}/${full}/`;
+    } else {
+      jShowErrorDetail('슬러그 생성 실패', data.error || '알 수 없는 오류');
+    }
+  } catch (e) {
+    jShowErrorDetail('슬러그 생성 오류', e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '✨ AI';
+  }
+}
+
+function jGenerateSlug(title, lang) {
+  const suffix = (lang || jCurrentLang) === 'en' ? '-en' : '-kr';
+  if (!title) return '';
+  let slug = title.toLowerCase().replace(/[^\w\s-]/g, ' ').trim()
+    .replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  if (slug.replace(/-/g, '').length < 3) {
+    const now = new Date();
+    const d = now.toISOString().slice(0, 10).replace(/-/g, '');
+    const t = now.getHours().toString().padStart(2, '0') + now.getMinutes().toString().padStart(2, '0');
+    slug = `post-${d}-${t}`;
+  }
+  return slug.slice(0, 55) + suffix;
+}
+
+function jEscHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
 </body>

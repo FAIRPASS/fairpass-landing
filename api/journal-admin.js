@@ -111,7 +111,7 @@ export default async function handler(req, res) {
       // Vercel Deploy Hook 트리거 (GitHub webhook이 안 잡힐 경우 대비)
       const deployHook = process.env.VERCEL_DEPLOY_HOOK;
       if (deployHook) {
-        fetch(deployHook, { method: 'POST' }).catch(() => {});
+        await fetch(deployHook, { method: 'POST' }).catch(() => {});
       }
 
       return res.status(200).json({ success: true, sha: result.data.content?.sha });
