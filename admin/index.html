@@ -3726,7 +3726,7 @@ async function jSaveTranslation() {
   const content = jEasyMDEEn ? jEasyMDEEn.value().trim() : '';
   const slug = document.getElementById('jFSlug').value.trim();
   if (!content || !slug) { alert('번역 내용 또는 슬러그가 없습니다.'); return; }
-  const path = jCurrentEnPath || `blog-src/src/content/journal-en/${slug}.md`;
+  const path = jCurrentEnPath || `blog-src/src/content/journal-en/${slug}-en.md`;
   try {
     const r = await fetch('/api/journal-admin', {
       method: 'POST',
@@ -3768,8 +3768,15 @@ async function jExecutePublish(choice) {
     if (choice === 'en' || choice === 'both') {
       const enContent = jEasyMDEEn ? jEasyMDEEn.value().trim() : '';
       if (!enContent || !slug) {
-        jShowErrorDetail('영어 배포 실패', '영문 에디터에 내용이 없거나 슬러그가 비어 있습니다.');
-        enOk = false;
+        // EN 패널 자동 오픈 + 안내 메시지 (에러 모달 대신)
+        jInitEnglishEditor();
+        const panel = document.getElementById('jTranslateResult');
+        if (panel) panel.classList.add('open');
+        panel && panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('jSaveStatus').className = 'save-status err';
+        document.getElementById('jSaveStatus').textContent = '영문 내용을 입력하거나 AI 번역 생성 후 다시 배포해주세요.';
+        btn.innerHTML = origHtml; btn.disabled = false;
+        return;
       } else {
         const path = jCurrentEnPath || `blog-src/src/content/journal-en/${slug}-en.md`;
         const r = await fetch('/api/journal-admin', {
