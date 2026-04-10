@@ -3204,7 +3204,9 @@ async function jOpenEdit(path, sha) {
     jCurrentEnPath = null;
     if (jCurrentLang === 'ko') {
       const slug2 = path.split('/').pop().replace('.md', '');
-      const enPath = `blog-src/src/content/journal-en/${slug2}.md`;
+      // -kr 접미사가 있으면 -en으로 치환, 없으면 레거시 파일명 그대로
+      const enSlug = slug2.endsWith('-kr') ? slug2.replace(/-kr$/, '-en') : slug2;
+      const enPath = `blog-src/src/content/journal-en/${enSlug}.md`;
       try {
         const enR = await fetch(`/api/journal-admin?action=read&path=${encodeURIComponent(enPath)}&password=${encodeURIComponent(jPw)}`);
         if (enR.ok) {
@@ -3258,7 +3260,7 @@ status: ${status}${snsCopyYaml}
 
 ${body}`;
 
-  const path = jCurrentPath || `blog-src/src/content/journal-${jCurrentLang}/${slug}.md`;
+  const path = jCurrentPath || `blog-src/src/content/journal-${jCurrentLang}/${slug}${jCurrentLang === 'ko' ? '-kr' : '-en'}.md`;
   document.getElementById('jSaveBtn').disabled = true;
   document.getElementById('jSaveStatus').className = 'save-status';
   document.getElementById('jSaveStatus').textContent = '저장 중...';
@@ -3769,7 +3771,7 @@ async function jExecutePublish(choice) {
         jShowErrorDetail('영어 배포 실패', '영문 에디터에 내용이 없거나 슬러그가 비어 있습니다.');
         enOk = false;
       } else {
-        const path = jCurrentEnPath || `blog-src/src/content/journal-en/${slug}.md`;
+        const path = jCurrentEnPath || `blog-src/src/content/journal-en/${slug}-en.md`;
         const r = await fetch('/api/journal-admin', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -3788,7 +3790,10 @@ async function jExecutePublish(choice) {
     if (!allSaved) { btn.innerHTML = origHtml; btn.disabled = false; return; }
     btn.innerHTML = '② Vercel 빌드 대기 중...';
     const checkLang = (choice === 'en') ? 'en' : 'ko';
-    const checkUrl = `/journal/${checkLang}/${slug}/`;
+    // 실제 저장된 파일명에서 URL 슬러그 도출 (접미사 포함)
+    const koActualSlug = jCurrentPath ? jCurrentPath.split('/').pop().replace('.md', '') : `${slug}-kr`;
+    const enActualSlug = jCurrentEnPath ? jCurrentEnPath.split('/').pop().replace('.md', '') : `${slug}-en`;
+    const checkUrl = `/journal/${checkLang}/${checkLang === 'ko' ? koActualSlug : enActualSlug}/`;
     const POLL_INTERVAL = 15000, POLL_TIMEOUT = 360000;
     const startTime = Date.now();
     const pollInterval = setInterval(async () => {
