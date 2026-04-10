@@ -18,13 +18,21 @@
   2. `npx vercel --prod --token <발급받은토큰>`
   3. 사용 후 토큰 삭제 권장
 
-## 인프라 (2026-03-30 회사 계정으로 이전 완료)
-- GitHub: github.com/FAIRPASS/fairpass-landing (FAIRPASS 조직, public)
-- Vercel: FAIRPASS 조직 GitHub 연동 (push → 자동 배포)
+## 인프라 (2026-04-10 업데이트)
+- **GitHub (Vercel 연결)**: github.com/FAIRPASS/fairpass-landing — 개인 계정, Vercel이 바라보는 레포
+- **GitHub (로컬 작업)**: github.com/blueorigin2021/fairpass-landing — 회사 계정
+- **git push 설정**: `git push origin main` 한 번에 두 레포 동시 push됨
+  - origin push → blueorigin2021/fairpass-landing + FAIRPASS/fairpass-landing 동시
+  - Vercel이 FAIRPASS 변경 감지 → 자동 배포
+- Vercel: FAIRPASS 개인 GitHub 연동 (push → 자동 배포) — 추후 blueorigin2021로 이전 예정
 - Supabase: blueorigin2021's Org 소유 (포트폴리오 DB + 이미지 Storage)
   - 프로젝트 ID: `ztqxwbagbqenrcvjrkrh`
   - SQL Editor: https://supabase.com/dashboard/project/ztqxwbagbqenrcvjrkrh/sql/new
 - 비용 청구: Supabase는 회사 계정(blueorigin2021) 카드로 청구됨
+
+### ⚠️ GITHUB_OWNER 환경변수 (Vercel에 설정 필요)
+- `GITHUB_OWNER` = `FAIRPASS` — journal-admin.js가 저널 포스트 저장할 레포 오너
+- 미설정 시 기본값 `FAIRPASS` 사용 (현재 정상 작동)
 
 ## 보안 현황 (2026-04-02 업데이트)
 - `quote-email.js` — CORS + Honeypot + Turnstile + **IP Rate Limit(10분/3회) + 5초 속도 차단** ✅
