@@ -3723,9 +3723,20 @@ function jInitEnglishEditor() {
   });
 }
 async function jSaveTranslation() {
-  const content = jEasyMDEEn ? jEasyMDEEn.value().trim() : '';
+  let content = jEasyMDEEn ? jEasyMDEEn.value().trim() : '';
   const slug = document.getElementById('jFSlug').value.trim();
   if (!content || !slug) { alert('번역 내용 또는 슬러그가 없습니다.'); return; }
+  // 프론트매터가 없으면 draft 상태로 기본 프론트매터 생성
+  if (!content.startsWith('---')) {
+    const enTitle    = document.getElementById('jFTitle').value.trim();
+    const enDesc     = document.getElementById('jFDesc').value.trim();
+    const enDate     = document.getElementById('jFDate').value;
+    const enCat      = document.getElementById('jFCategory').value;
+    const enTags     = document.getElementById('jFTags').value.split(',').map(t => t.trim()).filter(Boolean);
+    const enAuthor   = document.getElementById('jFAuthor').value;
+    const enTagsYaml = enTags.length ? `tags: [${enTags.map(t => `"${t}"`).join(', ')}]` : 'tags: []';
+    content = `---\ntitle: "${enTitle.replace(/"/g, '\\"')}"\ndescription: "${enDesc.replace(/"/g, '\\"')}"\npubDate: ${enDate}\ncategory: "${enCat}"\n${enTagsYaml}\nauthor: "${enAuthor.replace(/"/g, '\\"')}"\nauthorTitle: ""\ndraft: true\nstatus: draft\n---\n\n${content}`;
+  }
   const path = jCurrentEnPath || `blog-src/src/content/journal-en/${slug}-en.md`;
   try {
     const r = await fetch('/api/journal-admin', {
@@ -3778,11 +3789,33 @@ async function jExecutePublish(choice) {
         btn.innerHTML = origHtml; btn.disabled = false;
         return;
       } else {
+        // 프론트매터가 있으면 status: published / draft: false 로 업데이트
+        // 프론트매터가 없으면 KO 폼 필드로 새로 생성
+        let enFinal = enContent;
+        if (enFinal.startsWith('---')) {
+          enFinal = enFinal
+            .replace(/^(status:\s*).*$/m, '$1published')
+            .replace(/^(draft:\s*).*$/m, '$1false');
+          // status 필드 자체가 없으면 첫 --- 닫힘 전에 삽입
+          if (!/^status:/m.test(enFinal)) {
+            enFinal = enFinal.replace(/^(---\n[\s\S]*?)(---)/m, '$1status: published\n$2');
+          }
+        } else {
+          const enTitle    = document.getElementById('jFTitle').value.trim();
+          const enDesc     = document.getElementById('jFDesc').value.trim();
+          const enDate     = document.getElementById('jFDate').value;
+          const enCat      = document.getElementById('jFCategory').value;
+          const enTags     = document.getElementById('jFTags').value.split(',').map(t => t.trim()).filter(Boolean);
+          const enAuthor   = document.getElementById('jFAuthor').value;
+          const enAuTitle  = document.getElementById('jFAuthorTitle').value.trim();
+          const enTagsYaml = enTags.length ? `tags: [${enTags.map(t => `"${t}"`).join(', ')}]` : 'tags: []';
+          enFinal = `---\ntitle: "${enTitle.replace(/"/g, '\\"')}"\ndescription: "${enDesc.replace(/"/g, '\\"')}"\npubDate: ${enDate}\ncategory: "${enCat}"\n${enTagsYaml}\nauthor: "${enAuthor.replace(/"/g, '\\"')}"\nauthorTitle: "${enAuTitle.replace(/"/g, '\\"')}"\ndraft: false\nstatus: published\n---\n\n${enFinal}`;
+        }
         const path = jCurrentEnPath || `blog-src/src/content/journal-en/${slug}-en.md`;
         const r = await fetch('/api/journal-admin', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'save', path, content: enContent, password: jPw, sha: jCurrentEnSha || undefined }),
+          body: JSON.stringify({ action: 'save', path, content: enFinal, password: jPw, sha: jCurrentEnSha || undefined }),
         });
         const data = await r.json();
         if (r.ok) { jCurrentEnSha = data.sha; jCurrentEnPath = path; }
