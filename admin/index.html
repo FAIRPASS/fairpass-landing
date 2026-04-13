@@ -525,22 +525,7 @@
         <button class="nav-item" data-page="quote"><span class="nav-icon">📋</span>견적 문의</button>
         <button class="nav-item" data-page="brochure"><span class="nav-icon">📄</span>소개서 요청</button>
         <button class="nav-item" data-page="kiosk"><span class="nav-icon">🔑</span>키오스크 문의</button>
-        <button class="nav-item" data-page="journal"><span class="nav-icon">✍️</span>저널</button>
-        <!-- Journal sub-nav (shown when journal tab is active) -->
-        <div id="jSubNav" style="display:none;border-top:1px solid var(--border);padding:4px 0;">
-          <button class="nav-item" id="jNavList" onclick="jShowList()" style="font-size:12px;padding-left:32px;">
-            <span class="nav-icon">📋</span>포스트 목록
-          </button>
-          <button class="nav-item" id="jNavGenerate" onclick="jShowGenerate()" style="font-size:12px;padding-left:32px;">
-            <span class="nav-icon">🚀</span>초안 요청
-          </button>
-          <button class="nav-item" id="jNavSubscribers" onclick="jShowSubscribers()" style="font-size:12px;padding-left:32px;">
-            <span class="nav-icon">📧</span>구독자
-          </button>
-          <button class="nav-item" id="jNavClipping" onclick="jShowClipping()" style="font-size:12px;padding-left:32px;">
-            <span class="nav-icon">🗞️</span>미디어 클리핑
-          </button>
-        </div>
+        <a class="nav-item" href="/admin/journal.html"><span class="nav-icon">✍️</span>저널</a>
         <button class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span>설정</button>
       </nav>
       <div class="sidebar-bottom">
@@ -2814,28 +2799,7 @@ async function sendQuoteEmail() {
 //  저널 탭 — 통합 JS (journal.html에서 이전, 모두 j_ 접두어)
 // ════════════════════════════════════════════════════
 
-// ── Journal: nav activation hook ──
-// When journal nav-item is clicked, initialise the journal tab once
-document.querySelector('[data-page="journal"]').addEventListener('click', function() {
-  // Show sub-nav
-  document.getElementById('jSubNav').style.display = 'block';
-  // Init journal (load list) once sessionPw is available
-  if (!jInited && sessionPw) {
-    jPw = sessionPw;
-    jInited = true;
-    jInitApp();
-  } else if (sessionPw) {
-    jPw = sessionPw; // keep in sync
-    jLoadList();
-  }
-});
-
-// Hide jSubNav when other tabs are clicked
-document.querySelectorAll('.nav-item[data-page]:not([data-page="journal"])').forEach(btn => {
-  btn.addEventListener('click', function() {
-    document.getElementById('jSubNav').style.display = 'none';
-  });
-});
+// ── Journal: 저널 버튼은 /admin/journal.html 링크로 이동 (훅 불필요) ──
 
 // ── Journal: Constants ──
 const J_KO_CATEGORIES = [
