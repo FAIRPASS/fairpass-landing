@@ -305,14 +305,14 @@
         <button class="nav-item active" id="navJournal" onclick="showList()">
           <span class="nav-icon">✍️</span> 저널
         </button>
+        <button class="nav-item" id="navClipping" onclick="showClipping()">
+          <span class="nav-icon">🗞️</span> 미디어 클리핑
+        </button>
         <button class="nav-item" id="navGenerate" onclick="showGenerate()">
           <span class="nav-icon">🚀</span> 초안 요청
         </button>
         <button class="nav-item" id="navSubscribers" onclick="showSubscribers()">
           <span class="nav-icon">📧</span> 구독자
-        </button>
-        <button class="nav-item" id="navClipping" onclick="showClipping()">
-          <span class="nav-icon">🗞️</span> 미디어 클리핑
         </button>
       </nav>
       <div class="sidebar-bottom">
@@ -472,6 +472,17 @@
               </div>
             </div>
             <div style="font-size:11px;color:var(--muted2);text-align:center;">"에디터에 적용" 클릭 시 → 새 포스트 에디터가 열리고 내용이 자동 입력됩니다. 저장 후 검토·수정하세요.</div>
+          </div>
+
+          <!-- 저장된 미디어 클리핑 리스트 -->
+          <div style="margin-top:32px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="font-size:14px;font-weight:700;color:var(--text);">저장된 미디어 클리핑</div>
+              <button class="btn btn-ghost btn-sm" onclick="loadClippingList()">↺ 새로고침</button>
+            </div>
+            <div id="clippingListContainer">
+              <div class="loading">불러오는 중...</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1120,6 +1131,78 @@
     document.getElementById('navGenerate').classList.remove('active');
     document.getElementById('navSubscribers').classList.remove('active');
     document.getElementById('navClipping').classList.add('active');
+    loadClippingList();
+  }
+
+  async function loadClippingList() {
+    const container = document.getElementById('clippingListContainer');
+    container.innerHTML = '<div class="loading">불러오는 중...</div>';
+    try {
+      const r = await fetch(`/api/journal-admin?action=list&lang=ko&password=${encodeURIComponent(pw)}`);
+      if (!r.ok) throw new Error('Failed');
+      const { files } = await r.json();
+      if (!files || files.length === 0) {
+        container.innerHTML = '<div class="empty">저장된 미디어 클리핑이 없습니다.</div>';
+        return;
+      }
+      const clippings = [];
+      for (const f of files) {
+        try {
+          const rf = await fetch(`/api/journal-admin?action=read&path=${encodeURIComponent(f.path)}&password=${encodeURIComponent(pw)}`);
+          if (!rf.ok) continue;
+          const data = await rf.json();
+          const fm = parseFrontmatter(data.content);
+          if (fm.category === '미디어 클리핑') {
+            clippings.push({ ...f, fm, sha: data.sha });
+          }
+        } catch {}
+      }
+      if (clippings.length === 0) {
+        container.innerHTML = '<div class="empty">저장된 미디어 클리핑이 없습니다.</div>';
+        return;
+      }
+      container.innerHTML = '';
+      for (const c of clippings) {
+        const item = document.createElement('div');
+        item.className = 'post-item';
+        const status = c.fm.status || 'draft';
+        item.innerHTML = `
+          <div class="post-item-left">
+            <div class="post-item-title">${escHtml(c.fm.title || c.slug)}</div>
+            <div class="post-item-meta">
+              ${statusBadgeHtml(status)}
+              ${catBadgeHtml('미디어 클리핑')}
+              <span style="color:var(--muted2);font-size:11px;">${c.fm.pubDate || ''}</span>
+            </div>
+          </div>
+          <div class="post-item-actions">
+            <button class="btn btn-ghost btn-sm" onclick="openEdit('${escHtml(c.path)}','${escHtml(c.sha || '')}')">✏️ 편집</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteClipping('${escHtml(c.path)}','${escHtml(c.sha || '')}','${escHtml(c.fm.title || c.slug)}')">🗑️ 삭제</button>
+          </div>`;
+        container.appendChild(item);
+      }
+    } catch (e) {
+      container.innerHTML = '<div class="empty">불러오기 실패. 새로고침 해주세요.</div>';
+    }
+  }
+
+  async function deleteClipping(path, sha, title) {
+    if (!confirm(`"${title}" 포스트를 삭제하시겠습니까? 되돌릴 수 없습니다.`)) return;
+    try {
+      const r = await fetch('/api/journal-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', path, sha, password: pw }),
+      });
+      if (r.ok) {
+        loadClippingList();
+      } else {
+        const d = await r.json();
+        alert('삭제 실패: ' + (d.error || '알 수 없는 오류'));
+      }
+    } catch (e) {
+      alert('삭제 실패: ' + e.message);
+    }
   }
 
   // ── 미디어 클리핑 ──
