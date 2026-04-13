@@ -554,9 +554,16 @@ ${rawText}
     const enMetaRaw = extractSection('EN_META');
     const enBody    = extractSection('EN_BODY');
 
-    const source = JSON.parse(sourceRaw);
-    const koMeta = JSON.parse(koMetaRaw);
-    const enMeta = JSON.parse(enMetaRaw);
+    let source, koMeta, enMeta;
+    try { source = JSON.parse(sourceRaw); } catch(e) {
+      return res.status(500).json({ error: 'External import failed', detail: `SOURCE JSON 파싱 오류: ${e.message}\n원문:\n${sourceRaw.slice(0,300)}` });
+    }
+    try { koMeta = JSON.parse(koMetaRaw); } catch(e) {
+      return res.status(500).json({ error: 'External import failed', detail: `KO_META JSON 파싱 오류: ${e.message}\n원문:\n${koMetaRaw.slice(0,300)}` });
+    }
+    try { enMeta = JSON.parse(enMetaRaw); } catch(e) {
+      return res.status(500).json({ error: 'External import failed', detail: `EN_META JSON 파싱 오류: ${e.message}\n원문:\n${enMetaRaw.slice(0,300)}` });
+    }
 
     const today = new Date().toISOString().split('T')[0];
     const pubDate = source.date || today;

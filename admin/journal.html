@@ -440,7 +440,13 @@
             </div>
           </div>
 
-          <div id="clippingError" style="display:none;color:var(--red);font-size:13px;padding:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius-sm);margin-bottom:16px;"></div>
+          <div id="clippingError" style="display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius-sm);margin-bottom:16px;padding:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="color:var(--red);font-size:13px;font-weight:600;">⚠️ 오류 발생</span>
+              <button onclick="navigator.clipboard.writeText(document.getElementById('clippingErrorText').value).then(()=>{this.textContent='✅ 복사됨';setTimeout(()=>this.textContent='📋 복사',1500)})" style="font-size:11px;padding:3px 10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:var(--muted);cursor:pointer;">📋 복사</button>
+            </div>
+            <textarea id="clippingErrorText" readonly style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(239,68,68,0.3);border-radius:4px;color:#fca5a5;font-size:12px;font-family:monospace;line-height:1.6;padding:8px;resize:vertical;min-height:80px;outline:none;box-sizing:border-box;"></textarea>
+          </div>
 
           <div id="clippingResult" style="display:none;">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
@@ -1143,7 +1149,15 @@
         body: JSON.stringify({ action: 'externalImport', password: pw, url }),
       });
       const data = await r.json();
-      if (!r.ok) throw new Error(data.error || '분석 실패');
+      if (!r.ok) {
+        const msg = [
+          `오류: ${data.error || '분석 실패'}`,
+          data.detail ? `\n상세: ${data.detail}` : '',
+          `\nHTTP ${r.status} — ${new Date().toLocaleTimeString('ko-KR')}`,
+          `\nURL: ${url}`,
+        ].join('');
+        throw new Error(msg);
+      }
       window._clippingData = data;
       document.getElementById('clippingKoTitle').textContent = data.ko?.title || '(제목 없음)';
       document.getElementById('clippingKoDesc').textContent  = data.ko?.description || '';
@@ -1153,7 +1167,7 @@
       document.getElementById('clippingEnBody').textContent  = data.en?.body || '';
       resultEl.style.display = 'block';
     } catch (e) {
-      errorEl.textContent = '오류: ' + e.message;
+      document.getElementById('clippingErrorText').value = e.message;
       errorEl.style.display = 'block';
     } finally {
       loadingEl.style.display = 'none';
