@@ -81,6 +81,27 @@ const dateStr = post.data.pubDate.toLocaleDateString('en-US', {
     </div>
 
     <!-- CTA -->
+    <!-- Source attribution (media clipping) -->
+    {post.data.source && (
+      <div class="mt-10 p-5 rounded-fp border border-fp-border bg-fp-surface text-sm">
+        <div class="text-xs text-fp-muted mb-2 font-semibold uppercase tracking-wide">📰 Source</div>
+        {post.data.source.title && <div class="font-medium text-fp-text mb-1">{post.data.source.title}</div>}
+        <div class="text-fp-muted text-xs" style="line-height:1.8;">
+          {post.data.source.outlet && <span>{post.data.source.outlet}</span>}
+          {post.data.source.outlet && post.data.source.author && <span> · </span>}
+          {post.data.source.author && <span>{post.data.source.author}</span>}
+          {(post.data.source.outlet || post.data.source.author) && post.data.source.date && <span> · </span>}
+          {post.data.source.date && <span>{post.data.source.date}</span>}
+        </div>
+        {post.data.source.url && (
+          <a href={post.data.source.url} target="_blank" rel="noopener noreferrer"
+             class="text-xs mt-2 inline-block" style="color:#a855f7;">
+            View original →
+          </a>
+        )}
+      </div>
+    )}
+
     <div class="mt-14 p-6 rounded-fp border border-fp-border bg-fp-surface">
       <h3 class="font-semibold text-fp-text mb-2">Ready to streamline your next event?</h3>
       <p class="text-sm text-fp-muted mb-4">Get a free consultation — no commitment required.</p>
