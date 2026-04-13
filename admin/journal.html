@@ -1659,7 +1659,7 @@ ${body}`;
   function onStatusChange() {
     const status = document.getElementById('fStatus').value;
     const saveBtn = document.getElementById('saveBtn');
-    const labels = { draft: '저장 (초안)', review: '저장 (검토중)', approved: '저장 (승인)', published: '저장 (배포)' };
+    const labels = { draft: '저장 — 비공개', review: '저장 — 검토중', approved: '저장 — 승인', published: '저장 — 공개중' };
     saveBtn.textContent = labels[status] || '저장';
     if (status === 'published') {
       saveBtn.style.background = 'linear-gradient(135deg,#10b981,#06b6d4)';
