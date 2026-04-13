@@ -543,7 +543,7 @@ ${rawText}
     const text = result.content[0].text;
 
     function extractSection(marker) {
-      const re = new RegExp(`===${marker}===\\s*\\n([\\s\\S]*?)(?=\\n===[A-Z_]+=== |$)`);
+      const re = new RegExp(`===${marker}===\\s*\\n([\\s\\S]*?)(?=\\n===[A-Z_]+===|$)`);
       const m = text.match(re);
       return m ? m[1].trim() : '';
     }
