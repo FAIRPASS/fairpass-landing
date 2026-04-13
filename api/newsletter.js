@@ -2,6 +2,7 @@
  * Newsletter API
  * POST { email, lang, source }           — 구독 등록 (public)
  * POST { action:'list', password }       — 구독자 목록 (admin)
+ * POST { action:'delete', id, password } — 구독자 삭제 (admin)
  * POST { action:'export', password }     — CSV 다운로드 (admin)
  */
 
@@ -18,26 +19,38 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { action, email, lang = 'ko', source = 'journal', password } = req.body || {};
+  const { action, email, lang = 'ko', source = 'journal', password, id } = req.body || {};
 
-  // ── Admin: 구독자 목록 / CSV 내보내기 ──────────────────────
-  if (action === 'list' || action === 'export') {
+  // ── Admin: 구독자 목록 / 삭제 / CSV 내보내기 ──────────────────────
+  if (action === 'list' || action === 'delete' || action === 'export') {
     if (!password || password !== process.env.ADMIN_PASSWORD) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     const db = supabase();
+
+    // 구독자 삭제
+    if (action === 'delete') {
+      if (!id) return res.status(400).json({ error: 'id required' });
+      const { error } = await db
+        .from('newsletter_subscribers')
+        .delete()
+        .eq('id', id);
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json({ success: true });
+    }
+
     const { data, error } = await db
       .from('newsletter_subscribers')
-      .select('id, email, lang, source, subscribed_at, unsubscribed_at')
+      .select('id, email, lang, source, subscribed_at')
       .order('subscribed_at', { ascending: false });
 
     if (error) return res.status(500).json({ error: error.message });
 
     if (action === 'export') {
       const rows = [
-        'email,lang,source,subscribed_at,status',
+        'email,lang,source,subscribed_at',
         ...data.map(r =>
-          `${r.email},${r.lang},${r.source},${r.subscribed_at},${r.unsubscribed_at ? 'unsubscribed' : 'active'}`
+          `${r.email},${r.lang},${r.source},${r.subscribed_at}`
         ),
       ].join('\n');
       res.setHeader('Content-Type', 'text/csv; charset=utf-8');
