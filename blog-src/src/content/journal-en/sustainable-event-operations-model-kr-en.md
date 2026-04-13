@@ -7,7 +7,7 @@ tags: ["MICE", "ESG", "SustainableEvents", "EventAutomation", "PlasticFree"]
 author: "FAIRPASS Team"
 authorTitle: ""
 draft: false
-status: draft
+status: published
 translationKey: "sustainable-event-operations-model-kr"
 ---
 
