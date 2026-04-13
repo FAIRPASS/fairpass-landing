@@ -582,7 +582,7 @@ ${rawText}
 title: "${(koMeta.title || '').replace(/"/g, '\\"')}"
 description: "${(koMeta.description || '').replace(/"/g, '\\"')}"
 pubDate: ${pubDate}
-category: "언론 보도"
+category: "미디어 클리핑"
 tags: [${(koMeta.tags || []).map(t => `"${t}"`).join(', ')}]
 author: "FAIRPASS 팀"
 authorTitle: ""
@@ -598,7 +598,7 @@ ${koBody}`;
 title: "${(enMeta.title || '').replace(/"/g, '\\"')}"
 description: "${(enMeta.description || '').replace(/"/g, '\\"')}"
 pubDate: ${pubDate}
-category: "In the Press"
+category: "Media Clipping"
 tags: [${(enMeta.tags || []).map(t => `"${t}"`).join(', ')}]
 author: "FAIRPASS Team"
 authorTitle: ""

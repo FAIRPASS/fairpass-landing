@@ -506,7 +506,7 @@
             <label class="form-label">카테고리</label>
             <select class="form-select" id="fCategory"></select>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="fAuthorGroup">
             <label class="form-label">저자</label>
             <select class="form-select" id="fAuthor" onchange="onAuthorChange()">
               <option value="전서윤">전서윤</option>
@@ -514,7 +514,7 @@
               <option value="FAIRPASS 팀">FAIRPASS 팀</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="fAuthorTitleGroup">
             <label class="form-label">저자 직함 (authorTitle)</label>
             <input class="form-input" id="fAuthorTitle" type="text" placeholder="직함 (선택)" />
           </div>
@@ -882,6 +882,7 @@
     '업계 트렌드',
     'FAIRPASS 소식',
     '언론 보도',
+    '미디어 클리핑',
   ];
   const EN_CATEGORIES = [
     'Our Story',
@@ -891,6 +892,7 @@
     'Industry Trends',
     'FAIRPASS News',
     'In the Press',
+    'Media Clipping',
   ];
   const CAT_COLORS = {
     'FAIRPASS 이야기': { bg: '#BA7517', text: '#fff' },
@@ -907,6 +909,8 @@
     'FAIRPASS News':   { bg: '#0F172A', text: '#9ca3af', border: '#4B5563' },
     '언론 보도':        { bg: '#9F1239', text: '#fff' },
     'In the Press':    { bg: '#9F1239', text: '#fff' },
+    '미디어 클리핑':   { bg: '#7C3AED', text: '#fff' },
+    'Media Clipping':  { bg: '#7C3AED', text: '#fff' },
   };
   const AUTHOR_TITLES = {
     '전서윤': '대표이사',
@@ -1184,17 +1188,24 @@
     openNew();
     // openNew() 내부의 restoreDraft setTimeout(100ms) 이후에 값 채우기
     setTimeout(() => {
-      document.getElementById('fTitle').value = side.title || '';
+      const outlet = d.source?.outlet || '';
+      const clippingTitle = outlet ? `[${outlet}] ${side.title || ''}` : (side.title || '');
+      document.getElementById('fTitle').value = clippingTitle;
       document.getElementById('fDesc').value  = side.description || '';
       document.getElementById('fTags').value  = Array.isArray(side.tags) ? side.tags.join(', ') : (side.tags || '');
       document.getElementById('fSlug').value  = side.slug || '';
       document.getElementById('fSlug').dataset.manual = 'true';
-      // 카테고리 — 언론 보도 또는 FAIRPASS 소식
+      // 카테고리 — 미디어 클리핑
       const catSel = document.getElementById('fCategory');
-      const preferCat = lang === 'ko' ? '언론 보도' : 'Media Coverage';
-      const fallback  = lang === 'ko' ? 'FAIRPASS 소식' : 'FAIRPASS Updates';
-      if ([...catSel.options].some(o => o.value === preferCat)) catSel.value = preferCat;
-      else if ([...catSel.options].some(o => o.value === fallback)) catSel.value = fallback;
+      const clipCat = lang === 'ko' ? '미디어 클리핑' : 'Media Clipping';
+      if ([...catSel.options].some(o => o.value === clipCat)) catSel.value = clipCat;
+      // 게시일 — 언론 배포일 사용
+      if (d.source?.date) document.getElementById('fDate').value = d.source.date;
+      // 저자 필드 숨김
+      document.getElementById('fAuthorGroup').style.display = 'none';
+      document.getElementById('fAuthorTitleGroup').style.display = 'none';
+      document.getElementById('fAuthor').value = 'FAIRPASS 팀';
+      document.getElementById('fAuthorTitle').value = '';
       document.getElementById('fStatus').value = 'draft';
       onStatusChange();
       document.getElementById('editorLangBadge').textContent = lang === 'ko' ? '🇰🇷 한국어' : '🇺🇸 English';
@@ -1422,6 +1433,8 @@
     document.getElementById('fSlug').dataset.manual = 'false';
     document.getElementById('slugHint').textContent = '';
     populateCategorySelect(currentLang);
+    document.getElementById('fAuthorGroup').style.display = '';
+    document.getElementById('fAuthorTitleGroup').style.display = '';
     document.getElementById('fAuthor').value = '전서윤';
     document.getElementById('fAuthorTitle').value = AUTHOR_TITLES['전서윤'];
     document.getElementById('fTags').value = '';
