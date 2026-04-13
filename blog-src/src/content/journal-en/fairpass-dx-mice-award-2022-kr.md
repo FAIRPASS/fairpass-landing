@@ -1,8 +1,8 @@
 ---
 title: "FAIRPASS Named Top DX MICE Company by Korea MICE Association — Major Events Adopted Within 6 Months of Launch"
 description: "FAIRPASS wins DX Excellence Award from Korea MICE Association for its all-in-one event registration and access management platform."
-pubDate: 2026-04-13
-category: "Media Coverage"
+pubDate: 2022-12-22
+category: "Media Clipping"
 tags: ["FAIRPASS", "event registration", "QR check-in", "MICE technology", "badge printing", "kiosk check-in", "event access management", "B2B event platform"]
 author: "FAIRPASS Team"
 authorTitle: ""
