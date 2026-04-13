@@ -528,6 +528,18 @@
         <button class="nav-item" data-page="journal"><span class="nav-icon">✍️</span>저널</button>
         <button class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span>설정</button>
       </nav>
+      <!-- Journal sub-nav (shown when journal tab is active) -->
+      <div id="jSubNav" style="display:none;border-top:1px solid var(--border);padding:4px 0;">
+        <button class="nav-item" id="jNavList" onclick="jShowList()" style="font-size:12px;padding-left:32px;">
+          <span class="nav-icon">📋</span>포스트 목록
+        </button>
+        <button class="nav-item" id="jNavGenerate" onclick="jShowGenerate()" style="font-size:12px;padding-left:32px;">
+          <span class="nav-icon">🚀</span>초안 요청
+        </button>
+        <button class="nav-item" id="jNavSubscribers" onclick="jShowSubscribers()" style="font-size:12px;padding-left:32px;">
+          <span class="nav-icon">📧</span>구독자
+        </button>
+      </div>
       <div class="sidebar-bottom">
         <button class="logout-btn" id="logoutBtn">로그아웃</button>
       </div>
@@ -1053,18 +1065,6 @@
           </div>
         </div>
 
-        <!-- Journal sub-nav (shown below main nav when journal tab is active) -->
-        <div id="jSubNav" style="display:none;position:fixed;bottom:60px;left:0;width:182px;border-top:1px solid var(--border);background:var(--sidebar-bg);padding:8px 0;">
-          <button class="nav-item" id="jNavList" onclick="jShowList()" style="font-size:13px;">
-            <span class="nav-icon">📋</span>포스트 목록
-          </button>
-          <button class="nav-item" id="jNavGenerate" onclick="jShowGenerate()" style="font-size:13px;">
-            <span class="nav-icon">🚀</span>초안 요청
-          </button>
-          <button class="nav-item" id="jNavSubscribers" onclick="jShowSubscribers()" style="font-size:13px;">
-            <span class="nav-icon">📧</span>구독자
-          </button>
-        </div>
 
       </div>
 
@@ -1608,7 +1608,7 @@ function downloadCSV(data, filename) {
 }
 
 // ── Navigation ──
-document.querySelectorAll('.nav-item').forEach(btn => {
+document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2781,7 +2781,7 @@ document.querySelector('[data-page="journal"]').addEventListener('click', functi
 });
 
 // Hide jSubNav when other tabs are clicked
-document.querySelectorAll('.nav-item:not([data-page="journal"])').forEach(btn => {
+document.querySelectorAll('.nav-item[data-page]:not([data-page="journal"])').forEach(btn => {
   btn.addEventListener('click', function() {
     document.getElementById('jSubNav').style.display = 'none';
   });
