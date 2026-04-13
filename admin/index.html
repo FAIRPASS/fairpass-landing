@@ -539,6 +539,9 @@
         <button class="nav-item" id="jNavSubscribers" onclick="jShowSubscribers()" style="font-size:12px;padding-left:32px;">
           <span class="nav-icon">📧</span>구독자
         </button>
+        <button class="nav-item" id="jNavClipping" onclick="jShowClipping()" style="font-size:12px;padding-left:32px;">
+          <span class="nav-icon">🗞️</span>미디어 클리핑
+        </button>
       </div>
       <div class="sidebar-bottom">
         <button class="logout-btn" id="logoutBtn">로그아웃</button>
@@ -826,6 +829,53 @@
                 <span id="jGenLoading" style="font-size:12px;color:var(--cyan);margin-left:12px;display:none;">요청 중...</span>
               </div>
               <div class="generate-result" id="jGenResult"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CLIPPING VIEW -->
+        <div id="jClippingView" style="display:none;">
+          <div class="page-header">
+            <h1 class="page-title">🗞️ 미디어 클리핑</h1>
+          </div>
+          <div style="max-width:960px;">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;">
+              <div class="form-group" style="margin-bottom:16px;">
+                <label class="form-label">언론 기사 또는 LinkedIn URL</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input class="form-input" id="jClippingUrl" type="url" placeholder="https://..." style="flex:1;" oninput="jDetectClippingType(this.value)" />
+                  <span id="jClippingTypeBadge" style="font-size:11px;padding:3px 10px;border-radius:4px;background:rgba(255,255,255,0.08);color:var(--muted);white-space:nowrap;flex-shrink:0;">URL 입력</span>
+                </div>
+                <div style="font-size:11px;color:var(--muted2);margin-top:4px;">지원: 언론 기사 URL · LinkedIn 공개 게시물 URL</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <button class="btn btn-primary" id="jClippingFetchBtn" onclick="jFetchClipping()">🔍 분석 및 생성</button>
+                <span id="jClippingLoading" style="font-size:12px;color:var(--cyan);display:none;">분석 중... (30초~1분)</span>
+              </div>
+            </div>
+            <div id="jClippingError" style="display:none;color:var(--red);font-size:13px;padding:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius-sm);margin-bottom:16px;"></div>
+            <div id="jClippingResult" style="display:none;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
+                <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                    <span style="font-size:13px;font-weight:700;">🇰🇷 한국어</span>
+                    <button class="btn btn-ghost btn-sm" onclick="jApplyClipping('ko')">에디터에 적용 →</button>
+                  </div>
+                  <div id="jClippingKoTitle" style="font-size:14px;font-weight:700;margin-bottom:6px;"></div>
+                  <div id="jClippingKoDesc" style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6;"></div>
+                  <div id="jClippingKoBody" style="font-size:12px;color:var(--muted2);line-height:1.8;max-height:320px;overflow-y:auto;white-space:pre-wrap;border-top:1px solid var(--border);padding-top:10px;"></div>
+                </div>
+                <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                    <span style="font-size:13px;font-weight:700;">🇺🇸 English</span>
+                    <button class="btn btn-ghost btn-sm" onclick="jApplyClipping('en')">에디터에 적용 →</button>
+                  </div>
+                  <div id="jClippingEnTitle" style="font-size:14px;font-weight:700;margin-bottom:6px;"></div>
+                  <div id="jClippingEnDesc" style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6;"></div>
+                  <div id="jClippingEnBody" style="font-size:12px;color:var(--muted2);line-height:1.8;max-height:320px;overflow-y:auto;white-space:pre-wrap;border-top:1px solid var(--border);padding-top:10px;"></div>
+                </div>
+              </div>
+              <div style="font-size:11px;color:var(--muted2);text-align:center;">"에디터에 적용" 클릭 시 새 포스트 에디터가 열리고 내용이 자동 입력됩니다.</div>
             </div>
           </div>
         </div>
@@ -2906,10 +2956,12 @@ function jShowList() {
   document.getElementById('jListView').style.display = 'block';
   document.getElementById('jGenerateView').style.display = 'none';
   document.getElementById('jSubscribersView').style.display = 'none';
+  document.getElementById('jClippingView').style.display = 'none';
   document.getElementById('jEditorPanel').classList.remove('open');
   document.getElementById('jNavList').classList.add('active');
   document.getElementById('jNavGenerate').classList.remove('active');
   document.getElementById('jNavSubscribers').classList.remove('active');
+  document.getElementById('jNavClipping').classList.remove('active');
   jLoadList();
 }
 
@@ -2917,10 +2969,12 @@ function jShowGenerate() {
   document.getElementById('jListView').style.display = 'none';
   document.getElementById('jGenerateView').style.display = 'block';
   document.getElementById('jSubscribersView').style.display = 'none';
+  document.getElementById('jClippingView').style.display = 'none';
   document.getElementById('jEditorPanel').classList.remove('open');
   document.getElementById('jNavList').classList.remove('active');
   document.getElementById('jNavGenerate').classList.add('active');
   document.getElementById('jNavSubscribers').classList.remove('active');
+  document.getElementById('jNavClipping').classList.remove('active');
   document.getElementById('jGenResult').className = 'generate-result';
   document.getElementById('jGenResult').textContent = '';
 }
@@ -2929,11 +2983,94 @@ function jShowSubscribers() {
   document.getElementById('jListView').style.display = 'none';
   document.getElementById('jGenerateView').style.display = 'none';
   document.getElementById('jSubscribersView').style.display = 'block';
+  document.getElementById('jClippingView').style.display = 'none';
   document.getElementById('jEditorPanel').classList.remove('open');
   document.getElementById('jNavList').classList.remove('active');
   document.getElementById('jNavGenerate').classList.remove('active');
   document.getElementById('jNavSubscribers').classList.add('active');
+  document.getElementById('jNavClipping').classList.remove('active');
   jLoadSubscribers();
+}
+
+function jShowClipping() {
+  document.getElementById('jListView').style.display = 'none';
+  document.getElementById('jGenerateView').style.display = 'none';
+  document.getElementById('jSubscribersView').style.display = 'none';
+  document.getElementById('jClippingView').style.display = 'block';
+  document.getElementById('jEditorPanel').classList.remove('open');
+  document.getElementById('jNavList').classList.remove('active');
+  document.getElementById('jNavGenerate').classList.remove('active');
+  document.getElementById('jNavSubscribers').classList.remove('active');
+  document.getElementById('jNavClipping').classList.add('active');
+}
+
+function jDetectClippingType(url) {
+  const badge = document.getElementById('jClippingTypeBadge');
+  if (!url) { badge.textContent = 'URL 입력'; badge.style.color = 'var(--muted)'; return; }
+  if (/linkedin\.com\/(posts|feed|update|pulse|in\/)/i.test(url)) {
+    badge.textContent = '🔗 LinkedIn'; badge.style.color = 'var(--cyan-light)';
+  } else if (/^https?:\/\//i.test(url)) {
+    badge.textContent = '📰 언론 기사'; badge.style.color = 'var(--purple-light)';
+  } else {
+    badge.textContent = 'URL 확인'; badge.style.color = 'var(--yellow)';
+  }
+}
+
+async function jFetchClipping() {
+  const url = document.getElementById('jClippingUrl').value.trim();
+  if (!url) { alert('URL을 입력해주세요.'); return; }
+  const loadingEl = document.getElementById('jClippingLoading');
+  const fetchBtn  = document.getElementById('jClippingFetchBtn');
+  const resultEl  = document.getElementById('jClippingResult');
+  const errorEl   = document.getElementById('jClippingError');
+  loadingEl.style.display = 'inline';
+  fetchBtn.disabled = true;
+  resultEl.style.display = 'none';
+  errorEl.style.display = 'none';
+  try {
+    const r = await fetch('/api/journal-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'externalImport', password: jPw, url }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || '분석 실패');
+    window._jClippingData = data;
+    document.getElementById('jClippingKoTitle').textContent = data.ko?.title || '(제목 없음)';
+    document.getElementById('jClippingKoDesc').textContent  = data.ko?.description || '';
+    document.getElementById('jClippingKoBody').textContent  = data.ko?.body || '';
+    document.getElementById('jClippingEnTitle').textContent = data.en?.title || '(no title)';
+    document.getElementById('jClippingEnDesc').textContent  = data.en?.description || '';
+    document.getElementById('jClippingEnBody').textContent  = data.en?.body || '';
+    resultEl.style.display = 'block';
+  } catch (e) {
+    errorEl.textContent = '오류: ' + e.message;
+    errorEl.style.display = 'block';
+  } finally {
+    loadingEl.style.display = 'none';
+    fetchBtn.disabled = false;
+  }
+}
+
+function jApplyClipping(lang) {
+  const d = window._jClippingData;
+  if (!d) return;
+  const side = d[lang];
+  if (!side) return;
+  jCurrentLang = lang;
+  jOpenNew();
+  setTimeout(() => {
+    document.getElementById('jFTitle').value = side.title || '';
+    document.getElementById('jFDesc').value  = side.description || '';
+    document.getElementById('jFTags').value  = Array.isArray(side.tags) ? side.tags.join(', ') : (side.tags || '');
+    document.getElementById('jFSlug').value  = side.slug || '';
+    document.getElementById('jFSlug').dataset.manual = 'true';
+    const catSel = document.getElementById('jFCategory');
+    if ([...catSel.options].some(o => o.value === '언론 보도')) catSel.value = '언론 보도';
+    document.getElementById('jFStatus').value = 'draft';
+    jOnStatusChange();
+    if (jEasyMDE) jEasyMDE.value(side.body || '');
+  }, 200);
 }
 
 // ── Journal: Subscribers ──
