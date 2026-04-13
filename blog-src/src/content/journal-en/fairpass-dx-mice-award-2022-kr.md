@@ -7,7 +7,7 @@ tags: ["FAIRPASS", "event registration", "QR check-in", "MICE technology", "badg
 author: "FAIRPASS Team"
 authorTitle: ""
 draft: false
-status: draft
+status: published
 translationKey: "fairpass-dx-mice-award-2022-kr"
 ---
 
