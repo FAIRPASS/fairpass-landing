@@ -2,15 +2,18 @@
 title: "무인 체크인 키오스크 vs 스태프 운영 — 어떤 방식이 더 나을까?"
 description: "행사 현장에서 키오스크 도입을 고민하는 담당자를 위한 비교 분석. 비용, 효율, 참가자 경험, 도입 조건을 실제 사례 기반으로 정리했습니다."
 pubDate: 2026-03-17
-category: ""
+category: "FAIRPASS 이야기"
 tags: ["무인키오스크", "체크인", "현장운영", "행사효율화", "QR체크인"]
 author: "FAIRPASS 팀"
 authorTitle: ""
-draft: false
-status: published
+draft: true
+status: draft
 snsCopy:
-  linkedinKo: "행사 끝난 뒤 쓰레기통에 쌓인 플라스틱 명찰 홀더, 보신 적 있으신가요?\n\n운영 인력 30% 절감, 현장 대기 40% 감소 — 명찰 하나를 바꿨을 때 생기는 변화입니다.\n\n그런데 가장 놀라운 건 따로 있습니다. 전체 내용 →\nhttps://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
-  linkedinEn: "Still sorting name badges the night before your event?\n\nOne change cut wait times by 40% and slashed plastic waste by 90%.\n\nBut the real ROI? That's in the full story →\nhttps://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
+  linkedinKrShort: "행사 끝난 뒤 쓰레기통에 쌓인 플라스틱 명찰 홀더, 보신 적 있으신가요?\n\n운영 인력 30% 절감, 현장 대기 40% 감소 — 명찰 하나를 바꿨을 때 생기는 변화입니다.\n\n그런데 가장 놀라운 건 따로 있습니다. 전체 내용 →\nhttps://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
+  linkedinKrStandard: ""
+  linkedinEnShort: "Still sorting name badges the night before your event?\n\nOne change cut wait times by 40% and slashed plastic waste by 90%.\n\nBut the real ROI? That's in the full story →\nhttps://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
+  linkedinEnStandard: ""
+  instagramCombined: ""
   instagramKo: "명찰 하나가 행사의 첫인상을 결정합니다.\n\n매년 수천 건의 기업 행사, 그런데 운영 방식은 10년째 그대로?\n플라스틱 폐기물 90% 감축이 가능한 방법이 있습니다.\n그리고 그것이 ESG 보고서의 '실제 근거'가 된다면?\n\n궁금한 분들은 프로필 링크에서 확인하세요 →\n\n#MICE #행사운영 #ESG경영 #지속가능경영 #B2B이벤트 #페어패스 #Fairpass #컨퍼런스 #전시회운영 #스마트이벤트"
   instagramEn: "The smallest touchpoint at your event says the most about your brand.\n\nWhat if a name badge could cut plastic waste by 90%?\nWhat if check-in lines disappeared — automatically?\nAnd what if that data went straight into your ESG report?\n\nThe full breakdown is in our bio link →\n\n#EventTech #MICE #SustainableEvents #ESG #B2BEvents #Fairpass #EventManagement #GreenEvents #SmartEvent #ConferenceTech"
   naverBlog: "전시회, 컨퍼런스, 포럼, 세미나 — 기업 행사는 매년 수천 건이 열립니다. 하지만 그 운영 방식을 들여다보면, 놀랍도록 많은 부분이 10년 전과 다르지 않습니다. 참가자는 여전히 등록 데스크 앞에서 줄을 서고, 명찰은 플라스틱 홀더에 담겨 하루만 쓰이고 버려집니다. 운영팀은 전날 밤까지 명찰을 조립하고 분류하며 체력을 소진합니다.\n\nESG 경영이 선택이 아닌 필수가 된 지금, 이 '당연한 관행'을 다시 들여다볼 필요가 있습니다. 페어패스(Fairpass)는 종이 기반 친환경 명찰과 무인 키오스크, 데이터 통합 시스템을 하나로 연결해 MICE 운영의 구조 자체를 바꿉니다.\n\n실제 도입 사례에서는 현장 대기시간 40% 감소, 운영 인력 투입 30% 절감이라는 수치가 확인됐습니다. 플라스틱 폐기물은 무려 90% 감축됐고, 이 데이터는 ESG 보고서의 정량적 근거로도 활용됩니다.\n\n그렇다면 가장 중요한 질문 — 참가자 경험과 브랜드 평판에는 어떤 변화가 생겼을까요? 그리고 도입 기업들이 공통으로 꼽은 '예상 밖의 효과'는 무엇이었을까요?\n\n전체 내용 보기 → https://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
