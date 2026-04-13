@@ -758,6 +758,15 @@
     }
 
     // ─────────────────────────────────────
+    // Supabase Image Transform
+    // ─────────────────────────────────────
+    function imgTransform(url, width, quality) {
+      if (!url || !url.includes('supabase.co/storage/v1/object/public/')) return url;
+      return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/')
+        + `?width=${width}&quality=${quality}&resize=contain`;
+    }
+
+    // ─────────────────────────────────────
     // Grid
     // ─────────────────────────────────────
     const pinSvg  = `<svg class="pf-card-meta-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
@@ -791,7 +800,7 @@
         card.innerHTML = `
           <div class="pf-card-img-wrap">
             ${item.main_image
-              ? `<img class="pf-card-img" src="${item.main_image}" alt="${title}" loading="lazy">`
+              ? `<img class="pf-card-img" src="${imgTransform(item.main_image, 600, 75)}" alt="${title}" loading="lazy">`
               : `<div class="pf-card-img-placeholder">${placeholderSvg}</div>`}
           </div>
           <div class="pf-card-body">
@@ -841,7 +850,7 @@
       const mainImg = document.getElementById('pfModalMainImg');
       const placeholder = document.getElementById('pfModalImgPlaceholder');
       if (allImgs.length) {
-        mainImg.src = allImgs[0]; mainImg.alt = title; mainImg.style.display = 'block';
+        mainImg.src = imgTransform(allImgs[0], 1200, 85); mainImg.alt = title; mainImg.style.display = 'block';
         placeholder.style.display = 'none';
       } else {
         mainImg.style.display = 'none';
@@ -851,7 +860,7 @@
       // Thumbnails
       const thumbsEl = document.getElementById('pfModalThumbs');
       thumbsEl.innerHTML = allImgs.length > 1
-        ? allImgs.map((url, i) => `<img class="pf-modal-thumb${i===0?' active':''}" src="${url}" loading="lazy" data-idx="${i}">`).join('')
+        ? allImgs.map((url, i) => `<img class="pf-modal-thumb${i===0?' active':''}" src="${imgTransform(url, 150, 70)}" loading="lazy" data-idx="${i}">`).join('')
         : '';
       thumbsEl.querySelectorAll('.pf-modal-thumb').forEach(el => {
         el.onclick = () => switchModalImg(Number(el.dataset.idx));
@@ -892,7 +901,7 @@
 
     function switchModalImg(idx) {
       modalIdx = idx;
-      document.getElementById('pfModalMainImg').src = modalImgs[idx];
+      document.getElementById('pfModalMainImg').src = imgTransform(modalImgs[idx], 1200, 85);
       document.querySelectorAll('.pf-modal-thumb').forEach((el, i) => el.classList.toggle('active', i === idx));
     }
 

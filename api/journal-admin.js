@@ -133,16 +133,27 @@ export default async function handler(req, res) {
       const { filename, base64, mime } = req.body;
       if (!filename || !base64) return res.status(400).json({ error: 'filename and base64 required' });
       const safe = filename.replace(/[^a-zA-Z0-9.\-_]/g, '_').toLowerCase();
-      const path = `${IMAGES_BASE}/${safe}`;
-      const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}`;
-      const res2 = await fetch(url, {
-        method: 'PUT',
-        headers: githubHeaders(),
-        body: JSON.stringify({ message: `upload: journal image ${safe}`, content: base64 }),
+
+      const supabaseUrl = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
+      const supabaseKey = process.env.SUPABASE_SECRET_KEY;
+      if (!supabaseUrl || !supabaseKey) return res.status(500).json({ error: 'Supabase not configured' });
+
+      const buffer = Buffer.from(base64, 'base64');
+      const uploadRes = await fetch(`${supabaseUrl}/storage/v1/object/journal/${safe}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': mime || 'image/jpeg',
+          'x-upsert': 'true',
+        },
+        body: buffer,
       });
-      const data2 = await res2.json();
-      if (!res2.ok) return res.status(500).json({ error: 'Image upload failed', detail: data2 });
-      return res.status(200).json({ success: true, url: `/journal/journal-images/${safe}` });
+      if (!uploadRes.ok) {
+        const errData = await uploadRes.json().catch(() => ({}));
+        return res.status(500).json({ error: 'Image upload failed', detail: errData });
+      }
+      const publicUrl = `${supabaseUrl}/storage/v1/object/public/journal/${safe}`;
+      return res.status(200).json({ success: true, url: publicUrl });
     }
 
     return res.status(400).json({ error: 'Unknown action' });
