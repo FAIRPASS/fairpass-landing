@@ -1357,7 +1357,7 @@
   }
 
   // ── Save ──
-  async function savePost() {
+  async function savePost(deploy = false) {
     const title = document.getElementById('fTitle').value.trim();
     const desc = document.getElementById('fDesc').value.trim();
     const slug = document.getElementById('fSlug').value.trim().replace(/\s+/g, '-').toLowerCase();
@@ -1412,6 +1412,7 @@ ${body}`;
           content,
           sha: currentSha || undefined,
           password: pw,
+          deploy,
         }),
       });
       const data = await r.json();
@@ -1990,7 +1991,7 @@ snsCopy:
       onStatusChange();
       try {
         btn.innerHTML = '① GitHub 저장 중...';
-        await savePost();
+        await savePost(true);
         const saved = document.getElementById('saveStatus').classList.contains('ok');
         if (!saved) { btn.innerHTML = origHtml; btn.disabled = false; return; }
         // 폴링
@@ -2038,7 +2039,7 @@ snsCopy:
       btn.innerHTML = '① GitHub 저장 중...';
 
       if (choice === 'ko' || choice === 'both') {
-        await savePost();
+        await savePost(true);
         koOk = document.getElementById('saveStatus').classList.contains('ok');
       }
 
@@ -2054,7 +2055,7 @@ snsCopy:
           const r = await fetch('/api/journal-admin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'save', path, content: enContent, password: pw, sha: currentEnSha || undefined }),
+            body: JSON.stringify({ action: 'save', path, content: enContent, password: pw, sha: currentEnSha || undefined, deploy: true }),
           });
           const data = await r.json();
           if (r.ok) {

@@ -93,9 +93,11 @@ export default async function handler(req, res) {
 
     // ── SAVE (create or update) ──
     if (action === 'save' && req.method === 'POST') {
-      const { path, content, message, sha } = req.body;
+      const { path, content, message, sha, deploy } = req.body;
       if (!path || !content) return res.status(400).json({ error: 'path and content required' });
-      const commitMsg = message || (sha ? `update: ${path.split('/').pop()}` : `feat: new journal post ${path.split('/').pop()}`);
+      // deploy=true(최종 배포)가 아니면 [nodeploy] 태그 추가 → Vercel 빌드 스킵
+      const baseMsg = message || (sha ? `update: ${path.split('/').pop()}` : `feat: new journal post ${path.split('/').pop()}`);
+      const commitMsg = deploy ? baseMsg : `${baseMsg} [nodeploy]`;
       let result = await ghPut(path, content, commitMsg, sha || undefined);
 
       // SHA 충돌(409/422) 시 최신 SHA 가져와서 한 번 재시도
