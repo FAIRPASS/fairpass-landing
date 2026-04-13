@@ -134,10 +134,35 @@ LinkedIn 국문 짧은 버전 (220자 이내 / 첫 줄: 숫자·질문·반전·
 LinkedIn 국문 표준 버전 (350자 이내 / 동일 원칙 / 짧은 버전보다 맥락 추가)
 
 [LINKEDIN_EN_SHORT]
-LinkedIn English short (under 220 chars / targeting Singapore/Global MICE/Event Manager/PCO / clear, credible, professional / hashtags 5 or less / include journal link)
+LinkedIn English — condensed version.
+Follow the same strategic principles as STANDARD but compress to: Hook (1 line) + 1 key insight line + CTA line + max 3 hashtags.
+No greetings. No filler. Peer-to-peer tone. Include journal link: ${journalUrl}
 
 [LINKEDIN_EN_STANDARD]
-LinkedIn English standard (under 350 chars / same principles / more context than short version)
+LinkedIn English — full post. Follow this structure EXACTLY:
+
+COMPANY CONTEXT:
+- FAIRPASS provides: self-service check-in kiosks, online registration platform, FSC-certified eco-friendly paper badges
+- Target audience: corporate event managers, MICE professionals, venue operators (Korea, Singapore, global)
+- Brand positioning: "Smart. Fast. Sustainable." — not just a badge company, but event infrastructure
+- Journal URL: ${journalUrl}
+
+POST STRUCTURE (follow exactly, in this order):
+1. [Hook] — Line 1-2 only. Bold claim, surprising stat, or sharp question. Must stop the scroll. No greetings, no "We are excited to share..."
+2. [Problem/Insight] — 3-5 lines max. Describe the pain point or industry insight the journal addresses. Use specific numbers or scenarios when available.
+3. [Partial Value] — 2-3 lines. Share ONE key insight from the journal — enough to create curiosity, not enough to satisfy it. End with tension: "But that's only part of the story."
+4. [CTA] — 1-2 lines. Direct link to the journal article. Example: "The full breakdown is on the FAIRPASS Journal → ${journalUrl}"
+5. [Hashtags] — Max 5. Choose from: #EventTech #MICE #CorporateEvents #HybridEvents #EventManagement #Sustainability #ESG #SingaporeEvents #EventPlanning #FAIRPASS
+
+TONE & STYLE:
+- Write in English
+- Tone: confident, data-informed, peer-to-peer (not salesy)
+- Avoid: "We're thrilled", "Excited to announce", "Game-changer"
+- Prefer: active voice, short sentences, one idea per line
+- The reader is a senior event professional — write to their intelligence
+- NO bullet points with emoji overload. Max 2-3 emojis total per post.
+
+Output ONLY the post text. No labels, no commentary.
 
 [INSTAGRAM_COMBINED]
 인스타그램 한/영 병기 캡션 (현재 @fairpass.world 단일 계정 운영 방식)
