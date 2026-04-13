@@ -1974,14 +1974,57 @@ snsCopy:
     const origHtml = btn.innerHTML;
     btn.disabled = true;
 
+    const slug = document.getElementById('fSlug').value.trim();
+    let koOk = true, enOk = true;
+
+    // ── EN 탭에서 편집 중인 경우: 현재 포스트를 published로 직접 저장 ──
+    if (currentLang === 'en') {
+      document.getElementById('fStatus').value = 'published';
+      onStatusChange();
+      try {
+        btn.innerHTML = '① GitHub 저장 중...';
+        await savePost();
+        const saved = document.getElementById('saveStatus').classList.contains('ok');
+        if (!saved) { btn.innerHTML = origHtml; btn.disabled = false; return; }
+        // 폴링
+        btn.innerHTML = '② Vercel 빌드 대기 중...';
+        const checkUrl = `/journal/en/${slug}/`;
+        const POLL_INTERVAL = 15000; const POLL_TIMEOUT = 360000;
+        const startTime = Date.now();
+        const pollInterval = setInterval(async () => {
+          const elapsed = Date.now() - startTime;
+          const mins = Math.floor(elapsed / 60000);
+          const secs = Math.floor((elapsed % 60000) / 1000);
+          btn.innerHTML = `② Vercel 빌드 중... (${mins}:${secs.toString().padStart(2,'0')})`;
+          if (elapsed > POLL_TIMEOUT) {
+            clearInterval(pollInterval);
+            btn.innerHTML = origHtml; btn.disabled = false;
+            showErrorDetail('빌드 시간 초과', `GitHub 저장은 성공했지만 ${Math.floor(POLL_TIMEOUT/60000)}분이 지나도 랜딩페이지에 노출되지 않았습니다.\n\nVercel 대시보드에서 빌드 로그를 확인하세요.`);
+            return;
+          }
+          try {
+            const res = await fetch(checkUrl, { cache: 'no-store' });
+            if (res.ok) {
+              clearInterval(pollInterval);
+              btn.innerHTML = '✅ 랜딩페이지 노출 확인!';
+              btn.style.background = 'linear-gradient(135deg,#059669,#0891b2)';
+              setTimeout(() => { btn.innerHTML = origHtml; btn.style.background = ''; btn.disabled = false; }, 6000);
+            }
+          } catch {}
+        }, POLL_INTERVAL);
+      } catch (e) {
+        showErrorDetail('배포 오류', e.message);
+        btn.innerHTML = origHtml; btn.disabled = false;
+      }
+      return;
+    }
+
+    // ── KO 탭 로직 ──
     // KO 저장 시 status → published
     if (choice === 'ko' || choice === 'both') {
       document.getElementById('fStatus').value = 'published';
       onStatusChange();
     }
-
-    const slug = document.getElementById('fSlug').value.trim();
-    let koOk = true, enOk = true;
 
     try {
       // ── 1단계: GitHub 저장 ──
