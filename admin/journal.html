@@ -1326,22 +1326,29 @@
       }
 
       // 기존 영문 버전 로드 (있으면 에디터에 표시)
+      // slug.md 와 slug-en.md 두 가지 경로를 순서대로 시도
       currentEnSha = null;
       currentEnPath = null;
       if (currentLang === 'ko') {
         const slug2 = path.split('/').pop().replace('.md', '');
-        const enPath = `blog-src/src/content/journal-en/${slug2}.md`;
-        try {
-          const enR = await fetch(`/api/journal-admin?action=read&path=${encodeURIComponent(enPath)}&password=${encodeURIComponent(pw)}`);
-          if (enR.ok) {
-            const { content: enContent, sha: enSha } = await enR.json();
-            currentEnSha = enSha;
-            currentEnPath = enPath;
-            initEnglishEditor();
-            easyMDEEn.value(enContent);
-            document.getElementById('translateResult').classList.add('open');
-          }
-        } catch {}
+        const enPathCandidates = [
+          `blog-src/src/content/journal-en/${slug2}.md`,
+          `blog-src/src/content/journal-en/${slug2}-en.md`,
+        ];
+        for (const enPath of enPathCandidates) {
+          try {
+            const enR = await fetch(`/api/journal-admin?action=read&path=${encodeURIComponent(enPath)}&password=${encodeURIComponent(pw)}`);
+            if (enR.ok) {
+              const { content: enContent, sha: enSha } = await enR.json();
+              currentEnSha = enSha;
+              currentEnPath = enPath;
+              initEnglishEditor();
+              easyMDEEn.value(enContent);
+              document.getElementById('translateResult').classList.add('open');
+              break; // 찾았으면 중단
+            }
+          } catch {}
+        }
       }
     } catch (e) {
       document.getElementById('saveStatus').className = 'save-status err';
