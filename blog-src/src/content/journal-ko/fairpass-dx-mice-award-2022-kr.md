@@ -6,16 +6,16 @@ category: "미디어 클리핑"
 tags: ["FAIRPASS", "페어패스", "DX우수마이스기업", "한국마이스협회", "QR체크인", "무인발권", "명찰출력", "마이스테크"]
 author: "FAIRPASS 팀"
 authorTitle: ""
-draft: true
-status: draft
+draft: false
+status: published
 ---
 
-## **페어패스(FAIRPASS)**, DX 우수 마이스기업 선정 — 출시 6개월 만에 대형 행사 잇달아 도입
 
 한국마이스협회는 2022년 정부 지원을 통해 전시·컨벤션 등 각종 행사 현장에 적용 가능한 마이스 테크를 개발한 83개 기업 가운데, 사업화 가능성이 높은 6개 사를 **DX 우수 마이스기업**으로 선정했다.
 
 
-![KakaoTalk_20241220_115101260_12.jpg](/journal/journal-images/1776062950618_kakaotalk_20241220_115101260_12.jpg)
+![KakaoTalk_20241220_115101260_12.jpg](https://ztqxwbagbqenrcvjrkrh.supabase.co/storage/v1/object/public/journal/1776065104405_kakaotalk_20241220_115101260_12.jpg)
+
 
 
 
