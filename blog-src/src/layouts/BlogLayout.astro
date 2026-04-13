@@ -54,7 +54,7 @@ const articleSchema = type === 'article' && pubDate ? {
     '@type': 'Organization',
     name: 'FAIRPASS',
     url: site,
-    logo: { '@type': 'ImageObject', url: `${site}/images/FAIRPASS.png` },
+    logo: { '@type': 'ImageObject', url: `${site}/images/FAIRPASS(w+Blue).png` },
   },
   author: { '@type': 'Organization', name: 'FAIRPASS' },
 } : null;
@@ -161,7 +161,7 @@ const ui = {
       <!-- Logo / Breadcrumb -->
       <div class="flex items-center gap-2 text-sm text-fp-muted min-w-0">
         <a href="https://fairpass.world/" class="hover:text-fp-text transition-colors shrink-0">
-          <img src="/images/FAIRPASS.png" alt="FAIRPASS" class="h-6 w-auto" loading="eager" />
+          <img src="/images/FAIRPASS(w+Blue).png" alt="FAIRPASS" class="h-6 w-auto" loading="eager" />
         </a>
         <span class="shrink-0">/</span>
         <a href={`${base}/`} class="hover:text-fp-text transition-colors shrink-0">Journal</a>
@@ -200,7 +200,7 @@ const ui = {
         <!-- Brand -->
         <div>
           <a href="https://fairpass.world/">
-            <img src="/images/FAIRPASS.png" alt="FAIRPASS" class="h-7 w-auto mb-4" />
+            <img src="/images/FAIRPASS(w+Blue).png" alt="FAIRPASS" class="h-7 w-auto mb-4" />
           </a>
           <p class="text-sm text-fp-muted leading-relaxed max-w-xs">
             {lang === 'ko'
