@@ -5,6 +5,7 @@ node_modules/
 blog/
 journal/
 package-lock.json
+!blog-src/package-lock.json
 __MACOSX/
 images/PORTFOLIO_IMAGE/
 images/image.zip

@@ -654,7 +654,7 @@
             <button class="btn btn-danger btn-sm" id="deleteBtn" onclick="deletePost()" style="display:none;">삭제</button>
             <button class="btn btn-ghost" onclick="showList()">취소</button>
             <button class="btn btn-primary" onclick="savePost()" id="saveBtn">저장 (초안)</button>
-            <button class="btn btn-success" onclick="publishPost()" id="publishBtn" style="background:linear-gradient(135deg,#10b981,#06b6d4);">🚀 최종 배포</button>
+            <button class="btn btn-success" onclick="publishPost()" id="publishBtn" style="background:linear-gradient(135deg,#7c3aed,#0891b2);color:#fff;border:none;">🚀 최종 배포</button>
           </div>
         </div>
       </div>
@@ -1989,7 +1989,7 @@ snsCopy:
         // 폴링
         btn.innerHTML = '② Vercel 빌드 대기 중...';
         const checkUrl = `/journal/en/${slug}/`;
-        const POLL_INTERVAL = 15000; const POLL_TIMEOUT = 360000;
+        const POLL_INTERVAL = 15000; const POLL_TIMEOUT = 600000;
         const startTime = Date.now();
         const pollInterval = setInterval(async () => {
           const elapsed = Date.now() - startTime;
@@ -2076,7 +2076,7 @@ snsCopy:
       const checkUrl = `/journal/${checkLang}/${slug}/`;
 
       const POLL_INTERVAL = 15000; // 15초
-      const POLL_TIMEOUT  = 360000; // 6분
+      const POLL_TIMEOUT  = 600000; // 10분
       const startTime = Date.now();
       let elapsed = 0;
 
