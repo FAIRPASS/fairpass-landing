@@ -76,6 +76,11 @@ const dateStr = post.data.pubDate.toLocaleDateString('en-US', {
       <hr class="border-fp-border mt-8" />
     </header>
 
+    {post.data.category === 'Media Clipping' && (
+      <p class="clipping-disclaimer">
+        * This content is a media clipping featuring FAIRPASS-related excerpts from official press releases and media coverage. The full original article is available via the source link below.
+      </p>
+    )}
     <div class="prose-blog">
       <Content />
     </div>
@@ -116,6 +121,13 @@ const dateStr = post.data.pubDate.toLocaleDateString('en-US', {
 </BlogLayout>
 
 <style is:global>
+  .clipping-disclaimer {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
   .prose-blog {
     color: rgba(255,255,255,0.80);
     font-size: 0.9375rem;

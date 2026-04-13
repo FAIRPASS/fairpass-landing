@@ -550,9 +550,13 @@ ${rawText}
 
     const sourceRaw = extractSection('SOURCE');
     const koMetaRaw = extractSection('KO_META');
-    const koBody    = extractSection('KO_BODY');
     const enMetaRaw = extractSection('EN_META');
-    const enBody    = extractSection('EN_BODY');
+    // 본문 H1 중복 제거 — "# 제목" 으로 시작하는 첫 줄 제거
+    function stripLeadingH1(body) {
+      return body.replace(/^#\s+[^\n]*\n?/, '').trimStart();
+    }
+    const koBody = stripLeadingH1(extractSection('KO_BODY'));
+    const enBody = stripLeadingH1(extractSection('EN_BODY'));
 
     let source, koMeta, enMeta;
     try { source = JSON.parse(sourceRaw); } catch(e) {

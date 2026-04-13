@@ -85,6 +85,11 @@ const dateStr = post.data.pubDate.toLocaleDateString('ko-KR', {
     </header>
 
     <!-- Body -->
+    {post.data.category === '미디어 클리핑' && (
+      <p class="clipping-disclaimer">
+        * 본 콘텐츠는 공식 배포된 보도자료 및 언론 기사 중 FAIRPASS 관련 내용을 발췌·편집한 미디어 클리핑입니다. 전체 원문은 하단 출처 링크에서 확인하실 수 있습니다.
+      </p>
+    )}
     <div class="prose-blog">
       <Content />
     </div>
@@ -125,6 +130,13 @@ const dateStr = post.data.pubDate.toLocaleDateString('ko-KR', {
 </BlogLayout>
 
 <style is:global>
+  .clipping-disclaimer {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
   .prose-blog {
     color: rgba(255,255,255,0.80);
     font-size: 0.9375rem;
