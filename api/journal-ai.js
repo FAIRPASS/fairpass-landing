@@ -431,6 +431,164 @@ ${rawText}
   }
 }
 
+// ── 미디어 클리핑 (언론 기사 + LinkedIn) ─────────────────────
+async function handleExternalImport(req, res) {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'url required' });
+
+  const isLinkedIn = /linkedin\.com\/(posts|feed|update|pulse)/.test(url);
+
+  // 1. URL 크롤링
+  let rawHtml, rawText;
+  try {
+    const r = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; FAIRPASSBot/1.0)' },
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!r.ok) return res.status(400).json({ error: `URL 접근 실패 (HTTP ${r.status}). LinkedIn은 공개 게시글만 가능합니다.` });
+    rawHtml = await r.text();
+    // LinkedIn 로그인 페이지 감지
+    if (isLinkedIn && (rawHtml.includes('authwall') || rawHtml.includes('login') && rawHtml.includes('session_redirect'))) {
+      return res.status(400).json({ error: 'LinkedIn 로그인이 필요한 게시글입니다. 공개(Public) 게시글 URL을 사용해주세요.' });
+    }
+    rawText = rawHtml
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 5000);
+  } catch (e) {
+    return res.status(400).json({ error: `URL 가져오기 실패: ${e.message}` });
+  }
+
+  const typeLabel = isLinkedIn ? 'LinkedIn' : '언론 기사';
+  const sourceType = isLinkedIn ? 'linkedin' : 'news';
+
+  const system = `당신은 FAIRPASS B2B 이벤트 플랫폼의 미디어 클리핑 전담 에디터입니다.
+FAIRPASS는 행사 온라인 접수·QR 체크인·무인 명찰 출력을 통합한 B2B 이벤트 플랫폼입니다.
+
+역할: 외부 ${typeLabel}를 FAIRPASS Journal '언론 보도' / 'In the Press' 카테고리 포스트로 재편집합니다.
+
+핵심 규칙:
+- 원문 사실·수치 보존 (전문 복사 금지 — 저작권 보호, 요약 및 재편집)
+- FAIRPASS·페어패스·키오스크·명찰·QR 체크인·등록 시스템 관련 문장/단어 → **굵게** 처리
+- 타사 제품·브랜드가 언급된 경우 FAIRPASS 관련 내용 중심으로 재구성 (타사 내용은 축약)
+- 출처 블록을 본문 맨 마지막에 반드시 추가
+- KO/EN 두 버전 모두 생성
+
+출처 블록 형식:
+- ${sourceType === 'news' ? '언론 기사: > 📰 **출처:** [언론사명](url) · 배포: YYYY-MM-DD · 작성: 기자명' : 'LinkedIn: > 💼 **출처:** [작성자명 (게시 채널/회사명)](url) · 게시: YYYY-MM-DD'}
+
+FAIRPASS 하이라이트 기준:
+- 반드시 **굵게**: FAIRPASS, 페어패스, 키오스크, 무인발권, 종이명찰, QR 체크인
+- 선택적 **굵게**: 행사 등록 자동화, 현장 운영, 명찰 출력 (FAIRPASS 맥락일 때만)`;
+
+  const user = `아래 ${typeLabel} 내용을 FAIRPASS Journal 미디어 클리핑 포스트로 재편집해주세요.
+출처 URL: ${url}
+감지 타입: ${typeLabel}
+
+---원문 내용---
+${rawText}
+---끝---
+
+반드시 아래 형식 그대로 반환하세요. 형식을 절대 바꾸지 마세요:
+
+===SOURCE===
+{"type":"${sourceType}","title":"원문 제목 또는 게시글 주제","outlet":"${sourceType === 'news' ? '언론사명' : '작성자명 (회사/채널명)'}","author":"${sourceType === 'news' ? '기자명 또는 편집부' : '작성자명 (게시한 채널/회사)'}","date":"YYYY-MM-DD","url":"${url}"}
+===KO_META===
+{"title":"국문 제목","description":"국문 설명 160자 이내","tags":["태그1","태그2","태그3"],"slug":"press-slug-kr"}
+===KO_BODY===
+(국문 마크다운 본문 — FAIRPASS 관련 내용 **굵게** — 마지막에 출처 블록 포함)
+===EN_META===
+{"title":"English title","description":"English description under 160 chars","tags":["tag1","tag2","tag3"],"slug":"press-slug-en"}
+===EN_BODY===
+(English markdown body — FAIRPASS related **bold** — source attribution at end)
+
+규칙:
+- ===SOURCE=== 줄에는 한 줄 JSON만
+- ===KO_META=== / ===EN_META=== 줄에는 각각 한 줄 JSON만
+- BODY는 ## 소제목으로 시작 (H1 제목 본문에 포함 금지)
+- KO slug 끝: -kr / EN slug 끝: -en`;
+
+  try {
+    const r = await claudeCall({ system, user, maxTokens: 4500 });
+    if (!r.ok) return res.status(500).json({ error: 'Claude API error', detail: await r.text() });
+    const result = await r.json();
+    const text = result.content[0].text;
+
+    function extractSection(marker) {
+      const re = new RegExp(`===${marker}===\\s*\\n([\\s\\S]*?)(?=\\n===[A-Z_]+=== |$)`);
+      const m = text.match(re);
+      return m ? m[1].trim() : '';
+    }
+
+    const sourceRaw = extractSection('SOURCE');
+    const koMetaRaw = extractSection('KO_META');
+    const koBody    = extractSection('KO_BODY');
+    const enMetaRaw = extractSection('EN_META');
+    const enBody    = extractSection('EN_BODY');
+
+    const source = JSON.parse(sourceRaw);
+    const koMeta = JSON.parse(koMetaRaw);
+    const enMeta = JSON.parse(enMetaRaw);
+
+    const today = new Date().toISOString().split('T')[0];
+    const pubDate = source.date || today;
+
+    // 소스 YAML 블록 생성
+    const sourceYaml = `source:
+  type: "${source.type}"
+  title: "${(source.title || '').replace(/"/g, '\\"')}"
+  outlet: "${(source.outlet || '').replace(/"/g, '\\"')}"
+  author: "${(source.author || '').replace(/"/g, '\\"')}"
+  date: "${source.date || ''}"
+  url: "${source.url || url}"`;
+
+    // KO 마크다운 전체 (frontmatter 포함)
+    const koContent = `---
+title: "${(koMeta.title || '').replace(/"/g, '\\"')}"
+description: "${(koMeta.description || '').replace(/"/g, '\\"')}"
+pubDate: ${pubDate}
+category: "언론 보도"
+tags: [${(koMeta.tags || []).map(t => `"${t}"`).join(', ')}]
+author: "FAIRPASS 팀"
+authorTitle: ""
+draft: false
+status: draft
+${sourceYaml}
+---
+
+${koBody}`;
+
+    // EN 마크다운 전체 (frontmatter 포함)
+    const enContent = `---
+title: "${(enMeta.title || '').replace(/"/g, '\\"')}"
+description: "${(enMeta.description || '').replace(/"/g, '\\"')}"
+pubDate: ${pubDate}
+category: "In the Press"
+tags: [${(enMeta.tags || []).map(t => `"${t}"`).join(', ')}]
+author: "FAIRPASS Team"
+authorTitle: ""
+draft: false
+status: draft
+${sourceYaml}
+---
+
+${enBody}`;
+
+    return res.status(200).json({
+      success: true,
+      sourceType,
+      source,
+      ko: { ...koMeta, content: koContent, body: koBody },
+      en: { ...enMeta, content: enContent, body: enBody },
+    });
+  } catch (e) {
+    return res.status(500).json({ error: 'External import failed', detail: e.message });
+  }
+}
+
 // ── 슬러그 생성 ──────────────────────────────────────────────
 async function handleSlug(req, res) {
   const { title, lang = 'ko' } = req.body;
@@ -484,6 +642,7 @@ export default async function handler(req, res) {
   if (action === 'import')    return handleImport(req, res);
   if (action === 'slug')        return handleSlug(req, res);
   if (action === 'pressImport') return handlePressImport(req, res);
+  if (action === 'externalImport') return handleExternalImport(req, res);
 
-  return res.status(400).json({ error: 'Invalid action. Use: sns | translate | import | slug | pressImport' });
+  return res.status(400).json({ error: 'Invalid action. Use: sns | translate | import | slug | pressImport | externalImport' });
 }

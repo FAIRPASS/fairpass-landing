@@ -15,6 +15,14 @@ const postSchema = z.object({
   status: z.enum(['draft', 'review', 'approved', 'published']).default('draft'),
   faq: z.array(z.object({ q: z.string(), a: z.string() })).optional(),
   translationKey: z.string().optional(),
+  source: z.object({
+    type: z.string().optional(),
+    title: z.string().optional(),
+    outlet: z.string().optional(),
+    author: z.string().optional(),
+    date: z.string().optional(),
+    url: z.string().optional(),
+  }).optional(),
   snsCopy: z.object({
     linkedinKrShort:    z.string().default(''),
     linkedinKrStandard: z.string().default(''),
