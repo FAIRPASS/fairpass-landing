@@ -535,7 +535,10 @@ async function handleExternalImport(req, res) {
   if (directText) {
     // ── 텍스트 직접 입력 모드 ──
     if (directText.trim().length < 30) return res.status(400).json({ error: '기사 본문이 너무 짧습니다 (최소 30자).' });
-    rawText = directText.trim().slice(0, 8000);
+    // verbatim: KO 원문 재현 + EN 번역 필요 → 입력 4000자 제한 (초과 시 일부 생략)
+    // extract: AI가 요약하므로 8000자까지 허용
+    const textLimit = (mode === 'verbatim') ? 4000 : 8000;
+    rawText = directText.trim().slice(0, textLimit);
     typeLabel = '단독 기사';
     sourceType = 'exclusive';
     sourceUrl = (sourceInfo && sourceInfo.url) || '';
@@ -603,30 +606,29 @@ async function handleExternalImport(req, res) {
 FAIRPASS **굵게** 처리 키워드: FAIRPASS, 페어패스, 키오스크, 무인발권, 종이명찰, QR 체크인, 명찰 출력
 출처 블록 형식: ${sourceBlockGuide}`;
 
-    user = `아래 기사를 원문 그대로 마크다운으로 변환해주세요. 내용을 절대 바꾸지 마세요.
+    user = `아래 기사를 원문 그대로 마크다운으로 변환하세요. 내용을 절대 바꾸지 마세요.
 감지 타입: ${typeLabel}${exclusiveHint}
 
 ---원문---
 ${rawText}
 ---끝---
 
-반드시 아래 형식 그대로 반환하세요:
+반드시 아래 형식 그대로 반환하세요. 각 === 섹션 사이에 내용을 빠짐없이 채우세요:
 
 ===SOURCE===
 {"type":"${sourceType}","title":"원문 기사 제목 (원문에서 추출)","outlet":"${outletPlaceholder}","author":"${authorPlaceholder}","date":"YYYY-MM-DD","url":"${sourceUrl}"}
 ===KO_META===
 {"title":"원문 기사 제목 그대로","description":"원문 첫 2~3문장 요약 160자 이내","tags":["태그1","태그2","태그3"],"slug":"press-slug-kr"}
 ===KO_BODY===
-(원문 전체를 단락 구분만 하여 마크다운 변환. FAIRPASS 키워드만 굵게. 마지막에 출처 블록 추가. 내용 절대 변경 금지)
+여기에 원문 기사 전체를 그대로 작성합니다. 단락 구분을 정리하고, FAIRPASS/페어패스/키오스크/QR 체크인/종이명찰 키워드는 **굵게** 처리합니다. 마지막 줄에 출처 블록을 추가합니다. 내용 요약·삭제·추가는 절대 금지입니다.
 ===EN_META===
 {"title":"English title — direct translation of KO title","description":"English description under 160 chars","tags":["tag1","tag2","tag3"],"slug":"press-slug-en"}
 ===EN_BODY===
-(KO 본문을 문장 단위 직역. 의역·요약 금지. FAIRPASS keywords bold. Source attribution at end)
+여기에 위의 KO_BODY를 문장 단위로 영어 직역합니다. 의역·요약 금지. FAIRPASS keywords bold. Source attribution at end.
 
-규칙:
-- ===SOURCE=== 줄에는 한 줄 JSON만
-- ===KO_META=== / ===EN_META=== 줄에는 각각 한 줄 JSON만
-- BODY는 ## 소제목으로 시작 금지 — 원문 구조 그대로
+형식 규칙:
+- ===SOURCE=== / ===KO_META=== / ===EN_META=== 줄에는 한 줄 JSON만
+- KO_BODY와 EN_BODY는 반드시 실제 기사 내용으로 채울 것 (위 예시 문장 자체를 그대로 쓰지 말 것)
 - KO slug 끝: -kr / EN slug 끝: -en`;
 
   } else {
@@ -676,14 +678,18 @@ ${rawText}
 - KO slug 끝: -kr / EN slug 끝: -en`;
   }
 
+  // verbatim은 원문 전체 + 번역 모두 출력해야 하므로 토큰 2배 필요
+  const maxTok = (mode === 'verbatim') ? 8000 : 4500;
+
   try {
-    const r = await claudeCall({ system, user, maxTokens: 4500 });
+    const r = await claudeCall({ system, user, maxTokens: maxTok });
     if (!r.ok) return res.status(500).json({ error: 'Claude API error', detail: await r.text() });
     const result = await r.json();
     const text = result.content[0].text;
 
     function extractSection(marker) {
-      const re = new RegExp(`===${marker}===\\s*\\n([\\s\\S]*?)(?=\\n===[A-Z_]+===|$)`);
+      // \n? 선택적으로: 마커 바로 뒤에 줄바꿈 없는 경우도 처리
+      const re = new RegExp(`===${marker}===[ \\t]*\\n?([\\s\\S]*?)(?=\\n===[A-Z_]+===|$)`);
       const m = text.match(re);
       return m ? m[1].trim() : '';
     }
