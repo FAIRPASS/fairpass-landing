@@ -7,7 +7,7 @@ tags: ["FAIRPASS", "MICE Tech", "Singapore", "Sustainable Events", "Event Techno
 author: "FAIRPASS Team"
 authorTitle: ""
 draft: false
-status: draft
+status: published
 translationKey: "fairpass-singapore-global-expansion-kr"
 ---
 
