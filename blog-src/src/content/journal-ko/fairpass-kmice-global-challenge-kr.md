@@ -8,6 +8,7 @@ author: "FAIRPASS 팀"
 authorTitle: ""
 draft: false
 status: published
+imagePosition: "0% 86%"
 ---
 
 ![image (5).png](https://ztqxwbagbqenrcvjrkrh.supabase.co/storage/v1/object/public/journal/1776149464164_image__5_.jpg)
