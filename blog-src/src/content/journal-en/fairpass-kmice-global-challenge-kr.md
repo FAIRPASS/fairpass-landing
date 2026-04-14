@@ -7,7 +7,7 @@ tags: ["FAIRPASS", "K-MICE", "eco-friendly badge", "Korea Tourism Organization",
 author: "FAIRPASS Team"
 authorTitle: ""
 draft: false
-status: draft
+status: published
 translationKey: "fairpass-kmice-global-challenge-kr"
 ---
 
