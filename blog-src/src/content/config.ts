@@ -10,6 +10,7 @@ const postSchema = z.object({
   author: z.string().default('FAIRPASS 팀'),
   authorTitle: z.string().default(''),
   image: z.string().optional(),
+  imagePosition: z.string().optional(),
   featured: z.boolean().default(false),
   draft: z.boolean().default(false),
   status: z.enum(['draft', 'review', 'approved', 'published']).default('draft'),

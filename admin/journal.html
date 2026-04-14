@@ -132,6 +132,11 @@
     .EasyMDEContainer .editor-preview { background: rgba(10,10,18,0.9); color: var(--text); }
     .EasyMDEContainer .editor-statusbar { display: none; }
 
+    /* ── Image position picker ── */
+    .img-pos-btn { width:28px;height:28px;font-size:13px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.1);border-radius:4px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.15s;padding:0; }
+    .img-pos-btn:hover { border-color:rgba(14,165,233,0.5);color:var(--cyan-light); }
+    .img-pos-btn.active { border-color:rgba(14,165,233,0.7);color:var(--cyan-light);background:rgba(14,165,233,0.12); }
+
     /* ── Image upload zone ── */
     .img-upload-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
     .img-upload-label { display: flex; align-items: center; gap: 6px; padding: 7px 14px; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius-xs); font-size: 12px; color: var(--muted); cursor: pointer; transition: all 0.15s; }
@@ -584,6 +589,26 @@
               <option value="approved">🔵 승인됨</option>
               <option value="published">🟢 배포 완료</option>
             </select>
+          </div>
+          <div class="form-group span2">
+            <label class="form-label">카드 이미지 포커스 위치 <span style="font-weight:400;color:var(--muted2);">(썸네일 크롭 기준점)</span></label>
+            <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+              <div style="display:grid;grid-template-columns:repeat(3,28px);gap:3px;">
+                <button type="button" class="img-pos-btn" data-pos="0% 0%" title="왼쪽 상단">↖</button>
+                <button type="button" class="img-pos-btn" data-pos="50% 0%" title="상단 중앙">↑</button>
+                <button type="button" class="img-pos-btn" data-pos="100% 0%" title="오른쪽 상단">↗</button>
+                <button type="button" class="img-pos-btn" data-pos="0% 50%" title="왼쪽 중앙">←</button>
+                <button type="button" class="img-pos-btn active" data-pos="50% 50%" title="중앙 (기본값)">●</button>
+                <button type="button" class="img-pos-btn" data-pos="100% 50%" title="오른쪽 중앙">→</button>
+                <button type="button" class="img-pos-btn" data-pos="0% 100%" title="왼쪽 하단">↙</button>
+                <button type="button" class="img-pos-btn" data-pos="50% 100%" title="하단 중앙">↓</button>
+                <button type="button" class="img-pos-btn" data-pos="100% 100%" title="오른쪽 하단">↘</button>
+              </div>
+              <div style="flex:1;min-width:140px;">
+                <input class="form-input" id="fImagePosition" type="text" placeholder="50% 50% (기본값)" style="font-size:12px;" oninput="syncImgPosPicker()" />
+                <div style="font-size:10px;color:var(--muted2);margin-top:3px;">CSS object-position 값. 예: top / 50% 20% / center</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1680,6 +1705,7 @@
     document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
     document.getElementById('fStatus').value = 'draft';
     onStatusChange();
+    setImagePosition('');
     document.getElementById('deleteBtn').style.display = 'none';
     document.getElementById('saveStatus').textContent = '';
     clearSnsFields();
@@ -1729,6 +1755,7 @@
       document.getElementById('fDate').value = fm.pubDate || new Date().toISOString().split('T')[0];
       document.getElementById('fStatus').value = fm.status || 'draft';
       onStatusChange();
+      setImagePosition(fm.imagePosition || '');
       // 구 이미지 경로 자동 수정 (/journal/journal-images/ → /journal-images/)
       const fixedBody = body.replace(/\/journal\/journal-images\//g, '/journal-images/');
       easyMDE.value(fixedBody);
@@ -1796,6 +1823,8 @@
     const date = document.getElementById('fDate').value;
     const status = document.getElementById('fStatus').value;
     const draft = status !== 'published';
+    const imagePosition = document.getElementById('fImagePosition').value.trim();
+    const imagePosYaml = imagePosition ? `\nimagePosition: "${imagePosition.replace(/"/g, '\\"')}"` : '';
     const body = easyMDE.value();
 
     // SNS copy
@@ -1819,7 +1848,7 @@ ${tagsYaml}
 author: "${author.replace(/"/g, '\\"')}"
 authorTitle: "${authorTitle.replace(/"/g, '\\"')}"
 draft: ${draft}
-status: ${status}${snsCopyYaml}
+status: ${status}${imagePosYaml}${snsCopyYaml}
 ---
 
 ${body}`;
@@ -2076,6 +2105,30 @@ ${body}`;
     }
     setTimeout(() => { progressEl.style.display = 'none'; }, 5000);
     input.value = '';
+  }
+
+  // ── Image position picker ──
+  (function() {
+    document.querySelectorAll('.img-pos-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.img-pos-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const input = document.getElementById('fImagePosition');
+        input.value = this.dataset.pos === '50% 50%' ? '' : this.dataset.pos;
+      });
+    });
+  })();
+
+  function syncImgPosPicker() {
+    const val = (document.getElementById('fImagePosition').value.trim() || '50% 50%');
+    document.querySelectorAll('.img-pos-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.pos === val);
+    });
+  }
+
+  function setImagePosition(val) {
+    document.getElementById('fImagePosition').value = val || '';
+    syncImgPosPicker();
   }
 
   // ── Author / Status helpers ──
@@ -2587,16 +2640,17 @@ snsCopy:
     if (!match) return {};
     const result = {};
     const lines = match[1].split('\n');
-    let inSnsCopy = false;
+    let inBlock = false; // snsCopy: / source: 등 중첩 블록 스킵
     for (const line of lines) {
-      if (line.trim() === 'snsCopy:') { inSnsCopy = true; continue; }
-      if (inSnsCopy && line.startsWith('  ')) continue; // skip nested
-      if (!line.startsWith('  ') && inSnsCopy) inSnsCopy = false;
+      const trimmed = line.trim();
+      if (trimmed === 'snsCopy:' || trimmed === 'source:') { inBlock = true; continue; }
+      if (inBlock && line.startsWith('  ')) continue;
+      if (!line.startsWith('  ') && inBlock) inBlock = false;
       const colonIdx = line.indexOf(':');
       if (colonIdx === -1) continue;
       const key = line.slice(0, colonIdx).trim();
       const val = line.slice(colonIdx + 1).trim().replace(/^["']|["']$/g, '');
-      if (key && !inSnsCopy) result[key] = val;
+      if (key && !inBlock) result[key] = val;
     }
     return result;
   }
