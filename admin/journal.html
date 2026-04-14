@@ -597,7 +597,7 @@
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
               <button type="button" onclick="openCropModal()" style="display:flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.4);border-radius:6px;color:var(--cyan-light);font-size:12px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='rgba(14,165,233,0.2)'" onmouseout="this.style.background='rgba(14,165,233,0.1)'">🎯 포커스 설정</button>
               <input class="form-input" id="fImagePosition" type="text" placeholder="미설정 시 중앙" style="flex:1;min-width:100px;max-width:180px;font-size:12px;" />
-              <span style="font-size:10px;color:var(--muted2);">본문 첫 이미지 기준 · 버튼 클릭으로 드래그 설정</span>
+              <span style="font-size:10px;color:var(--muted2);">📌 본문에 삽입된 <b style="color:rgba(255,255,255,0.35);">첫 번째 이미지</b>가 썸네일 기준 · 포커스 설정 후 저장</span>
             </div>
           </div>
         </div>
@@ -934,6 +934,25 @@
       <button class="btn btn-ghost btn-sm" onclick="closePreview()">✕ 닫기</button>
     </div>
     <div class="preview-content" id="previewContent"></div>
+  </div>
+</div>
+
+<!-- ── Crop modal (스크립트 이전에 위치해야 getElementById가 작동함) ── -->
+<div id="imgCropModal">
+  <div style="color:#fff;font-size:14px;font-weight:600;">🎯 썸네일 포커스 설정</div>
+  <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:-8px;">드래그로 위치 조정 · 마우스 휠 또는 슬라이더로 줌</div>
+  <div id="imgCropContainer">
+    <img id="imgCropTarget" draggable="false" alt="" />
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.55);font-size:12px;">
+    <span style="cursor:pointer;font-size:14px;" onclick="document.getElementById('imgCropZoom').value=0;onCropZoomSlider()">−</span>
+    <input type="range" id="imgCropZoom" min="0" max="200" value="0" style="width:200px;accent-color:#0ea5e9;" oninput="onCropZoomSlider()" />
+    <span style="cursor:pointer;font-size:14px;" onclick="document.getElementById('imgCropZoom').value=Math.min(200,+document.getElementById('imgCropZoom').value+20);onCropZoomSlider()">+</span>
+    <span id="imgCropZoomLabel" style="min-width:40px;text-align:right;color:#38bdf8;font-size:11px;font-variant-numeric:tabular-nums;"></span>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button onclick="confirmCropPos()" style="padding:8px 22px;background:rgba(14,165,233,0.15);border:1px solid rgba(14,165,233,0.55);border-radius:6px;color:#7dd3fc;font-size:13px;cursor:pointer;">✓ 적용</button>
+    <button onclick="closeCropModal()" style="padding:8px 18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);border-radius:6px;color:rgba(255,255,255,0.45);font-size:13px;cursor:pointer;">취소</button>
   </div>
 </div>
 
@@ -3075,23 +3094,5 @@ snsCopy:
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 </script>
-<!-- ── Crop modal ── -->
-<div id="imgCropModal">
-  <div style="color:#fff;font-size:14px;font-weight:600;">🎯 썸네일 포커스 설정</div>
-  <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:-8px;">드래그로 위치 조정 · 마우스 휠 또는 슬라이더로 줌</div>
-  <div id="imgCropContainer">
-    <img id="imgCropTarget" draggable="false" alt="" />
-  </div>
-  <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.55);font-size:12px;">
-    <span style="cursor:pointer;font-size:14px;" onclick="document.getElementById('imgCropZoom').value=0;onCropZoomSlider()">−</span>
-    <input type="range" id="imgCropZoom" min="0" max="200" value="0" style="width:200px;accent-color:#0ea5e9;" oninput="onCropZoomSlider()" />
-    <span style="cursor:pointer;font-size:14px;" onclick="document.getElementById('imgCropZoom').value=Math.min(200,+document.getElementById('imgCropZoom').value+20);onCropZoomSlider()">+</span>
-    <span id="imgCropZoomLabel" style="min-width:40px;text-align:right;color:#38bdf8;font-size:11px;font-variant-numeric:tabular-nums;"></span>
-  </div>
-  <div style="display:flex;gap:8px;">
-    <button onclick="confirmCropPos()" style="padding:8px 22px;background:rgba(14,165,233,0.15);border:1px solid rgba(14,165,233,0.55);border-radius:6px;color:#7dd3fc;font-size:13px;cursor:pointer;">✓ 적용</button>
-    <button onclick="closeCropModal()" style="padding:8px 18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);border-radius:6px;color:rgba(255,255,255,0.45);font-size:13px;cursor:pointer;">취소</button>
-  </div>
-</div>
 </body>
 </html>
