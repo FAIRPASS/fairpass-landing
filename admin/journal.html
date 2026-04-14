@@ -449,9 +449,22 @@
             </div>
             <textarea class="form-input" id="clippingDirectText" rows="12" placeholder="기사 본문이 여기에 표시됩니다..." style="resize:vertical;line-height:1.7;font-size:12px;" oninput="updateCharCount()"></textarea>
             <div style="font-size:11px;color:var(--muted2);margin-top:6px;">광고·메뉴 제거 후 추출된 원문입니다. 필요시 수정 후 생성하세요.</div>
-            <div style="margin-top:16px;display:flex;align-items:center;gap:12px;">
-              <button class="btn btn-primary" id="clippingFetchBtn" onclick="fetchClipping()">✨ KO/EN 생성</button>
-              <span id="clippingLoading" style="font-size:12px;color:var(--cyan);display:none;">생성 중... (30초~1분)</span>
+            <!-- STEP 3: 생성 모드 선택 -->
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+              <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.05em;margin-bottom:12px;">STEP 3 — 생성 방식 선택</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <!-- 모드 1: 원문 그대로 -->
+                <button class="btn btn-ghost" id="clippingFetchBtnVerbatim" onclick="fetchClipping('verbatim')" style="display:flex;flex-direction:column;align-items:flex-start;padding:14px 16px;height:auto;border-color:rgba(14,165,233,0.4);text-align:left;">
+                  <span style="font-size:13px;font-weight:700;color:var(--cyan-light);margin-bottom:4px;">📋 원문 그대로 올리기</span>
+                  <span style="font-size:10px;color:var(--muted);line-height:1.5;white-space:normal;">기사 전체를 내용 변경 없이 포스팅<br>EN은 원문 직역 · 우리 단독 기사에 적합</span>
+                </button>
+                <!-- 모드 2: FAIRPASS 내용 추출 -->
+                <button class="btn btn-ghost" id="clippingFetchBtnExtract" onclick="fetchClipping('extract')" style="display:flex;flex-direction:column;align-items:flex-start;padding:14px 16px;height:auto;border-color:rgba(168,85,247,0.4);text-align:left;">
+                  <span style="font-size:13px;font-weight:700;color:var(--purple-light);margin-bottom:4px;">✨ FAIRPASS 내용만 추출</span>
+                  <span style="font-size:10px;color:var(--muted);line-height:1.5;white-space:normal;">여러 회사 중 FAIRPASS 관련 내용만 정리<br>외부 언론 보도·복수 업체 기사에 적합</span>
+                </button>
+              </div>
+              <span id="clippingLoading" style="font-size:12px;color:var(--cyan);display:none;margin-top:10px;">생성 중... (30초~1분)</span>
             </div>
           </div>
 
@@ -464,6 +477,10 @@
           </div>
 
           <div id="clippingResult" style="display:none;">
+            <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:11px;color:var(--muted);">생성 방식:</span>
+              <span id="clippingModeBadge" style="display:none;font-size:11px;font-weight:600;padding:2px 10px;border-radius:4px;"></span>
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
               <!-- KO Preview -->
               <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;">
@@ -1276,24 +1293,26 @@
     }
   }
 
-  // STEP 2: KO/EN 생성
-  async function fetchClipping() {
+  // STEP 3: KO/EN 생성 (mode: 'verbatim' | 'extract')
+  async function fetchClipping(mode) {
     const directText = document.getElementById('clippingDirectText').value.trim();
     if (!directText || directText.length < 30) { alert('기사 본문이 없습니다. 먼저 기사를 긁어오세요.'); return; }
     const url = document.getElementById('clippingUrl').value.trim();
     const loadingEl = document.getElementById('clippingLoading');
-    const fetchBtn  = document.getElementById('clippingFetchBtn');
+    const btnVerbatim = document.getElementById('clippingFetchBtnVerbatim');
+    const btnExtract  = document.getElementById('clippingFetchBtnExtract');
     const resultEl  = document.getElementById('clippingResult');
     const errorEl   = document.getElementById('clippingError');
     loadingEl.style.display = 'inline';
-    fetchBtn.disabled = true;
+    if (btnVerbatim) btnVerbatim.disabled = true;
+    if (btnExtract)  btnExtract.disabled  = true;
     resultEl.style.display = 'none';
     errorEl.style.display = 'none';
     try {
       const r = await fetch('/api/journal-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'externalImport', password: pw, directText, sourceInfo: { url } }),
+        body: JSON.stringify({ action: 'externalImport', password: pw, directText, sourceInfo: { url }, mode: mode || 'extract' }),
       });
       const data = await r.json();
       if (!r.ok) {
@@ -1306,12 +1325,21 @@
         throw new Error(msg);
       }
       window._clippingData = data;
+      window._clippingMode = mode;
       document.getElementById('clippingKoTitle').textContent = data.ko?.title || '(제목 없음)';
       document.getElementById('clippingKoDesc').textContent  = data.ko?.description || '';
       document.getElementById('clippingKoBody').textContent  = data.ko?.body || '';
       document.getElementById('clippingEnTitle').textContent = data.en?.title || '(no title)';
       document.getElementById('clippingEnDesc').textContent  = data.en?.description || '';
       document.getElementById('clippingEnBody').textContent  = data.en?.body || '';
+      // 모드 배지 표시
+      const modeBadgeEl = document.getElementById('clippingModeBadge');
+      if (modeBadgeEl) {
+        modeBadgeEl.textContent = (mode === 'verbatim') ? '📋 원문 그대로' : '✨ FAIRPASS 추출';
+        modeBadgeEl.style.background = (mode === 'verbatim') ? 'rgba(14,165,233,0.15)' : 'rgba(168,85,247,0.15)';
+        modeBadgeEl.style.color = (mode === 'verbatim') ? 'var(--cyan-light)' : 'var(--purple-light)';
+        modeBadgeEl.style.display = 'inline-block';
+      }
       resultEl.style.display = 'block';
       resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } catch (e) {
@@ -1319,7 +1347,8 @@
       errorEl.style.display = 'block';
     } finally {
       loadingEl.style.display = 'none';
-      fetchBtn.disabled = false;
+      if (btnVerbatim) btnVerbatim.disabled = false;
+      if (btnExtract)  btnExtract.disabled  = false;
     }
   }
 

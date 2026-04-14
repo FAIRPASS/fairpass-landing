@@ -526,7 +526,8 @@ ${rawText}
 
 // ── 미디어 클리핑 (언론 기사 + LinkedIn) ─────────────────────
 async function handleExternalImport(req, res) {
-  const { url, directText, sourceInfo } = req.body;
+  const { url, directText, sourceInfo, mode = 'extract' } = req.body;
+  // mode: 'verbatim' = 원문 그대로(KO 본문 보존, EN은 직역), 'extract' = FAIRPASS 내용 중심 재구성
   if (!url && !directText) return res.status(400).json({ error: 'url 또는 directText 중 하나가 필요합니다.' });
 
   let rawText, typeLabel, sourceType, sourceUrl;
@@ -579,25 +580,6 @@ async function handleExternalImport(req, res) {
       ? '언론 기사: > 📰 **출처:** [언론사명](url) · 배포: YYYY-MM-DD · 작성: 기자명'
       : 'LinkedIn: > 💼 **출처:** [작성자명 (게시 채널/회사명)](url) · 게시: YYYY-MM-DD';
 
-  const system = `당신은 FAIRPASS B2B 이벤트 플랫폼의 미디어 클리핑 전담 에디터입니다.
-FAIRPASS는 행사 온라인 접수·QR 체크인·무인 명찰 출력을 통합한 B2B 이벤트 플랫폼입니다.
-
-역할: 외부 ${typeLabel}를 FAIRPASS Journal 미디어 클리핑 포스트로 재편집합니다.
-
-핵심 규칙:
-- 원문 사실·수치·내용 그대로 보존 (단독 기사는 전문 그대로 마크다운 변환 가능)
-- FAIRPASS·페어패스·키오스크·명찰·QR 체크인·등록 시스템 관련 문장/단어 → **굵게** 처리
-- 타사 제품·브랜드가 언급된 경우 FAIRPASS 관련 내용 중심으로 재구성 (타사 내용은 축약)
-- 출처 블록을 본문 맨 마지막에 반드시 추가
-- KO/EN 두 버전 모두 생성
-
-출처 블록 형식:
-- ${sourceBlockGuide}
-
-FAIRPASS 하이라이트 기준:
-- 반드시 **굵게**: FAIRPASS, 페어패스, 키오스크, 무인발권, 종이명찰, QR 체크인
-- 선택적 **굵게**: 행사 등록 자동화, 현장 운영, 명찰 출력 (FAIRPASS 맥락일 때만)`;
-
   const outletPlaceholder = sourceType === 'exclusive'
     ? (si.outlet || 'FAIRPASS 단독')
     : (sourceType === 'news' ? '언론사명' : '작성자명 (회사/채널명)');
@@ -605,7 +587,69 @@ FAIRPASS 하이라이트 기준:
     ? (si.author || 'FAIRPASS 팀')
     : (sourceType === 'news' ? '기자명 또는 편집부' : '작성자명 (게시한 채널/회사)');
 
-  const user = `아래 ${typeLabel} 내용을 FAIRPASS Journal 미디어 클리핑 포스트로 재편집해주세요.
+  // ── 모드별 system / user 프롬프트 분기 ─────────────────────
+  let system, user;
+
+  if (mode === 'verbatim') {
+    // 원문 그대로 모드: 본문 내용 변경 금지, EN은 직역만
+    system = `당신은 FAIRPASS 미디어 클리핑 에디터입니다. 원문 기사를 내용 변경 없이 마크다운으로 변환합니다.
+
+⚠️ 절대 원칙 (위반 금지):
+- KO 본문: 원문의 모든 문장을 그대로 유지. 요약·삭제·의역·추가 완전 금지. 단락 구분만 정리하고 FAIRPASS 관련 키워드만 **굵게**.
+- EN 본문: KO 원문을 문장 단위로 충실하게 직역. 의역·요약·내용 추가 금지.
+- 원본에 없는 정보·해석·수치를 절대 추가하지 마세요.
+- 타사 내용도 원문 그대로 유지 (요약·생략 금지).
+
+FAIRPASS **굵게** 처리 키워드: FAIRPASS, 페어패스, 키오스크, 무인발권, 종이명찰, QR 체크인, 명찰 출력
+출처 블록 형식: ${sourceBlockGuide}`;
+
+    user = `아래 기사를 원문 그대로 마크다운으로 변환해주세요. 내용을 절대 바꾸지 마세요.
+감지 타입: ${typeLabel}${exclusiveHint}
+
+---원문---
+${rawText}
+---끝---
+
+반드시 아래 형식 그대로 반환하세요:
+
+===SOURCE===
+{"type":"${sourceType}","title":"원문 기사 제목 (원문에서 추출)","outlet":"${outletPlaceholder}","author":"${authorPlaceholder}","date":"YYYY-MM-DD","url":"${sourceUrl}"}
+===KO_META===
+{"title":"원문 기사 제목 그대로","description":"원문 첫 2~3문장 요약 160자 이내","tags":["태그1","태그2","태그3"],"slug":"press-slug-kr"}
+===KO_BODY===
+(원문 전체를 단락 구분만 하여 마크다운 변환. FAIRPASS 키워드만 굵게. 마지막에 출처 블록 추가. 내용 절대 변경 금지)
+===EN_META===
+{"title":"English title — direct translation of KO title","description":"English description under 160 chars","tags":["tag1","tag2","tag3"],"slug":"press-slug-en"}
+===EN_BODY===
+(KO 본문을 문장 단위 직역. 의역·요약 금지. FAIRPASS keywords bold. Source attribution at end)
+
+규칙:
+- ===SOURCE=== 줄에는 한 줄 JSON만
+- ===KO_META=== / ===EN_META=== 줄에는 각각 한 줄 JSON만
+- BODY는 ## 소제목으로 시작 금지 — 원문 구조 그대로
+- KO slug 끝: -kr / EN slug 끝: -en`;
+
+  } else {
+    // 추출 모드 (기본): FAIRPASS 관련 내용 중심으로 재구성
+    system = `당신은 FAIRPASS B2B 이벤트 플랫폼의 미디어 클리핑 전담 에디터입니다.
+FAIRPASS는 행사 온라인 접수·QR 체크인·무인 명찰 출력을 통합한 B2B 이벤트 플랫폼입니다.
+
+역할: 외부 ${typeLabel}에서 FAIRPASS 관련 내용을 추출·재편집합니다.
+
+핵심 규칙:
+- 원문 사실·수치는 그대로 보존, FAIRPASS 관련 내용 중심으로 구조 재편
+- 타사 제품·브랜드가 언급된 경우: FAIRPASS 관련 내용 중심, 타사 내용은 축약
+- FAIRPASS·페어패스·키오스크·명찰·QR 체크인·등록 시스템 관련 문장/단어 → **굵게** 처리
+- 출처 블록을 본문 맨 마지막에 반드시 추가
+- KO/EN 두 버전 모두 생성
+
+출처 블록 형식: ${sourceBlockGuide}
+
+FAIRPASS 하이라이트 기준:
+- 반드시 **굵게**: FAIRPASS, 페어패스, 키오스크, 무인발권, 종이명찰, QR 체크인
+- 선택적 **굵게**: 행사 등록 자동화, 현장 운영, 명찰 출력 (FAIRPASS 맥락일 때만)`;
+
+    user = `아래 ${typeLabel} 내용에서 FAIRPASS 관련 내용을 중심으로 재편집해주세요.
 감지 타입: ${typeLabel}${exclusiveHint}
 
 ---원문 내용---
@@ -619,17 +663,18 @@ ${rawText}
 ===KO_META===
 {"title":"국문 제목","description":"국문 설명 160자 이내","tags":["태그1","태그2","태그3"],"slug":"press-slug-kr"}
 ===KO_BODY===
-(국문 마크다운 본문 — FAIRPASS 관련 내용 **굵게** — 마지막에 출처 블록 포함)
+(FAIRPASS 중심으로 재편한 국문 마크다운 본문 — FAIRPASS 관련 내용 **굵게** — 마지막에 출처 블록 포함)
 ===EN_META===
 {"title":"English title","description":"English description under 160 chars","tags":["tag1","tag2","tag3"],"slug":"press-slug-en"}
 ===EN_BODY===
-(English markdown body — FAIRPASS related **bold** — source attribution at end)
+(FAIRPASS-focused English markdown body — FAIRPASS related **bold** — source attribution at end)
 
 규칙:
 - ===SOURCE=== 줄에는 한 줄 JSON만
 - ===KO_META=== / ===EN_META=== 줄에는 각각 한 줄 JSON만
 - BODY는 ## 소제목으로 시작 (H1 제목 본문에 포함 금지)
 - KO slug 끝: -kr / EN slug 끝: -en`;
+  }
 
   try {
     const r = await claudeCall({ system, user, maxTokens: 4500 });
