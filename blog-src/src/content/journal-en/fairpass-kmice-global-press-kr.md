@@ -2,7 +2,7 @@
 title: "How a Paper Badge Changed an Entire Industry: FAIRPASS and the Rise of K-MICE Standards"
 description: "FAIRPASS by Blue Origin replaces plastic badges with 100% paper name tags and QR check-in kiosks — setting a new global MICE standard from Korea."
 pubDate: 2026-04-14
-category: "Media Coverage"
+category: "Media Clipping"
 tags: ["FAIRPASS", "K-MICE", "QR Check-In", "Sustainable Events", "Badge Printing", "Event Registration", "MICE Technology", "Event Automation", "Singapore MICE"]
 author: "FAIRPASS Team"
 authorTitle: ""
