@@ -458,60 +458,87 @@ ${rawText}
 
 // ── 미디어 클리핑 (언론 기사 + LinkedIn) ─────────────────────
 async function handleExternalImport(req, res) {
-  const { url } = req.body;
-  if (!url) return res.status(400).json({ error: 'url required' });
+  const { url, directText, sourceInfo } = req.body;
+  if (!url && !directText) return res.status(400).json({ error: 'url 또는 directText 중 하나가 필요합니다.' });
 
-  const isLinkedIn = /linkedin\.com\/(posts|feed|update|pulse)/.test(url);
+  let rawText, typeLabel, sourceType, sourceUrl;
 
-  // 1. URL 크롤링
-  let rawHtml, rawText;
-  try {
-    const r = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; FAIRPASSBot/1.0)' },
-      signal: AbortSignal.timeout(12000),
-    });
-    if (!r.ok) return res.status(400).json({ error: `URL 접근 실패 (HTTP ${r.status}). LinkedIn은 공개 게시글만 가능합니다.` });
-    rawHtml = await r.text();
-    // LinkedIn 로그인 페이지 감지
-    if (isLinkedIn && (rawHtml.includes('authwall') || rawHtml.includes('login') && rawHtml.includes('session_redirect'))) {
-      return res.status(400).json({ error: 'LinkedIn 로그인이 필요한 게시글입니다. 공개(Public) 게시글 URL을 사용해주세요.' });
+  if (directText) {
+    // ── 텍스트 직접 입력 모드 ──
+    if (directText.trim().length < 30) return res.status(400).json({ error: '기사 본문이 너무 짧습니다 (최소 30자).' });
+    rawText = directText.trim().slice(0, 8000);
+    typeLabel = '단독 기사';
+    sourceType = 'exclusive';
+    sourceUrl = '';
+  } else {
+    // ── URL 크롤링 모드 ──
+    const isLinkedIn = /linkedin\.com\/(posts|feed|update|pulse)/.test(url);
+    let rawHtml;
+    try {
+      const r = await fetch(url, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; FAIRPASSBot/1.0)' },
+        signal: AbortSignal.timeout(12000),
+      });
+      if (!r.ok) return res.status(400).json({ error: `URL 접근 실패 (HTTP ${r.status}). LinkedIn은 공개 게시글만 가능합니다.` });
+      rawHtml = await r.text();
+      if (isLinkedIn && (rawHtml.includes('authwall') || rawHtml.includes('login') && rawHtml.includes('session_redirect'))) {
+        return res.status(400).json({ error: 'LinkedIn 로그인이 필요한 게시글입니다. 공개(Public) 게시글 URL을 사용해주세요.' });
+      }
+      rawText = rawHtml
+        .replace(/<script[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[\s\S]*?<\/style>/gi, '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 5000);
+    } catch (e) {
+      return res.status(400).json({ error: `URL 가져오기 실패: ${e.message}` });
     }
-    rawText = rawHtml
-      .replace(/<script[\s\S]*?<\/script>/gi, '')
-      .replace(/<style[\s\S]*?<\/style>/gi, '')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .slice(0, 5000);
-  } catch (e) {
-    return res.status(400).json({ error: `URL 가져오기 실패: ${e.message}` });
+    typeLabel = isLinkedIn ? 'LinkedIn' : '언론 기사';
+    sourceType = isLinkedIn ? 'linkedin' : 'news';
+    sourceUrl = url;
   }
 
-  const typeLabel = isLinkedIn ? 'LinkedIn' : '언론 기사';
-  const sourceType = isLinkedIn ? 'linkedin' : 'news';
+  // 단독 기사 모드: sourceInfo로 출처 힌트 제공
+  const si = sourceInfo || {};
+  const exclusiveHint = sourceType === 'exclusive'
+    ? `\n매체명 힌트: ${si.outlet || '(없음)'}\n기자/작성자 힌트: ${si.author || '(없음)'}\n배포일 힌트: ${si.date || '(없음)'}\n기사 제목 힌트: ${si.title || '(없음)'}`
+    : `\n출처 URL: ${sourceUrl}`;
+
+  const sourceBlockGuide = sourceType === 'exclusive'
+    ? '단독/자체 기사: > ✍️ **원문:** FAIRPASS 팀 직접 작성 · YYYY-MM-DD (또는 제공된 매체명과 날짜 사용)'
+    : sourceType === 'news'
+      ? '언론 기사: > 📰 **출처:** [언론사명](url) · 배포: YYYY-MM-DD · 작성: 기자명'
+      : 'LinkedIn: > 💼 **출처:** [작성자명 (게시 채널/회사명)](url) · 게시: YYYY-MM-DD';
 
   const system = `당신은 FAIRPASS B2B 이벤트 플랫폼의 미디어 클리핑 전담 에디터입니다.
 FAIRPASS는 행사 온라인 접수·QR 체크인·무인 명찰 출력을 통합한 B2B 이벤트 플랫폼입니다.
 
-역할: 외부 ${typeLabel}를 FAIRPASS Journal '언론 보도' / 'In the Press' 카테고리 포스트로 재편집합니다.
+역할: 외부 ${typeLabel}를 FAIRPASS Journal 미디어 클리핑 포스트로 재편집합니다.
 
 핵심 규칙:
-- 원문 사실·수치 보존 (전문 복사 금지 — 저작권 보호, 요약 및 재편집)
+- 원문 사실·수치·내용 그대로 보존 (단독 기사는 전문 그대로 마크다운 변환 가능)
 - FAIRPASS·페어패스·키오스크·명찰·QR 체크인·등록 시스템 관련 문장/단어 → **굵게** 처리
 - 타사 제품·브랜드가 언급된 경우 FAIRPASS 관련 내용 중심으로 재구성 (타사 내용은 축약)
 - 출처 블록을 본문 맨 마지막에 반드시 추가
 - KO/EN 두 버전 모두 생성
 
 출처 블록 형식:
-- ${sourceType === 'news' ? '언론 기사: > 📰 **출처:** [언론사명](url) · 배포: YYYY-MM-DD · 작성: 기자명' : 'LinkedIn: > 💼 **출처:** [작성자명 (게시 채널/회사명)](url) · 게시: YYYY-MM-DD'}
+- ${sourceBlockGuide}
 
 FAIRPASS 하이라이트 기준:
 - 반드시 **굵게**: FAIRPASS, 페어패스, 키오스크, 무인발권, 종이명찰, QR 체크인
 - 선택적 **굵게**: 행사 등록 자동화, 현장 운영, 명찰 출력 (FAIRPASS 맥락일 때만)`;
 
+  const outletPlaceholder = sourceType === 'exclusive'
+    ? (si.outlet || 'FAIRPASS 단독')
+    : (sourceType === 'news' ? '언론사명' : '작성자명 (회사/채널명)');
+  const authorPlaceholder = sourceType === 'exclusive'
+    ? (si.author || 'FAIRPASS 팀')
+    : (sourceType === 'news' ? '기자명 또는 편집부' : '작성자명 (게시한 채널/회사)');
+
   const user = `아래 ${typeLabel} 내용을 FAIRPASS Journal 미디어 클리핑 포스트로 재편집해주세요.
-출처 URL: ${url}
-감지 타입: ${typeLabel}
+감지 타입: ${typeLabel}${exclusiveHint}
 
 ---원문 내용---
 ${rawText}
@@ -520,7 +547,7 @@ ${rawText}
 반드시 아래 형식 그대로 반환하세요. 형식을 절대 바꾸지 마세요:
 
 ===SOURCE===
-{"type":"${sourceType}","title":"원문 제목 또는 게시글 주제","outlet":"${sourceType === 'news' ? '언론사명' : '작성자명 (회사/채널명)'}","author":"${sourceType === 'news' ? '기자명 또는 편집부' : '작성자명 (게시한 채널/회사)'}","date":"YYYY-MM-DD","url":"${url}"}
+{"type":"${sourceType}","title":"원문 제목 또는 게시글 주제","outlet":"${outletPlaceholder}","author":"${authorPlaceholder}","date":"YYYY-MM-DD","url":"${sourceUrl}"}
 ===KO_META===
 {"title":"국문 제목","description":"국문 설명 160자 이내","tags":["태그1","태그2","태그3"],"slug":"press-slug-kr"}
 ===KO_BODY===
@@ -579,7 +606,7 @@ ${rawText}
   outlet: "${(source.outlet || '').replace(/"/g, '\\"')}"
   author: "${(source.author || '').replace(/"/g, '\\"')}"
   date: "${source.date || ''}"
-  url: "${source.url || url}"`;
+  url: "${source.url || sourceUrl}"`;
 
     // KO 마크다운 전체 (frontmatter 포함)
     const koContent = `---

@@ -426,14 +426,51 @@
         </div>
         <div style="max-width:960px;">
           <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;">
-            <div class="form-group" style="margin-bottom:16px;">
-              <label class="form-label">언론 기사 또는 LinkedIn URL</label>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <input class="form-input" id="clippingUrl" type="url" placeholder="https://..." style="flex:1;" oninput="detectClippingType(this.value)" />
-                <span id="clippingTypeBadge" style="font-size:11px;padding:3px 10px;border-radius:4px;background:rgba(255,255,255,0.08);color:var(--muted);white-space:nowrap;flex-shrink:0;">URL 입력</span>
-              </div>
-              <div style="font-size:11px;color:var(--muted2);margin-top:4px;">지원: 언론 기사 URL · LinkedIn 게시물 URL (로그인 필요한 게시물은 공개 게시물만 가능)</div>
+            <!-- 탭 토글 -->
+            <div style="display:flex;gap:6px;margin-bottom:18px;">
+              <button id="tabUrl" onclick="switchClippingTab('url')" style="font-size:12px;padding:6px 16px;border-radius:6px;border:1px solid rgba(168,85,247,0.6);color:#a855f7;background:rgba(168,85,247,0.1);cursor:pointer;font-weight:600;">🔗 URL 분석</button>
+              <button id="tabText" onclick="switchClippingTab('text')" style="font-size:12px;padding:6px 16px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);background:transparent;cursor:pointer;">📝 텍스트 직접 입력</button>
             </div>
+
+            <!-- URL 모드 -->
+            <div id="clippingUrlMode">
+              <div class="form-group" style="margin-bottom:16px;">
+                <label class="form-label">언론 기사 또는 LinkedIn URL</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input class="form-input" id="clippingUrl" type="url" placeholder="https://..." style="flex:1;" oninput="detectClippingType(this.value)" />
+                  <span id="clippingTypeBadge" style="font-size:11px;padding:3px 10px;border-radius:4px;background:rgba(255,255,255,0.08);color:var(--muted);white-space:nowrap;flex-shrink:0;">URL 입력</span>
+                </div>
+                <div style="font-size:11px;color:var(--muted2);margin-top:4px;">지원: 언론 기사 URL · LinkedIn 게시물 URL (로그인 필요한 게시물은 공개 게시물만 가능)</div>
+              </div>
+            </div>
+
+            <!-- 텍스트 직접 입력 모드 -->
+            <div id="clippingTextMode" style="display:none;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">매체명 (선택)</label>
+                  <input class="form-input" id="clippingOutlet" type="text" placeholder="예: FAIRPASS 블로그, 자체 보도자료" />
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">작성자 (선택)</label>
+                  <input class="form-input" id="clippingAuthor" type="text" placeholder="예: FAIRPASS 팀" />
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">기사 제목 (선택)</label>
+                  <input class="form-input" id="clippingSourceTitle" type="text" placeholder="원문 제목" />
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">배포일 (선택)</label>
+                  <input class="form-input" id="clippingSourceDate" type="date" />
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:16px;">
+                <label class="form-label">기사 본문 전문 붙여넣기</label>
+                <textarea class="form-input" id="clippingDirectText" rows="10" placeholder="기사 전체 텍스트를 여기에 붙여넣으세요..." style="resize:vertical;line-height:1.7;"></textarea>
+                <div style="font-size:11px;color:var(--muted2);margin-top:4px;">단독 기사·보도자료·자체 작성 콘텐츠 — 전문을 그대로 마크다운으로 변환합니다.</div>
+              </div>
+            </div>
+
             <div style="display:flex;align-items:center;gap:12px;">
               <button class="btn btn-primary" id="clippingFetchBtn" onclick="fetchClipping()">🔍 분석 및 생성</button>
               <span id="clippingLoading" style="font-size:12px;color:var(--cyan);display:none;">분석 중... (30초~1분)</span>
@@ -1206,6 +1243,24 @@
   }
 
   // ── 미디어 클리핑 ──
+  let _clippingTab = 'url';
+
+  function switchClippingTab(tab) {
+    _clippingTab = tab;
+    const isUrl = tab === 'url';
+    document.getElementById('clippingUrlMode').style.display = isUrl ? '' : 'none';
+    document.getElementById('clippingTextMode').style.display = isUrl ? 'none' : '';
+    const btnUrl = document.getElementById('tabUrl');
+    const btnText = document.getElementById('tabText');
+    if (isUrl) {
+      btnUrl.style.borderColor = 'rgba(168,85,247,0.6)'; btnUrl.style.color = '#a855f7'; btnUrl.style.background = 'rgba(168,85,247,0.1)';
+      btnText.style.borderColor = 'rgba(255,255,255,0.1)'; btnText.style.color = 'rgba(255,255,255,0.5)'; btnText.style.background = 'transparent';
+    } else {
+      btnText.style.borderColor = 'rgba(168,85,247,0.6)'; btnText.style.color = '#a855f7'; btnText.style.background = 'rgba(168,85,247,0.1)';
+      btnUrl.style.borderColor = 'rgba(255,255,255,0.1)'; btnUrl.style.color = 'rgba(255,255,255,0.5)'; btnUrl.style.background = 'transparent';
+    }
+  }
+
   function detectClippingType(url) {
     const badge = document.getElementById('clippingTypeBadge');
     if (!url) { badge.textContent = 'URL 입력'; badge.style.color = 'var(--muted)'; return; }
@@ -1219,12 +1274,31 @@
   }
 
   async function fetchClipping() {
-    const url = document.getElementById('clippingUrl').value.trim();
-    if (!url) { alert('URL을 입력해주세요.'); return; }
     const loadingEl = document.getElementById('clippingLoading');
     const fetchBtn  = document.getElementById('clippingFetchBtn');
     const resultEl  = document.getElementById('clippingResult');
     const errorEl   = document.getElementById('clippingError');
+
+    let payload;
+    if (_clippingTab === 'text') {
+      const directText = document.getElementById('clippingDirectText').value.trim();
+      if (!directText || directText.length < 30) { alert('기사 본문을 입력해주세요 (최소 30자).'); return; }
+      payload = {
+        action: 'externalImport', password: pw,
+        directText,
+        sourceInfo: {
+          outlet: document.getElementById('clippingOutlet').value.trim(),
+          author: document.getElementById('clippingAuthor').value.trim(),
+          date:   document.getElementById('clippingSourceDate').value.trim(),
+          title:  document.getElementById('clippingSourceTitle').value.trim(),
+        },
+      };
+    } else {
+      const url = document.getElementById('clippingUrl').value.trim();
+      if (!url) { alert('URL을 입력해주세요.'); return; }
+      payload = { action: 'externalImport', password: pw, url };
+    }
+
     loadingEl.style.display = 'inline';
     fetchBtn.disabled = true;
     resultEl.style.display = 'none';
@@ -1233,7 +1307,7 @@
       const r = await fetch('/api/journal-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'externalImport', password: pw, url }),
+        body: JSON.stringify(payload),
       });
       const data = await r.json();
       if (!r.ok) {
@@ -1241,7 +1315,7 @@
           `오류: ${data.error || '분석 실패'}`,
           data.detail ? `\n상세: ${data.detail}` : '',
           `\nHTTP ${r.status} — ${new Date().toLocaleTimeString('ko-KR')}`,
-          `\nURL: ${url}`,
+          `\n입력: ${_clippingTab === 'text' ? '텍스트 직접 입력' : payload.url}`,
         ].join('');
         throw new Error(msg);
       }
