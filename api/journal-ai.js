@@ -526,8 +526,9 @@ ${rawText}
 
 // ── 미디어 클리핑 (언론 기사 + LinkedIn) ─────────────────────
 async function handleExternalImport(req, res) {
-  const { url, directText, sourceInfo, mode = 'extract' } = req.body;
-  // mode: 'verbatim' = 원문 그대로(KO 본문 보존, EN은 직역), 'extract' = FAIRPASS 내용 중심 재구성
+  const { url, directText, sourceInfo, mode = 'extract', targetLang = 'ko' } = req.body;
+  // mode: 'verbatim' = 원문 그대로, 'extract' = FAIRPASS 내용 중심 재구성
+  // targetLang: 'ko' | 'en' — 생성할 언어 (한 번에 하나씩)
   if (!url && !directText) return res.status(400).json({ error: 'url 또는 directText 중 하나가 필요합니다.' });
 
   let rawText, typeLabel, sourceType, sourceUrl;
@@ -590,96 +591,67 @@ async function handleExternalImport(req, res) {
     ? (si.author || 'FAIRPASS 팀')
     : (sourceType === 'news' ? '기자명 또는 편집부' : '작성자명 (게시한 채널/회사)');
 
-  // ── 모드별 system / user 프롬프트 분기 ─────────────────────
-  let system, user;
+  // ── 언어별 프롬프트 설정 ────────────────────────────────────
+  const isKo = targetLang === 'ko';
+  const langLabel = isKo ? '한국어' : 'English';
 
-  if (mode === 'verbatim') {
-    // 원문 그대로 모드: 본문 내용 변경 금지, EN은 직역만
-    system = `당신은 FAIRPASS 미디어 클리핑 에디터입니다. 원문 기사를 내용 변경 없이 마크다운으로 변환합니다.
+  const verbatimRule = mode === 'verbatim'
+    ? (isKo
+      ? '⚠️ 원문의 모든 문장을 그대로 유지. 요약·삭제·의역·추가 완전 금지. 단락 구분만 정리.'
+      : '⚠️ Keep every sentence from the original exactly. No summarizing, deleting, paraphrasing, or adding. Only reformat paragraphs.')
+    : (isKo
+      ? 'FAIRPASS 관련 내용 중심으로 재구성. 타사 내용은 축약. ## 소제목으로 구조화.'
+      : 'Restructure focusing on FAIRPASS content. Abbreviate competitor content. Use ## subheadings.');
 
-⚠️ 절대 원칙 (위반 금지):
-- KO 본문: 원문의 모든 문장을 그대로 유지. 요약·삭제·의역·추가 완전 금지. 단락 구분만 정리하고 FAIRPASS 관련 키워드만 **굵게**.
-- EN 본문: KO 원문을 문장 단위로 충실하게 직역. 의역·요약·내용 추가 금지.
-- 원본에 없는 정보·해석·수치를 절대 추가하지 마세요.
-- 타사 내용도 원문 그대로 유지 (요약·생략 금지).
+  const metaKey   = isKo ? 'KO_META' : 'EN_META';
+  const bodyKey   = isKo ? 'KO_BODY' : 'EN_BODY';
+  const slugSuffix = isKo ? '-kr' : '-en';
+  const metaExample = isKo
+    ? `{"title":"기사 제목","description":"설명 160자 이내","tags":["태그1","태그2","태그3"],"slug":"press-slug${slugSuffix}"}`
+    : `{"title":"Article title","description":"Description under 160 chars","tags":["tag1","tag2","tag3"],"slug":"press-slug${slugSuffix}"}`;
+  const bodyInstruction = isKo
+    ? (mode === 'verbatim'
+      ? '원문 전체를 그대로 마크다운으로 변환. FAIRPASS/페어패스/키오스크/QR 체크인/종이명찰 키워드는 **굵게**. 마지막에 출처 블록 추가.'
+      : 'FAIRPASS 중심으로 재편한 국문 마크다운 본문. FAIRPASS 관련 내용 **굵게**. ## 소제목 사용. 마지막에 출처 블록 포함.')
+    : (mode === 'verbatim'
+      ? 'Convert the full original article to markdown exactly. Bold: FAIRPASS, kiosk, QR check-in, paper badge. Source attribution at end.'
+      : 'FAIRPASS-focused English markdown. Bold FAIRPASS-related content. Use ## subheadings. Source attribution at end.');
 
-FAIRPASS **굵게** 처리 키워드: FAIRPASS, 페어패스, 키오스크, 무인발권, 종이명찰, QR 체크인, 명찰 출력
-출처 블록 형식: ${sourceBlockGuide}`;
+  const system = isKo
+    ? `당신은 FAIRPASS 미디어 클리핑 에디터입니다. 외부 기사를 FAIRPASS Journal 미디어 클리핑 포스트로 변환합니다.
+FAIRPASS는 행사 온라인 접수·QR 체크인·무인 명찰 출력을 통합한 B2B 이벤트 플랫폼입니다.
+${verbatimRule}
+FAIRPASS **굵게** 키워드: FAIRPASS, 페어패스, 키오스크, 무인발권, 종이명찰, QR 체크인
+출처 블록 형식: ${sourceBlockGuide}`
+    : `You are a FAIRPASS media clipping editor. Convert external articles into FAIRPASS Journal Media Clipping posts.
+FAIRPASS is a B2B event platform integrating online registration, QR check-in, and badge printing.
+${verbatimRule}
+Bold keywords: FAIRPASS, kiosk, unmanned kiosk, paper badge, QR check-in
+Source block format: ${sourceBlockGuide}`;
 
-    user = `아래 기사를 원문 그대로 마크다운으로 변환하세요. 내용을 절대 바꾸지 마세요.
-감지 타입: ${typeLabel}${exclusiveHint}
+  const user = `${isKo ? '아래 기사를' : 'Convert the article below into'} FAIRPASS Journal 미디어 클리핑 포스트로 변환하세요.
+타입: ${typeLabel}${exclusiveHint}
 
 ---원문---
 ${rawText}
 ---끝---
 
-반드시 아래 형식 그대로 반환하세요. 각 === 섹션 사이에 내용을 빠짐없이 채우세요:
+반드시 아래 형식으로만 반환하세요:
 
 ===SOURCE===
-{"type":"${sourceType}","title":"원문 기사 제목 (원문에서 추출)","outlet":"${outletPlaceholder}","author":"${authorPlaceholder}","date":"YYYY-MM-DD","url":"${sourceUrl}"}
-===KO_META===
-{"title":"원문 기사 제목 그대로","description":"원문 첫 2~3문장 요약 160자 이내","tags":["태그1","태그2","태그3"],"slug":"press-slug-kr"}
-===KO_BODY===
-여기에 원문 기사 전체를 그대로 작성합니다. 단락 구분을 정리하고, FAIRPASS/페어패스/키오스크/QR 체크인/종이명찰 키워드는 **굵게** 처리합니다. 마지막 줄에 출처 블록을 추가합니다. 내용 요약·삭제·추가는 절대 금지입니다.
-===EN_META===
-{"title":"English title — direct translation of KO title","description":"English description under 160 chars","tags":["tag1","tag2","tag3"],"slug":"press-slug-en"}
-===EN_BODY===
-여기에 위의 KO_BODY를 문장 단위로 영어 직역합니다. 의역·요약 금지. FAIRPASS keywords bold. Source attribution at end.
-
-형식 규칙:
-- ===SOURCE=== / ===KO_META=== / ===EN_META=== 줄에는 한 줄 JSON만
-- KO_BODY와 EN_BODY는 반드시 실제 기사 내용으로 채울 것 (위 예시 문장 자체를 그대로 쓰지 말 것)
-- KO slug 끝: -kr / EN slug 끝: -en`;
-
-  } else {
-    // 추출 모드 (기본): FAIRPASS 관련 내용 중심으로 재구성
-    system = `당신은 FAIRPASS B2B 이벤트 플랫폼의 미디어 클리핑 전담 에디터입니다.
-FAIRPASS는 행사 온라인 접수·QR 체크인·무인 명찰 출력을 통합한 B2B 이벤트 플랫폼입니다.
-
-역할: 외부 ${typeLabel}에서 FAIRPASS 관련 내용을 추출·재편집합니다.
-
-핵심 규칙:
-- 원문 사실·수치는 그대로 보존, FAIRPASS 관련 내용 중심으로 구조 재편
-- 타사 제품·브랜드가 언급된 경우: FAIRPASS 관련 내용 중심, 타사 내용은 축약
-- FAIRPASS·페어패스·키오스크·명찰·QR 체크인·등록 시스템 관련 문장/단어 → **굵게** 처리
-- 출처 블록을 본문 맨 마지막에 반드시 추가
-- KO/EN 두 버전 모두 생성
-
-출처 블록 형식: ${sourceBlockGuide}
-
-FAIRPASS 하이라이트 기준:
-- 반드시 **굵게**: FAIRPASS, 페어패스, 키오스크, 무인발권, 종이명찰, QR 체크인
-- 선택적 **굵게**: 행사 등록 자동화, 현장 운영, 명찰 출력 (FAIRPASS 맥락일 때만)`;
-
-    user = `아래 ${typeLabel} 내용에서 FAIRPASS 관련 내용을 중심으로 재편집해주세요.
-감지 타입: ${typeLabel}${exclusiveHint}
-
----원문 내용---
-${rawText}
----끝---
-
-반드시 아래 형식 그대로 반환하세요. 형식을 절대 바꾸지 마세요:
-
-===SOURCE===
-{"type":"${sourceType}","title":"원문 제목 또는 게시글 주제","outlet":"${outletPlaceholder}","author":"${authorPlaceholder}","date":"YYYY-MM-DD","url":"${sourceUrl}"}
-===KO_META===
-{"title":"국문 제목","description":"국문 설명 160자 이내","tags":["태그1","태그2","태그3"],"slug":"press-slug-kr"}
-===KO_BODY===
-(FAIRPASS 중심으로 재편한 국문 마크다운 본문 — FAIRPASS 관련 내용 **굵게** — 마지막에 출처 블록 포함)
-===EN_META===
-{"title":"English title","description":"English description under 160 chars","tags":["tag1","tag2","tag3"],"slug":"press-slug-en"}
-===EN_BODY===
-(FAIRPASS-focused English markdown body — FAIRPASS related **bold** — source attribution at end)
+{"type":"${sourceType}","title":"원문 제목","outlet":"${outletPlaceholder}","author":"${authorPlaceholder}","date":"YYYY-MM-DD","url":"${sourceUrl}"}
+===${metaKey}===
+${metaExample}
+===${bodyKey}===
+${bodyInstruction}
 
 규칙:
-- ===SOURCE=== 줄에는 한 줄 JSON만
-- ===KO_META=== / ===EN_META=== 줄에는 각각 한 줄 JSON만
-- BODY는 ## 소제목으로 시작 (H1 제목 본문에 포함 금지)
-- KO slug 끝: -kr / EN slug 끝: -en`;
-  }
+- ===SOURCE=== / ===${metaKey}=== 줄에는 한 줄 JSON만
+- ===${bodyKey}=== 이후에 실제 기사 내용을 반드시 작성할 것
+- slug 끝: ${slugSuffix}`;
 
-  // verbatim은 원문 전체 + 번역 모두 출력해야 하므로 토큰 2배 필요
-  const maxTok = (mode === 'verbatim') ? 8000 : 4500;
+  // 단일 언어 생성이므로 토큰 절반으로 충분
+  const maxTok = mode === 'verbatim' ? 5000 : 3500;
 
   try {
     const r = await claudeCall({ system, user, maxTokens: maxTok });
@@ -688,37 +660,32 @@ ${rawText}
     const text = result.content[0].text;
 
     function extractSection(marker) {
-      // \n? 선택적으로: 마커 바로 뒤에 줄바꿈 없는 경우도 처리
       const re = new RegExp(`===${marker}===[ \\t]*\\n?([\\s\\S]*?)(?=\\n===[A-Z_]+===|$)`);
       const m = text.match(re);
       return m ? m[1].trim() : '';
     }
-
-    const sourceRaw = extractSection('SOURCE');
-    const koMetaRaw = extractSection('KO_META');
-    const enMetaRaw = extractSection('EN_META');
-    // 본문 H1 중복 제거 — "# 제목" 으로 시작하는 첫 줄 제거
     function stripLeadingH1(body) {
       return body.replace(/^#\s+[^\n]*\n?/, '').trimStart();
     }
-    const koBody = stripLeadingH1(extractSection('KO_BODY'));
-    const enBody = stripLeadingH1(extractSection('EN_BODY'));
 
-    let source, koMeta, enMeta;
+    const sourceRaw  = extractSection('SOURCE');
+    const metaRaw    = extractSection(metaKey);
+    const body       = stripLeadingH1(extractSection(bodyKey));
+
+    let source, meta;
     try { source = JSON.parse(sourceRaw); } catch(e) {
       return res.status(500).json({ error: 'External import failed', detail: `SOURCE JSON 파싱 오류: ${e.message}\n원문:\n${sourceRaw.slice(0,300)}` });
     }
-    try { koMeta = JSON.parse(koMetaRaw); } catch(e) {
-      return res.status(500).json({ error: 'External import failed', detail: `KO_META JSON 파싱 오류: ${e.message}\n원문:\n${koMetaRaw.slice(0,300)}` });
+    try { meta = JSON.parse(metaRaw); } catch(e) {
+      return res.status(500).json({ error: 'External import failed', detail: `${metaKey} JSON 파싱 오류: ${e.message}\n원문:\n${metaRaw.slice(0,300)}` });
     }
-    try { enMeta = JSON.parse(enMetaRaw); } catch(e) {
-      return res.status(500).json({ error: 'External import failed', detail: `EN_META JSON 파싱 오류: ${e.message}\n원문:\n${enMetaRaw.slice(0,300)}` });
+    if (!body) {
+      return res.status(500).json({ error: '본문 생성 실패 — 응답에서 본문을 찾을 수 없습니다.', detail: text.slice(0, 500) });
     }
 
     const today = new Date().toISOString().split('T')[0];
     const pubDate = source.date || today;
 
-    // 소스 YAML 블록 생성
     const sourceYaml = `source:
   type: "${source.type}"
   title: "${(source.title || '').replace(/"/g, '\\"')}"
@@ -727,47 +694,141 @@ ${rawText}
   date: "${source.date || ''}"
   url: "${source.url || sourceUrl}"`;
 
-    // KO 마크다운 전체 (frontmatter 포함)
-    const koContent = `---
-title: "${(koMeta.title || '').replace(/"/g, '\\"')}"
-description: "${(koMeta.description || '').replace(/"/g, '\\"')}"
+    const content = `---
+title: "${(meta.title || '').replace(/"/g, '\\"')}"
+description: "${(meta.description || '').replace(/"/g, '\\"')}"
 pubDate: ${pubDate}
-category: "미디어 클리핑"
-tags: [${(koMeta.tags || []).map(t => `"${t}"`).join(', ')}]
-author: "FAIRPASS 팀"
+category: "${isKo ? '미디어 클리핑' : 'Media Clipping'}"
+tags: [${(meta.tags || []).map(t => `"${t}"`).join(', ')}]
+author: "${isKo ? 'FAIRPASS 팀' : 'FAIRPASS Team'}"
 authorTitle: ""
 draft: false
 status: draft
 ${sourceYaml}
 ---
 
-${koBody}`;
+${body}`;
 
-    // EN 마크다운 전체 (frontmatter 포함)
-    const enContent = `---
-title: "${(enMeta.title || '').replace(/"/g, '\\"')}"
-description: "${(enMeta.description || '').replace(/"/g, '\\"')}"
-pubDate: ${pubDate}
-category: "Media Clipping"
-tags: [${(enMeta.tags || []).map(t => `"${t}"`).join(', ')}]
-author: "FAIRPASS Team"
-authorTitle: ""
-draft: false
-status: draft
-${sourceYaml}
----
-
-${enBody}`;
+    const langResult = { ...meta, content, body };
 
     return res.status(200).json({
       success: true,
       sourceType,
       source,
-      ko: { ...koMeta, content: koContent, body: koBody },
-      en: { ...enMeta, content: enContent, body: enBody },
+      targetLang,
+      ...(isKo ? { ko: langResult } : { en: langResult }),
     });
   } catch (e) {
     return res.status(500).json({ error: 'External import failed', detail: e.message });
+  }
+}
+
+// ── 미디어 클리핑 반대 언어 번역 ────────────────────────────
+async function handleTranslateClipping(req, res) {
+  const { fromLang, body, title, description, tags, source } = req.body;
+  if (!body || !fromLang) return res.status(400).json({ error: 'fromLang and body required' });
+
+  const toLang = fromLang === 'ko' ? 'en' : 'ko';
+  const isToKo = toLang === 'ko';
+
+  const metaKey = isToKo ? 'KO_META' : 'EN_META';
+  const bodyKey = isToKo ? 'KO_BODY' : 'EN_BODY';
+  const slugSuffix = isToKo ? '-kr' : '-en';
+
+  const system = isToKo
+    ? `당신은 FAIRPASS 미디어 클리핑 번역 에디터입니다.
+영문 마크다운 기사를 한국어로 번역합니다.
+원칙: 사실·수치·링크 보존. 직역보다 자연스러운 한국어 우선. 마크다운 구조(##, **, >, -) 유지.
+FAIRPASS, 페어패스, 키오스크, QR 체크인, 종이명찰 → **굵게**.`
+    : `You are a FAIRPASS media clipping translation editor.
+Translate Korean markdown articles to English.
+Rules: Preserve facts, figures, links. Natural English over literal translation. Keep markdown structure (##, **, >, -).
+Bold: FAIRPASS, kiosk, QR check-in, paper badge.`;
+
+  const tagsStr = Array.isArray(tags) ? tags.join(', ') : (tags || '');
+  const user = isToKo
+    ? `아래 영문 기사를 한국어로 번역해주세요.
+제목: ${title || ''}
+설명: ${description || ''}
+태그 참고: ${tagsStr}
+
+본문:
+${body}
+
+반드시 아래 형식으로만 반환하세요:
+
+===KO_META===
+{"title":"한국어 제목","description":"한국어 설명 160자 이내","tags":["태그1","태그2","태그3"],"slug":"korean-slug${slugSuffix}"}
+===KO_BODY===
+(완성된 한국어 마크다운 본문 — FAIRPASS 키워드 **굵게** — 출처 블록 유지)`
+    : `Translate the Korean article below to English.
+Title: ${title || ''}
+Description: ${description || ''}
+Tags reference: ${tagsStr}
+
+Body:
+${body}
+
+Return only in this format:
+
+===EN_META===
+{"title":"English title","description":"English description under 160 chars","tags":["tag1","tag2","tag3"],"slug":"english-slug${slugSuffix}"}
+===EN_BODY===
+(Complete English markdown body — FAIRPASS keywords **bold** — keep source attribution)`;
+
+  try {
+    const r = await claudeCall({ system, user, maxTokens: 4500 });
+    if (!r.ok) return res.status(500).json({ error: 'Claude API error', detail: await r.text() });
+    const result = await r.json();
+    const text = result.content[0].text;
+
+    const metaMatch = text.match(new RegExp(`===${metaKey}===[ \\t]*\\n?([\\s\\S]*?)(?=\\n===${bodyKey}===)`));
+    const bodyMatch = text.match(new RegExp(`===${bodyKey}===[ \\t]*\\n?([\\s\\S]*)`));
+    if (!metaMatch || !bodyMatch) {
+      return res.status(500).json({ error: '번역 실패 — 응답 형식 오류', detail: text.slice(0, 400) });
+    }
+    let meta;
+    try { meta = JSON.parse(metaMatch[1].trim()); }
+    catch(e) { return res.status(500).json({ error: `${metaKey} JSON 파싱 오류`, detail: metaMatch[1].slice(0, 200) }); }
+
+    const translatedBody = bodyMatch[1].trim().replace(/^#\s+[^\n]*\n?/, '').trimStart();
+    if (!translatedBody) {
+      return res.status(500).json({ error: '번역 본문 생성 실패', detail: text.slice(0, 400) });
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const pubDate = (source && source.date) || today;
+    const sourceYaml = source ? `source:
+  type: "${source.type || ''}"
+  title: "${(source.title || '').replace(/"/g, '\\"')}"
+  outlet: "${(source.outlet || '').replace(/"/g, '\\"')}"
+  author: "${(source.author || '').replace(/"/g, '\\"')}"
+  date: "${source.date || ''}"
+  url: "${source.url || ''}"` : '';
+
+    const content = `---
+title: "${(meta.title || '').replace(/"/g, '\\"')}"
+description: "${(meta.description || '').replace(/"/g, '\\"')}"
+pubDate: ${pubDate}
+category: "${isToKo ? '미디어 클리핑' : 'Media Clipping'}"
+tags: [${(meta.tags || []).map(t => `"${t}"`).join(', ')}]
+author: "${isToKo ? 'FAIRPASS 팀' : 'FAIRPASS Team'}"
+authorTitle: ""
+draft: false
+status: draft
+${sourceYaml}
+---
+
+${translatedBody}`;
+
+    const langResult = { ...meta, content, body: translatedBody };
+    return res.status(200).json({
+      success: true,
+      toLang,
+      ...(isToKo ? { ko: langResult } : { en: langResult }),
+    });
+  } catch(e) {
+    return res.status(500).json({ error: '번역 실패', detail: e.message });
   }
 }
 
@@ -993,6 +1054,7 @@ export default async function handler(req, res) {
   if (action === 'externalImport') return handleExternalImport(req, res);
   if (action === 'fetchArticleText') return handleFetchArticleText(req, res);
   if (action === 'translateEnToKo') return handleTranslateEnToKo(req, res);
+  if (action === 'translateClipping') return handleTranslateClipping(req, res);
 
   return res.status(400).json({ error: 'Invalid action. Use: sns | translate | import | slug | pressImport | externalImport | fetchArticleText | translateEnToKo' });
 }
