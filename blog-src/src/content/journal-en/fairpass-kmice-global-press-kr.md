@@ -7,7 +7,7 @@ tags: ["FAIRPASS", "K-MICE", "QR Check-In", "Sustainable Events", "Badge Printin
 author: "FAIRPASS Team"
 authorTitle: ""
 draft: false
-status: draft
+status: published
 translationKey: "fairpass-kmice-global-press-kr"
 ---
 
