@@ -259,6 +259,19 @@ Full English markdown body here (recreated for international B2B audience, not l
     const translated = JSON.parse(metaMatch[1].trim());
     const translatedBody = bodyMatch[1].trim();
 
+    // 카테고리 강제 매핑 (Claude가 임의 영문 카테고리 생성하는 문제 방지)
+    const KO_TO_EN_CAT = {
+      'FAIRPASS 이야기': 'Our Story',
+      'FAIRPASS 활용법': 'How It Works',
+      '운영 사례': 'In the Field',
+      '지속가능한 행사': 'Sustainable Events',
+      '업계 트렌드': 'Industry Trends',
+      'FAIRPASS 소식': 'FAIRPASS News',
+      '언론 보도': 'In the Press',
+      '미디어 클리핑': 'Media Clipping',
+    };
+    if (category && KO_TO_EN_CAT[category]) translated.category = KO_TO_EN_CAT[category];
+
     const today = new Date().toISOString().split('T')[0];
     const tagsYaml = translated.tags?.length
       ? `tags: [${translated.tags.map(t => `"${t}"`).join(', ')}]`
