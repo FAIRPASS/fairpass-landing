@@ -290,6 +290,61 @@ ${translatedBody}
   }
 }
 
+// ── EN→KO 번역 (미디어 클리핑용) ──────────────────────────────
+async function handleTranslateEnToKo(req, res) {
+  const { title, description, body, tags } = req.body;
+  if (!title || !body) return res.status(400).json({ error: 'title and body required' });
+
+  const system = `당신은 FAIRPASS B2B 이벤트 플랫폼의 전담 번역 에디터입니다.
+FAIRPASS는 행사 온라인 접수·QR 체크인·무인 명찰 출력을 통합한 B2B 이벤트 플랫폼입니다.
+역할: 영문 저널 포스트를 한국어 독자(기업·기관 행사 담당자, PCO)에 맞게 자연스러운 한국어로 번역합니다.
+원칙:
+- 사실·수치·브랜드명·링크 보존
+- 영어 전문용어는 한국어 + 영어 병기 (예: 키오스크(kiosk), QR 체크인)
+- 직역 금지 — 한국 독자에게 자연스러운 문체
+- 마크다운 구조(##, **, >, -) 그대로 유지
+- FAIRPASS, 페어패스, 키오스크, QR 체크인, 명찰 → **굵게**`;
+
+  const tagsArr = Array.isArray(tags) ? tags : (tags ? String(tags).split(',').map(t => t.trim()).filter(Boolean) : []);
+
+  const user = `아래 영문 포스트를 한국어로 번역해주세요.
+
+영문 제목: ${title}
+영문 설명: ${description || ''}
+태그: ${tagsArr.join(', ')}
+
+본문:
+${body}
+
+반드시 아래 형식으로만 반환하세요:
+
+===KO_META===
+{"title":"한국어 제목","description":"한국어 설명 160자 이내","tags":["태그1","태그2","태그3"],"slug":"korean-slug-kr"}
+===KO_BODY===
+(완성된 한국어 마크다운 본문 — ## 소제목으로 시작, H1 제목 본문에 포함 금지)`;
+
+  try {
+    const r = await claudeCall({ system, user, maxTokens: 4096 });
+    if (!r.ok) return res.status(500).json({ error: 'Claude API error', detail: await r.text() });
+    const result = await r.json();
+    const text = result.content[0].text;
+
+    const metaMatch = text.match(/===KO_META===\s*\n(.*?)\n===KO_BODY===/s);
+    const bodyMatch = text.match(/===KO_BODY===\s*\n([\s\S]*)/);
+    if (!metaMatch || !bodyMatch) {
+      return res.status(500).json({ error: '번역 실패 — 응답 형식 오류', detail: text.slice(0, 300) });
+    }
+    let koMeta;
+    try { koMeta = JSON.parse(metaMatch[1].trim()); }
+    catch (e) { return res.status(500).json({ error: 'KO_META JSON 파싱 오류', detail: metaMatch[1].slice(0, 200) }); }
+
+    const koBody = bodyMatch[1].trim().replace(/^#\s+[^\n]*\n?/, '').trimStart();
+    return res.status(200).json({ success: true, ko: { ...koMeta, body: koBody } });
+  } catch (e) {
+    return res.status(500).json({ error: '번역 실패', detail: e.message });
+  }
+}
+
 // ── 기존 글 가져오기 (import & reformat) ─────────────────────
 async function handleImport(req, res) {
   const { rawText, category = '', mode = 'format' } = req.body;
@@ -873,6 +928,7 @@ export default async function handler(req, res) {
   if (action === 'pressImport') return handlePressImport(req, res);
   if (action === 'externalImport') return handleExternalImport(req, res);
   if (action === 'fetchArticleText') return handleFetchArticleText(req, res);
+  if (action === 'translateEnToKo') return handleTranslateEnToKo(req, res);
 
-  return res.status(400).json({ error: 'Invalid action. Use: sns | translate | import | slug | pressImport | externalImport | fetchArticleText' });
+  return res.status(400).json({ error: 'Invalid action. Use: sns | translate | import | slug | pressImport | externalImport | fetchArticleText | translateEnToKo' });
 }

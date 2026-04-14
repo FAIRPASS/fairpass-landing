@@ -479,8 +479,12 @@
               <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
                   <span style="font-size:13px;font-weight:700;">🇺🇸 English</span>
-                  <button class="btn btn-ghost btn-sm" onclick="applyClipping('en')">에디터에 적용 →</button>
+                  <div style="display:flex;gap:6px;align-items:center;">
+                    <button class="btn btn-ghost btn-sm" id="translateToKoBtn" onclick="translateEnToKo()" style="border-color:rgba(168,85,247,0.4);color:var(--purple-light);">🇰🇷 한글로 번역</button>
+                    <button class="btn btn-ghost btn-sm" onclick="applyClipping('en')">에디터에 적용 →</button>
+                  </div>
                 </div>
+                <span id="translateToKoLoading" style="font-size:11px;color:var(--cyan);display:none;">번역 중...</span>
                 <div id="clippingEnTitle" style="font-size:14px;font-weight:700;margin-bottom:6px;"></div>
                 <div id="clippingEnDesc" style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6;"></div>
                 <div id="clippingEnBody" style="font-size:12px;color:var(--muted2);line-height:1.8;max-height:320px;overflow-y:auto;white-space:pre-wrap;border-top:1px solid var(--border);padding-top:10px;"></div>
@@ -1351,6 +1355,39 @@
       document.getElementById('editorLangBadge').textContent = lang === 'ko' ? '🇰🇷 한국어' : '🇺🇸 English';
       if (easyMDE) easyMDE.value(side.body || '');
     }, 200);
+  }
+
+  async function translateEnToKo() {
+    const d = window._clippingData;
+    if (!d?.en) { alert('먼저 기사를 생성해주세요.'); return; }
+    const btn = document.getElementById('translateToKoBtn');
+    const loading = document.getElementById('translateToKoLoading');
+    btn.disabled = true;
+    loading.style.display = 'inline';
+    try {
+      const r = await fetch('/api/journal-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'translateEnToKo', password: pw,
+          title: d.en.title, description: d.en.description,
+          body: d.en.body, tags: d.en.tags,
+        }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || '번역 실패');
+      window._clippingData.ko = { ...data.ko };
+      document.getElementById('clippingKoTitle').textContent = data.ko.title || '';
+      document.getElementById('clippingKoDesc').textContent  = data.ko.description || '';
+      document.getElementById('clippingKoBody').textContent  = data.ko.body || '';
+      btn.textContent = '✅ 번역 완료';
+      setTimeout(() => { btn.textContent = '🇰🇷 한글로 번역'; }, 2500);
+    } catch (e) {
+      alert('번역 실패: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      loading.style.display = 'none';
+    }
   }
 
   async function loadSubscribers() {
