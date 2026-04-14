@@ -540,9 +540,15 @@ async function handleExternalImport(req, res) {
     // extract: AI가 요약하므로 8000자까지 허용
     const textLimit = (mode === 'verbatim') ? 4000 : 8000;
     rawText = directText.trim().slice(0, textLimit);
-    typeLabel = '단독 기사';
-    sourceType = 'exclusive';
     sourceUrl = (sourceInfo && sourceInfo.url) || '';
+    // URL이 있으면 긁어온 언론 기사, 없으면 직접 입력 단독 기사
+    if (sourceUrl) {
+      typeLabel = '언론 기사';
+      sourceType = 'news';
+    } else {
+      typeLabel = '단독 기사';
+      sourceType = 'exclusive';
+    }
   } else {
     // ── URL 크롤링 모드 ──
     const isLinkedIn = /linkedin\.com\/(posts|feed|update|pulse)/.test(url);
@@ -572,11 +578,18 @@ async function handleExternalImport(req, res) {
     sourceUrl = url;
   }
 
-  // 단독 기사 모드: sourceInfo로 출처 힌트 제공
+  // 출처 힌트 — exclusive/news 모두 가능한 메타 활용
   const si = sourceInfo || {};
+  const metaHints = [
+    si.outlet ? `매체명 힌트: ${si.outlet}` : '',
+    si.author ? `기자/작성자 힌트: ${si.author}` : '',
+    si.date   ? `배포일 힌트: ${si.date}` : '',
+    si.title  ? `기사 제목 힌트: ${si.title}` : '',
+  ].filter(Boolean).join('\n');
+
   const exclusiveHint = sourceType === 'exclusive'
-    ? `\n매체명 힌트: ${si.outlet || '(없음)'}\n기자/작성자 힌트: ${si.author || '(없음)'}\n배포일 힌트: ${si.date || '(없음)'}\n기사 제목 힌트: ${si.title || '(없음)'}`
-    : `\n출처 URL: ${sourceUrl}`;
+    ? '\n' + (metaHints || `매체명 힌트: (없음)\n기자/작성자 힌트: (없음)\n배포일 힌트: (없음)\n기사 제목 힌트: (없음)`)
+    : `\n출처 URL: ${sourceUrl}` + (metaHints ? '\n' + metaHints : '');
 
   const sourceBlockGuide = sourceType === 'exclusive'
     ? '단독/자체 기사: > ✍️ **원문:** FAIRPASS 팀 직접 작성 · YYYY-MM-DD (또는 제공된 매체명과 날짜 사용)'
@@ -586,10 +599,10 @@ async function handleExternalImport(req, res) {
 
   const outletPlaceholder = sourceType === 'exclusive'
     ? (si.outlet || 'FAIRPASS 단독')
-    : (sourceType === 'news' ? '언론사명' : '작성자명 (회사/채널명)');
+    : (sourceType === 'news' ? (si.outlet || '언론사명') : '작성자명 (회사/채널명)');
   const authorPlaceholder = sourceType === 'exclusive'
     ? (si.author || 'FAIRPASS 팀')
-    : (sourceType === 'news' ? '기자명 또는 편집부' : '작성자명 (게시한 채널/회사)');
+    : (sourceType === 'news' ? (si.author || '기자명 또는 편집부') : '작성자명 (게시한 채널/회사)');
 
   // ── 언어별 프롬프트 설정 ────────────────────────────────────
   const isKo = targetLang === 'ko';
@@ -895,6 +908,22 @@ function extractDivById(html, idStr) {
   return null;
 }
 
+// HTML에서 기사 메타데이터 추출 (og 태그, meta name, time 태그)
+function extractArticleMeta(html) {
+  function getMeta(prop) {
+    const a = html.match(new RegExp(`<meta[^>]+(?:property|name)=["']${prop}["'][^>]+content=["']([^"']+)["']`, 'i'));
+    const b = html.match(new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${prop}["']`, 'i'));
+    return (a || b) ? (a || b)[1].trim() : '';
+  }
+  const titleTag = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+  const timeTag  = html.match(/<time[^>]+datetime=["']([^"']+)["']/i);
+  const title  = getMeta('og:title') || getMeta('twitter:title') || (titleTag ? titleTag[1].trim() : '');
+  const outlet = getMeta('og:site_name') || getMeta('application-name') || '';
+  const author = getMeta('dable:author') || getMeta('article:author') || getMeta('author') || getMeta('twitter:creator') || '';
+  const rawDate = getMeta('article:published_time') || getMeta('article:modified_time') || getMeta('date') || getMeta('pubdate') || (timeTag ? timeTag[1] : '');
+  return { title, outlet, author, date: rawDate ? rawDate.slice(0, 10) : '' };
+}
+
 async function handleFetchArticleText(req, res) {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: 'url required' });
@@ -1026,7 +1055,8 @@ async function handleFetchArticleText(req, res) {
     return res.status(400).json({ error: '기사 본문을 추출할 수 없습니다.' });
   }
 
-  return res.status(200).json({ text: text.slice(0, 10000), charCount: text.length });
+  const meta = extractArticleMeta(rawHtml);
+  return res.status(200).json({ text: text.slice(0, 10000), charCount: text.length, meta });
 }
 
 // ── Main handler ──────────────────────────────────────────
