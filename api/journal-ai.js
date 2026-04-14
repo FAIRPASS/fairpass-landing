@@ -684,6 +684,37 @@ Example: "MICE 운영의 패러다임 전환 — 지속가능한 행사 운영 �
 }
 
 // ── 기사 텍스트 추출 ────────────────────────────────────────
+
+// HTML에서 평문 텍스트 정리
+function htmlToText(html) {
+  return html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(?:p|div|h[1-6]|li|tr|blockquote)>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#[0-9]+;/g, '')
+    .replace(/[ \t]+/g, ' ')
+    .split('\n').map(l => l.trim()).filter(l => l.length > 0).join('\n')
+    .replace(/\n{3,}/g, '\n\n').trim();
+}
+
+// 중첩 div를 열기/닫기 카운팅으로 추출
+function extractDivById(html, idStr) {
+  const startRe = new RegExp(`<div[^>]+id="${idStr}"[^>]*>`, 'i');
+  const m = html.match(startRe);
+  if (!m) return null;
+  const start = html.indexOf(m[0]) + m[0].length;
+  let depth = 1, i = start;
+  while (i < html.length && depth > 0) {
+    const nextOpen = html.indexOf('<div', i);
+    const nextClose = html.indexOf('</div', i);
+    if (nextClose === -1) break;
+    if (nextOpen !== -1 && nextOpen < nextClose) { depth++; i = nextOpen + 4; }
+    else { depth--; if (depth > 0) i = nextClose + 6; else return html.slice(start, nextClose); }
+  }
+  return null;
+}
+
 async function handleFetchArticleText(req, res) {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: 'url required' });
@@ -695,70 +726,127 @@ async function handleFetchArticleText(req, res) {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
       },
       signal: AbortSignal.timeout(15000),
     });
     if (!r.ok) return res.status(400).json({ error: `URL 접근 실패 (HTTP ${r.status})` });
-    rawHtml = await r.text();
+
+    // 인코딩 처리: Content-Type 또는 meta charset 확인
+    const buf = await r.arrayBuffer();
+    const latin = Buffer.from(buf).toString('latin1');
+
+    // charset 감지 (Content-Type 헤더 우선, 없으면 meta 태그)
+    let charset = 'utf-8';
+    const ctHeader = r.headers.get('content-type') || '';
+    const ctMatch = ctHeader.match(/charset=([^\s;]+)/i);
+    if (ctMatch) charset = ctMatch[1].toLowerCase();
+    else {
+      const metaMatch = latin.match(/charset=['""]?([a-zA-Z0-9-]+)/i);
+      if (metaMatch) charset = metaMatch[1].toLowerCase();
+    }
+
+    if (charset === 'euc-kr' || charset === 'ks_c_5601-1987') {
+      try { rawHtml = new TextDecoder('euc-kr').decode(buf); }
+      catch { rawHtml = Buffer.from(buf).toString('utf-8'); }
+    } else {
+      rawHtml = Buffer.from(buf).toString('utf-8');
+    }
   } catch (e) {
     return res.status(400).json({ error: `URL 가져오기 실패: ${e.message}` });
   }
 
-  // 1단계: 불필요 태그 제거 (광고·메뉴·스크립트 등)
+  // 스크립트·스타일 제거
   let html = rawHtml
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<noscript[\s\S]*?<\/noscript>/gi, '')
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/<(nav|header|footer|aside|figure|iframe|form|button|select|input|textarea|label)[^>]*>[\s\S]*?<\/\1>/gi, '')
-    .replace(/<(ins|[^>]*class="[^"]*ad[^"]*")[^>]*>[\s\S]*?<\/[^>]+>/gi, '');  // 광고 class 제거
+    .replace(/<!--[\s\S]*?-->/g, '');
 
-  // 2단계: 본문 컨테이너 추출 (우선순위 순)
-  const contentSelectors = [
-    /<article[^>]*>([\s\S]*?)<\/article>/i,
-    /<main[^>]*>([\s\S]*?)<\/main>/i,
-    /<[^>]+class="[^"]*(?:article[-_]?(?:body|content|text)|news[-_]?(?:body|content|text)|post[-_]?(?:body|content)|entry[-_]?content|read[-_]?content|view[-_]?content)[^"]*"[^>]*>([\s\S]*?)<\/[^>]+>/i,
-    /<div[^>]+id="[^"]*(?:article|content|body|news)[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+  // 사이트별 특화 ID/class 우선 적용 (한국 주요 언론사)
+  const knownIds = [
+    'articleContetns',    // 네이트
+    'articleBodyContents', // 뉴시스
+    'dic_area',           // 네이버 뉴스
+    'articeBody',         // 네이버 뉴스 구버전
+    'newsct_article',     // 네이버 뉴스
+    'article-view-content-div', // 뉴스1
+    'article_txt',        // 아시아경제
+    'articleBody',        // 다수 언론
+    'article-body',
+    'news-article-body',
+  ];
+  const knownClasses = [
+    'article_view',       // 다음 뉴스
+    'news_view',
+    'articleView',        // 이데일리
+    'article_content',
+    'view_con',           // 연합뉴스
+    'story-news',         // YNA
+    'article-text',
   ];
 
-  let contentHtml = html;
-  for (const sel of contentSelectors) {
-    const m = html.match(sel);
-    if (m) {
-      // 첫 번째 캡처 그룹이 내용
-      const candidate = m[1] || m[0];
-      // 충분한 텍스트가 있는지 확인 (최소 200자)
-      const textLen = candidate.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().length;
-      if (textLen > 200) { contentHtml = candidate; break; }
+  let contentHtml = null;
+
+  // 1) 알려진 ID로 div 추출 (중첩 카운팅)
+  for (const id of knownIds) {
+    if (html.includes(id)) {
+      const extracted = extractDivById(html, id);
+      if (extracted) {
+        const textLen = extracted.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().length;
+        if (textLen > 100) { contentHtml = extracted; break; }
+      }
     }
   }
 
-  // 3단계: 남은 HTML 태그 제거, 텍스트 정리
-  const text = contentHtml
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>/gi, '\n')
-    .replace(/<\/h[1-6]>/gi, '\n')
-    .replace(/<\/li>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#[0-9]+;/g, '')
-    .replace(/[ \t]+/g, ' ')
-    .split('\n')
-    .map(l => l.trim())
-    .filter(l => l.length > 0)
-    .join('\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-
-  if (text.length < 50) {
-    return res.status(400).json({ error: '기사 본문을 추출할 수 없습니다. 해당 사이트는 직접 접근이 차단되어 있을 수 있습니다.' });
+  // 2) 알려진 class (간단 추출)
+  if (!contentHtml) {
+    for (const cls of knownClasses) {
+      const re = new RegExp(`<[^>]+class="[^"]*${cls}[^"]*"[^>]*>([\\s\\S]{200,}?)(?=<div[^>]+class="[^"]*(?:ad|banner|comment|related|more|footer)[^"]*">|$)`, 'i');
+      const m = html.match(re);
+      if (m && m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().length > 100) {
+        contentHtml = m[1]; break;
+      }
+    }
   }
 
-  return res.status(200).json({ text, charCount: text.length });
+  // 3) <article> 태그
+  if (!contentHtml) {
+    const m = html.match(/<article[^>]*>([\s\S]+?)<\/article>/i);
+    if (m && m[1].replace(/<[^>]+>/g, '').trim().length > 100) contentHtml = m[1];
+  }
+
+  // 4) <main> 태그
+  if (!contentHtml) {
+    const m = html.match(/<main[^>]*>([\s\S]+?)<\/main>/i);
+    if (m && m[1].replace(/<[^>]+>/g, '').trim().length > 100) contentHtml = m[1];
+  }
+
+  // 5) 최후 수단: 가장 긴 <p> 연속 블록 추출
+  if (!contentHtml) {
+    const pTags = [...html.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)];
+    const paragraphs = pTags
+      .map(m => htmlToText(m[1]))
+      .filter(t => t.length > 30 && !/^(Copyright|저작권|무단전재|사진=|▶|【|◆)/.test(t));
+    if (paragraphs.length > 0) contentHtml = paragraphs.join('\n\n');
+  }
+
+  if (!contentHtml) {
+    return res.status(400).json({ error: '기사 본문을 추출할 수 없습니다. 해당 사이트는 스크래핑을 차단하고 있을 수 있습니다.' });
+  }
+
+  // 광고·관련기사 블록 제거 후 텍스트 변환
+  const cleaned = contentHtml
+    .replace(/<[^>]*class="[^"]*(?:ad|advertisement|banner|related|more|social|share|comment)[^"]*"[^>]*>[\s\S]*?<\/(?:div|section|aside)>/gi, '')
+    .replace(/<(nav|header|footer|aside|iframe|form)[^>]*>[\s\S]*?<\/\1>/gi, '');
+
+  const text = htmlToText(cleaned);
+
+  if (text.length < 50) {
+    return res.status(400).json({ error: '기사 본문을 추출할 수 없습니다.' });
+  }
+
+  return res.status(200).json({ text: text.slice(0, 10000), charCount: text.length });
 }
 
 // ── Main handler ──────────────────────────────────────────
