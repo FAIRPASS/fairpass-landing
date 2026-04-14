@@ -8,8 +8,8 @@ author: "FAIRPASS 팀"
 authorTitle: ""
 draft: false
 status: published
+imagePosition: "50% 52%"
 ---
-
 
 한국마이스협회는 2022년 정부 지원을 통해 전시·컨벤션 등 각종 행사 현장에 적용 가능한 마이스 테크를 개발한 83개 기업 가운데, 사업화 가능성이 높은 6개 사를 **DX 우수 마이스기업**으로 선정했다.
 
