@@ -469,7 +469,7 @@ async function handleExternalImport(req, res) {
     rawText = directText.trim().slice(0, 8000);
     typeLabel = '단독 기사';
     sourceType = 'exclusive';
-    sourceUrl = '';
+    sourceUrl = (sourceInfo && sourceInfo.url) || '';
   } else {
     // ── URL 크롤링 모드 ──
     const isLinkedIn = /linkedin\.com\/(posts|feed|update|pulse)/.test(url);
@@ -683,6 +683,84 @@ Example: "MICE 운영의 패러다임 전환 — 지속가능한 행사 운영 �
   return res.status(200).json({ slug });
 }
 
+// ── 기사 텍스트 추출 ────────────────────────────────────────
+async function handleFetchArticleText(req, res) {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'url required' });
+
+  let rawHtml;
+  try {
+    const r = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8',
+      },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!r.ok) return res.status(400).json({ error: `URL 접근 실패 (HTTP ${r.status})` });
+    rawHtml = await r.text();
+  } catch (e) {
+    return res.status(400).json({ error: `URL 가져오기 실패: ${e.message}` });
+  }
+
+  // 1단계: 불필요 태그 제거 (광고·메뉴·스크립트 등)
+  let html = rawHtml
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<(nav|header|footer|aside|figure|iframe|form|button|select|input|textarea|label)[^>]*>[\s\S]*?<\/\1>/gi, '')
+    .replace(/<(ins|[^>]*class="[^"]*ad[^"]*")[^>]*>[\s\S]*?<\/[^>]+>/gi, '');  // 광고 class 제거
+
+  // 2단계: 본문 컨테이너 추출 (우선순위 순)
+  const contentSelectors = [
+    /<article[^>]*>([\s\S]*?)<\/article>/i,
+    /<main[^>]*>([\s\S]*?)<\/main>/i,
+    /<[^>]+class="[^"]*(?:article[-_]?(?:body|content|text)|news[-_]?(?:body|content|text)|post[-_]?(?:body|content)|entry[-_]?content|read[-_]?content|view[-_]?content)[^"]*"[^>]*>([\s\S]*?)<\/[^>]+>/i,
+    /<div[^>]+id="[^"]*(?:article|content|body|news)[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+  ];
+
+  let contentHtml = html;
+  for (const sel of contentSelectors) {
+    const m = html.match(sel);
+    if (m) {
+      // 첫 번째 캡처 그룹이 내용
+      const candidate = m[1] || m[0];
+      // 충분한 텍스트가 있는지 확인 (최소 200자)
+      const textLen = candidate.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().length;
+      if (textLen > 200) { contentHtml = candidate; break; }
+    }
+  }
+
+  // 3단계: 남은 HTML 태그 제거, 텍스트 정리
+  const text = contentHtml
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<\/h[1-6]>/gi, '\n')
+    .replace(/<\/li>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#[0-9]+;/g, '')
+    .replace(/[ \t]+/g, ' ')
+    .split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length > 0)
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  if (text.length < 50) {
+    return res.status(400).json({ error: '기사 본문을 추출할 수 없습니다. 해당 사이트는 직접 접근이 차단되어 있을 수 있습니다.' });
+  }
+
+  return res.status(200).json({ text, charCount: text.length });
+}
+
 // ── Main handler ──────────────────────────────────────────
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://fairpass.world');
@@ -706,6 +784,7 @@ export default async function handler(req, res) {
   if (action === 'slug')        return handleSlug(req, res);
   if (action === 'pressImport') return handlePressImport(req, res);
   if (action === 'externalImport') return handleExternalImport(req, res);
+  if (action === 'fetchArticleText') return handleFetchArticleText(req, res);
 
-  return res.status(400).json({ error: 'Invalid action. Use: sns | translate | import | slug | pressImport | externalImport' });
+  return res.status(400).json({ error: 'Invalid action. Use: sns | translate | import | slug | pressImport | externalImport | fetchArticleText' });
 }
