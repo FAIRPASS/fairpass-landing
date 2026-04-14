@@ -8,7 +8,7 @@ author: "FAIRPASS 팀"
 authorTitle: ""
 draft: false
 status: published
-imagePosition: "50% 82%"
+imagePosition: "50% 79%"
 ---
 
 ## **FAIRPASS**, 싱가포르 법인 설립과 국제 박람회 참가로 글로벌 진출 기반 마련
