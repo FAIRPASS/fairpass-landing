@@ -2223,7 +2223,7 @@ function renderQuoteTable() {
       <td><button class="btn btn-ghost btn-sm" onclick="openQuoteSendModal(${idx})" style="white-space:nowrap">📄 보기</button></td>
       <td>${item.quote_sent_at
         ? `<span class="sent-badge" onclick="openDealModal(${item.id},${idx})" style="cursor:pointer;" title="클릭하여 수주 결과 입력">✓ 발송</span>`
-        : `<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,0.06);color:var(--muted);">미발송</span>`
+        : `<span onclick="openDealModal(${item.id},${idx})" style="font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,0.06);color:var(--muted);cursor:pointer;" title="클릭하여 수주 결과 입력">미발송</span>`
       }</td>
       <td>${renderDealBadge(item.deal_status)}</td>
       <td><button class="btn btn-danger btn-sm" onclick="deleteQuote(${item.id})" style="white-space:nowrap">삭제</button></td>
