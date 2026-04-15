@@ -1,7 +1,7 @@
 ---
 title: "A Sustainable MICE Operations Model — How FAIRPASS Is Redefining the Event Management Paradigm"
 description: "Go beyond plastic badges and manual check-ins. Discover how FAIRPASS delivers ESG compliance and operational automation for B2B events."
-pubDate: 2026-04-10
+pubDate: 2026-04-07
 category: "Sustainable Events"
 tags: ["MICE", "ESG", "SustainableEvents", "EventAutomation", "PlasticFree"]
 author: "FAIRPASS Team"

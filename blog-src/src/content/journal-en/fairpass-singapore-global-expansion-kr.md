@@ -1,7 +1,7 @@
 ---
 title: "FAIRPASS Expands Globally: Singapore Entity Established, Debuts at Travel Tech Asia 2025"
 description: "FAIRPASS launches Singapore operations and speaks at Travel Tech Asia 2025, bringing sustainable MICE technology to the global event management market."
-pubDate: 2026-04-14
+pubDate: 2025-12-03
 category: "Media Clipping"
 tags: ["FAIRPASS", "MICE Tech", "Singapore", "Sustainable Events", "Event Technology", "QR Check-In", "Badge Kiosk", "Global Expansion"]
 author: "FAIRPASS Team"

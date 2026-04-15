@@ -1,7 +1,7 @@
 ---
 title: "FAIRPASS Selected for Korea Tourism Organization's 2024 Global Challenge — Leading ESG Innovation in K-MICE"
 description: "FAIRPASS, the eco-friendly event badge and registration platform, is named in KTO's 2024 Tourism Global Challenge to drive ESG innovation in MICE worldwide."
-pubDate: 2026-04-14
+pubDate: 2024-06-24
 category: "Media Clipping"
 tags: ["FAIRPASS", "K-MICE", "eco-friendly badge", "Korea Tourism Organization", "ESG", "event technology", "MICE innovation"]
 author: "FAIRPASS Team"
