@@ -8,6 +8,7 @@ author: "FAIRPASS Team"
 authorTitle: ""
 draft: false
 status: published
+imagePosition: "50% 84%"
 translationKey: "fairpass-singapore-global-expansion-kr"
 ---
 
