@@ -5,7 +5,7 @@ pubDate: 2026-03-10
 category: "Registration"
 tags: ["event-registration", "automation", "event-management", "online-registration"]
 author: "FAIRPASS Team"
-status: draft
+status: published
 faq:
   - q: "What is event registration automation?"
     a: "It's a software system that collects attendee information via online forms, automatically sends confirmation emails and QR codes, and provides real-time dashboards — eliminating manual spreadsheet management."

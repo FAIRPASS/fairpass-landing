@@ -7,7 +7,7 @@ tags: ["무인키오스크", "체크인", "현장운영", "행사효율화", "QR
 author: "FAIRPASS 팀"
 authorTitle: ""
 draft: true
-status: draft
+status: published
 snsCopy:
   linkedinKrShort: "행사 끝난 뒤 쓰레기통에 쌓인 플라스틱 명찰 홀더, 보신 적 있으신가요?\n\n운영 인력 30% 절감, 현장 대기 40% 감소 — 명찰 하나를 바꿨을 때 생기는 변화입니다.\n\n그런데 가장 놀라운 건 따로 있습니다. 전체 내용 →\nhttps://fairpass.world/journal/ko/sustainable-event-operations-model-kr/"
   linkedinKrStandard: ""
