@@ -1187,6 +1187,8 @@ window.setLang = function(l) {
       vid.load();
     }
   });
+  var journalLink = document.getElementById('journalNavLink');
+  if (journalLink) journalLink.href = l === 'en' ? '/journal/en/' : '/journal/ko/';
 };
 (function() {
   var urlLang = new URLSearchParams(window.location.search).get('lang');
@@ -1202,6 +1204,8 @@ window.setLang = function(l) {
     document.querySelectorAll('.nav-lang-btn').forEach(function(btn) {
       btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
     });
+    var journalLink = document.getElementById('journalNavLink');
+    if (journalLink) journalLink.href = lang === 'en' ? '/journal/en/' : '/journal/ko/';
     if (lang === 'en') {
       document.querySelectorAll('[data-ph-ko]').forEach(function(el) {
         el.placeholder = el.getAttribute('data-ph-en') || el.placeholder;
