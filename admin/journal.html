@@ -1890,6 +1890,8 @@ ${body}`;
         document.getElementById('saveStatus').className = 'save-status ok';
         document.getElementById('saveStatus').textContent = '✓ 저장 완료 — Vercel이 자동 빌드합니다';
         clearDraft();
+        // 이미지 포커스 위치를 반대 언어 포스트에 자동 동기화
+        syncImagePositionToPair(slug, imagePosition, pw);
       } else {
         const detailStr = data.detail ? (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
       throw new Error((data.error || 'Save failed') + (detailStr ? '\n\n' + detailStr : ''));
@@ -2244,6 +2246,37 @@ ${body}`;
 
   function setImagePosition(val) {
     document.getElementById('fImagePosition').value = val || '';
+  }
+
+  // 이미지 포커스 위치를 반대 언어 포스트에 자동 동기화 (없으면 조용히 스킵)
+  async function syncImagePositionToPair(slug, imagePosition, pw) {
+    const otherLang = currentLang === 'ko' ? 'en' : 'ko';
+    const otherPath = `blog-src/src/content/journal-${otherLang}/${slug}.md`;
+    try {
+      const r = await fetch(`/api/journal-admin?action=read&path=${encodeURIComponent(otherPath)}&password=${encodeURIComponent(pw)}`);
+      if (!r.ok) return; // 상대 포스트 없으면 스킵
+      const data = await r.json();
+      let raw = data.content || '';
+      const sha = data.sha;
+      // imagePosition 라인 업데이트 or 추가
+      if (imagePosition) {
+        const line = `imagePosition: "${imagePosition.replace(/"/g, '\\"')}"`;
+        if (/^imagePosition:/m.test(raw)) {
+          raw = raw.replace(/^imagePosition:.*$/m, line);
+        } else {
+          // status: 줄 바로 뒤에 삽입
+          raw = raw.replace(/^(status:.*)$/m, `$1\n${line}`);
+        }
+      } else {
+        // imagePosition 제거
+        raw = raw.replace(/^imagePosition:.*\n?/m, '');
+      }
+      await fetch('/api/journal-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'save', path: otherPath, content: raw, sha, password: pw, deploy: false }),
+      });
+    } catch (_) { /* 동기화 실패 시 무시 */ }
   }
 
   // ── Author / Status helpers ──
