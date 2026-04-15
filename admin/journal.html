@@ -2551,7 +2551,11 @@ snsCopy:
       }
       if (r.ok) {
         initEnglishEditor();
-        easyMDEEn.value(data.content || data.markdown || '');
+        let enContent = data.content || data.markdown || '';
+        // KO 게시일을 EN에 동기화 (번역 API는 항상 today를 쓰므로 덮어씀)
+        const koDate = document.getElementById('fDate').value;
+        if (koDate) enContent = enContent.replace(/^pubDate:.*$/m, `pubDate: ${koDate}`);
+        easyMDEEn.value(enContent);
         document.getElementById('translateResult').classList.add('open');
       } else {
         const detail = data.detail ? '\n\n' + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
