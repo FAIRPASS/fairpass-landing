@@ -5,7 +5,7 @@ import BlogLayout from '../layouts/BlogLayout.astro';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const site = 'https://fairpass.world';
 
-const KO_CATS = ['FAIRPASS 이야기','FAIRPASS 활용법','운영 사례','지속가능한 행사','업계 트렌드','FAIRPASS 소식','언론 보도'];
+const KO_CATS = ['FAIRPASS 이야기','FAIRPASS 활용법','운영 사례','지속가능한 행사','업계 트렌드','FAIRPASS 소식','언론 보도','미디어 클리핑'];
 
 const CAT: Record<string, {accent:string; bg:string}> = {
   'FAIRPASS 이야기': { accent:'#d97706', bg:'linear-gradient(135deg,#451a03 0%,#92400e 100%)' },
@@ -15,6 +15,7 @@ const CAT: Record<string, {accent:string; bg:string}> = {
   '업계 트렌드':     { accent:'#60a5fa', bg:'linear-gradient(135deg,#1e3a5f 0%,#1e40af 100%)' },
   'FAIRPASS 소식':   { accent:'#9ca3af', bg:'linear-gradient(135deg,#111827 0%,#374151 100%)' },
   '언론 보도':       { accent:'#fb7185', bg:'linear-gradient(135deg,#500724 0%,#9f1239 100%)' },
+  '미디어 클리핑':   { accent:'#0ea5e9', bg:'linear-gradient(135deg,#082f49 0%,#0369a1 100%)' },
 };
 const DEFAULT_CAT = { accent:'#6b7280', bg:'linear-gradient(135deg,#111827,#1f2937)' };
 
@@ -40,9 +41,10 @@ const postsData = posts.map(post => {
     pubDateISO:  post.data.pubDate.toISOString(),
     category:    post.data.category || '',
     tags:        (post.data.tags || []).slice(0,3) as string[],
-    heroImage:   getHeroImage(post),
-    accent:      c.accent,
-    catBg:       c.bg,
+    heroImage:     getHeroImage(post),
+    imagePosition: post.data.imagePosition || 'center',
+    accent:        c.accent,
+    catBg:         c.bg,
     searchText:  `${post.data.title} ${post.data.description||''} ${(post.data.tags||[]).join(' ')} ${post.data.category}`.toLowerCase(),
   };
 });
@@ -137,6 +139,7 @@ const postsData = posts.map(post => {
                   src={post.heroImage}
                   alt={post.title}
                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  style={`object-position: ${post.imagePosition};`}
                   loading="lazy"
                 />
               ) : (
