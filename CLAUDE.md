@@ -84,6 +84,13 @@
 - Status 4단계: draft → review → approved → published
 - 빌드: `blog-src/` 에서 `npm run build` → `journal/` 폴더 출력 → git push → Vercel 자동 배포
 
+## ⛔ git push --force 절대 금지 (2026-04-15 추가)
+- `git push origin main --force` **절대 금지**
+- 어드민 패널이 GitHub API로 직접 저장 → 로컬보다 항상 앞서 있을 수 있음
+- force push → 어드민에서 저장한 포스트 영구 손실 사고 발생 전례 있음
+- reject 발생 시: `git pull --rebase origin main` 후 일반 push
+- fairpass remote도 동일하게 force push 금지
+
 ## 필수 규칙
 - 사용자가 요청한 것만 수정할 것
 - 실행 여부를 묻지 말고 바로 수행할 것
