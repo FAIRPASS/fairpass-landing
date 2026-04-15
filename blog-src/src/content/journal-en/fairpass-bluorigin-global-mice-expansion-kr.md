@@ -8,6 +8,7 @@ author: "FAIRPASS Team"
 authorTitle: ""
 draft: false
 status: published
+imagePosition: "50% 10%"
 translationKey: "fairpass-bluorigin-global-mice-expansion-kr"
 ---
 
