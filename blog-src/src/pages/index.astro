@@ -50,6 +50,14 @@ const postsData = posts.map(post => {
 });
 ---
 
+<script is:inline>
+  (function() {
+    var lang = localStorage.getItem('preferredLang') ||
+               (navigator.language && navigator.language.startsWith('ko') ? 'ko' : 'en');
+    window.location.replace((lang === 'ko' ? '/journal/ko/' : '/journal/en/'));
+  })();
+</script>
+
 <BlogLayout
   title="FAIRPASS Journal — 행사 운영 인사이트"
   description="기업·기관 행사 담당자를 위한 접수 자동화, 현장 체크인, 친환경 명찰 운영 실무 가이드. FAIRPASS Journal."
