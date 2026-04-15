@@ -625,10 +625,10 @@ async function handleExternalImport(req, res) {
   const bodyInstruction = isKo
     ? (mode === 'verbatim'
       ? '원문 전체를 그대로 마크다운으로 변환. FAIRPASS/페어패스/키오스크/QR 체크인/종이명찰 키워드는 **굵게**. 마지막에 출처 블록 추가.'
-      : 'FAIRPASS 중심으로 재편한 국문 마크다운 본문. FAIRPASS 관련 내용 **굵게**. ## 소제목 사용. 마지막에 출처 블록 포함.')
+      : 'FAIRPASS 중심으로 재편한 국문 마크다운 본문. ## 소제목 사용.\n규칙: ① FAIRPASS 관련 내용(**굵게**)만 상세히 작성 ② 경쟁사·타 업체 설명 제외 ③ MICE 산업 동향, 정부 지원 사업, 행사 운영 트렌드 등 맥락 정보는 포함 ④ 마지막에 출처 블록 포함.')
     : (mode === 'verbatim'
       ? 'Convert the full original article to markdown exactly. Bold: FAIRPASS, kiosk, QR check-in, paper badge. Source attribution at end.'
-      : 'FAIRPASS-focused English markdown. Bold FAIRPASS-related content. Use ## subheadings. Source attribution at end.');
+      : 'FAIRPASS-focused English markdown. Use ## subheadings.\nRules: ① Detail only FAIRPASS-related content (bold) ② Exclude competitor/other company descriptions ③ Include MICE industry context, government support programs, event industry trends ④ Source attribution at end.');
 
   const system = isKo
     ? `당신은 FAIRPASS 미디어 클리핑 에디터입니다. 외부 기사를 FAIRPASS Journal 미디어 클리핑 포스트로 변환합니다.
@@ -925,8 +925,10 @@ function extractArticleMeta(html) {
 }
 
 async function handleFetchArticleText(req, res) {
-  const { url } = req.body;
-  if (!url) return res.status(400).json({ error: 'url required' });
+  const { url: rawUrl } = req.body;
+  if (!rawUrl) return res.status(400).json({ error: 'url required' });
+  // HTML 엔티티 디코딩 (&amp; → & 등)
+  const url = rawUrl.replace(/&amp;/g, '&').replace(/&#38;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 
   let rawHtml;
   try {
