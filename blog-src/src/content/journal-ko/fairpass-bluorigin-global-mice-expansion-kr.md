@@ -6,8 +6,9 @@ category: "미디어 클리핑"
 tags: ["페어패스", "FAIRPASS", "QR 체크인", "종이명찰", "무인발권", "키오스크", "마이스", "MICE", "참가자등록", "해외진출"]
 author: "FAIRPASS 팀"
 authorTitle: ""
-draft: true
-status: draft
+draft: false
+status: published
+imagePosition: "50% 10%"
 ---
 
 ## FAIRPASS, 글로벌 현장에서 참가자 관리 솔루션 실증
