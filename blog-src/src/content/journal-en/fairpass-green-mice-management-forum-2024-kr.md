@@ -1,13 +1,15 @@
 ---
 title: "FAIRPASS Showcases QR Check-In & Self-Service Kiosks for Sustainable Event Registration at Green MICE Forum"
 description: "FAIRPASS debuts QR-based self-service kiosks and on-demand badge printing at Green MICE Forum, cutting waste and digitizing event registration."
-pubDate: 2026-04-15
+pubDate: 2024-04-02
 category: "Media Clipping"
 tags: ["Green MICE", "QR Check-In", "Self-Service Kiosk", "On-Demand Badge Printing", "FAIRPASS", "Sustainable Events", "MICE Digital Transformation"]
 author: "FAIRPASS Team"
 authorTitle: ""
 draft: false
 status: published
+image: "https://ztqxwbagbqenrcvjrkrh.supabase.co/storage/v1/object/public/journal/1776230303627_20240502_140649.jpg"
+imagePosition: "50% 100%"
 translationKey: "fairpass-green-mice-management-forum-2024-kr"
 ---
 
