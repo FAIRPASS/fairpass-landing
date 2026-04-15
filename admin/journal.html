@@ -1893,8 +1893,8 @@ ${body}`;
         // 본문 첫 이미지 URL 추출
         const firstImgMatch = body.match(/!\[.*?\]\(((?:\/journal-images\/|https?:\/\/)[^\s)]+)\)/);
         const heroImageUrl = firstImgMatch ? firstImgMatch[1] : null;
-        // 이미지 URL + 포커스 위치 + 게시일을 반대 언어 포스트에 자동 동기화
-        syncImagePositionToPair(slug, imagePosition, heroImageUrl, date, pw);
+        // 이미지 URL + 포커스 위치 + 게시일 + 상태를 반대 언어 포스트에 자동 동기화
+        syncImagePositionToPair(slug, imagePosition, heroImageUrl, date, status, pw);
       } else {
         const detailStr = data.detail ? (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail, null, 2)) : '';
       throw new Error((data.error || 'Save failed') + (detailStr ? '\n\n' + detailStr : ''));
@@ -2251,8 +2251,8 @@ ${body}`;
     document.getElementById('fImagePosition').value = val || '';
   }
 
-  // 이미지 URL + 포커스 위치 + 게시일을 반대 언어 포스트에 자동 동기화 (없으면 조용히 스킵)
-  async function syncImagePositionToPair(slug, imagePosition, heroImageUrl, pubDate, pw) {
+  // 이미지 URL + 포커스 위치 + 게시일 + 상태를 반대 언어 포스트에 자동 동기화 (없으면 조용히 스킵)
+  async function syncImagePositionToPair(slug, imagePosition, heroImageUrl, pubDate, status, pw) {
     const otherLang = currentLang === 'ko' ? 'en' : 'ko';
     const otherPath = `blog-src/src/content/journal-${otherLang}/${slug}.md`;
     try {
@@ -2285,6 +2285,12 @@ ${body}`;
         } else {
           raw = raw.replace(/^(title:.*)$/m, `$1\npubDate: ${pubDate}`);
         }
+      }
+      // status + draft 동기화 (published/draft 회수 시 반대 언어도 동일하게)
+      if (status) {
+        const isDraft = status !== 'published';
+        raw = raw.replace(/^status:.*$/m, `status: ${status}`);
+        raw = raw.replace(/^draft:.*$/m, `draft: ${isDraft}`);
       }
 
       await fetch('/api/journal-admin', {
