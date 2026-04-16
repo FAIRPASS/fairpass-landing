@@ -1144,6 +1144,79 @@
       <div class="qs-info-item"><span>전화번호</span><a id="qs_phone" href="#">-</a></div>
     </div>
 
+    <!-- 어드민 세부 옵션 -->
+    <details id="qs_admin_options" style="margin-bottom:14px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <summary style="padding:10px 14px;font-size:11px;font-weight:700;color:#a78bfa;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;background:rgba(139,92,246,0.08);user-select:none">
+        ⚙️ 세부 옵션 (명찰·줄·발송서비스)
+      </summary>
+      <div style="padding:14px;display:grid;gap:12px">
+
+        <!-- 명찰 타입 -->
+        <div>
+          <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">종이명찰 타입</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="radio" name="adm_badge" value="1500" data-label="일반형(중)" onchange="applyBadgeType(this)"> 일반형(중) — ₩1,500
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="radio" name="adm_badge" value="2000" data-label="일반형(대)" onchange="applyBadgeType(this)"> 일반형(대) — ₩2,000
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="radio" name="adm_badge" value="1500" data-label="티켓형" onchange="applyBadgeType(this)"> 티켓형 — ₩1,500
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="radio" name="adm_badge" value="1500" data-label="가슴명찰형" onchange="applyBadgeType(this)"> 가슴명찰형 — ₩1,500
+            </label>
+          </div>
+        </div>
+
+        <!-- 목걸이줄 타입 -->
+        <div>
+          <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">목걸이줄 타입</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="radio" name="adm_lanyard" value="1300" data-label="AI(P) 종이고리" onchange="applyLanyardType(this)"> AI(P) 종이고리 — ₩1,300
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="radio" name="adm_lanyard" value="600" data-label="B1(P) 종이고리" onchange="applyLanyardType(this)"> B1(P) 종이고리 — ₩600
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="radio" name="adm_lanyard" value="1000" data-label="A1 플라스틱" onchange="applyLanyardType(this)"> A1 플라스틱 — ₩1,000
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="radio" name="adm_lanyard" value="1100" data-label="A2 플라스틱" onchange="applyLanyardType(this)"> A2 플라스틱 — ₩1,100
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="radio" name="adm_lanyard" value="500" data-label="B1 플라스틱" onchange="applyLanyardType(this)"> B1 플라스틱 — ₩500
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="radio" name="adm_lanyard" value="600" data-label="B2 플라스틱" onchange="applyLanyardType(this)"> B2 플라스틱 — ₩600
+            </label>
+          </div>
+        </div>
+
+        <!-- 발송 서비스 -->
+        <div>
+          <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">발송 서비스 추가</p>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="checkbox" id="adm_alimtalk" onchange="applyMessaging()">
+              <span>알림톡 발송 — ₩20/건 <span style="color:var(--muted);font-size:11px">(참가자 수 기준)</span></span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="checkbox" id="adm_sms" onchange="applyMessaging()">
+              <span>문자(LMS) 발송 — ₩100/건 <span style="color:var(--muted);font-size:11px">(참가자 수 기준)</span></span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="checkbox" id="adm_email_send" onchange="applyMessaging()">
+              <span>이메일 발송 — ₩50/건 <span style="color:var(--muted);font-size:11px">(참가자 수 기준)</span></span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </details>
+
     <!-- 비용 내역 편집 테이블 -->
     <div id="qs_billing_section" style="margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -2824,6 +2897,9 @@ function openQuoteSendModal(idx) {
   const p = parseQuoteContent(editableContent);
   renderBillingTable(p.비용상세 || '');
 
+  // 어드민 옵션 초기화
+  resetAdminOptions(editableContent);
+
   const btn = document.getElementById('qs_sendBtn');
   document.getElementById('qs_sendLabel').textContent = '고객에게 발송하기';
   btn.disabled = false;
@@ -2913,6 +2989,129 @@ function buildContentFromBillingTable() {
 function syncBillingToContent() {
   const el = document.getElementById('qs_content');
   if (el) el.value = buildContentFromBillingTable();
+}
+
+// ── 어드민 세부 옵션: 단가·수량 파싱 헬퍼 ──
+var _qsAttendees = 0; // 현재 모달에서 파악한 참가자 수
+
+function parseAttendees(content) {
+  var m = (content || '').match(/(\d[\d,]+)명/);
+  return m ? parseInt(m[1].replace(/,/g, ''), 10) : 0;
+}
+
+function formatKRWAdmin(n) {
+  return '₩' + Math.round(n).toLocaleString('ko-KR');
+}
+
+// 빌링 테이블에서 키워드로 행 찾아 금액 업데이트
+function updateBillingRowByKeyword(keyword, newLabel, newVal) {
+  var rows = document.querySelectorAll('#qs_billing_table .bil-row');
+  for (var i = 0; i < rows.length; i++) {
+    var lbl = rows[i].querySelector('.bil-label');
+    if (lbl && lbl.value.includes(keyword)) {
+      lbl.value = newLabel;
+      rows[i].querySelector('.bil-val').value = newVal;
+      syncBillingToContent();
+      return true;
+    }
+  }
+  return false;
+}
+
+// 빌링 테이블에서 키워드로 행 제거
+function removeBillingRowByKeyword(keyword) {
+  var rows = document.querySelectorAll('#qs_billing_table .bil-row');
+  for (var i = 0; i < rows.length; i++) {
+    var lbl = rows[i].querySelector('.bil-label');
+    if (lbl && lbl.value.includes(keyword)) {
+      rows[i].remove();
+      syncBillingToContent();
+      return;
+    }
+  }
+}
+
+// 명찰 타입 변경 → 빌링 행 업데이트
+function applyBadgeType(radio) {
+  if (!_qsAttendees) return;
+  var unitPrice = parseInt(radio.value, 10);
+  var typeName = radio.dataset.label;
+  var qty = _qsAttendees;
+  var label = '종이명찰 ' + typeName + ' (' + qty.toLocaleString() + '장 × ' + unitPrice.toLocaleString() + '원)';
+  var val = formatKRWAdmin(qty * unitPrice);
+  if (!updateBillingRowByKeyword('종이명찰', label, val)) {
+    // 행이 없으면 추가
+    addBillingRowWithValues(label, val);
+  }
+}
+
+// 목걸이줄 타입 변경 → 빌링 행 업데이트
+function applyLanyardType(radio) {
+  if (!_qsAttendees) return;
+  var unitPrice = parseInt(radio.value, 10);
+  var typeName = radio.dataset.label;
+  var qty = _qsAttendees;
+  var label = '목걸이줄 ' + typeName + ' (' + qty.toLocaleString() + '개 × ' + unitPrice.toLocaleString() + '원)';
+  var val = formatKRWAdmin(qty * unitPrice);
+  if (!updateBillingRowByKeyword('목걸이줄', label, val)) {
+    addBillingRowWithValues(label, val);
+  }
+}
+
+// 발송 서비스 토글 → 빌링 행 추가/제거
+function applyMessaging() {
+  var att = _qsAttendees || 0;
+  var items = [
+    { id: 'adm_alimtalk',   keyword: '알림톡', label: '알림톡 발송 (' + att.toLocaleString() + '건 × 20원)', price: att * 20 },
+    { id: 'adm_sms',        keyword: '문자(LMS)', label: '문자(LMS) 발송 (' + att.toLocaleString() + '건 × 100원)', price: att * 100 },
+    { id: 'adm_email_send', keyword: '이메일 발송', label: '이메일 발송 (' + att.toLocaleString() + '건 × 50원)', price: att * 50 },
+  ];
+  items.forEach(function(item) {
+    var checked = document.getElementById(item.id) && document.getElementById(item.id).checked;
+    if (checked) {
+      if (!updateBillingRowByKeyword(item.keyword, item.label, formatKRWAdmin(item.price))) {
+        addBillingRowWithValues(item.label, formatKRWAdmin(item.price));
+      }
+    } else {
+      removeBillingRowByKeyword(item.keyword);
+    }
+  });
+}
+
+// 특정 값으로 빌링 행 추가
+function addBillingRowWithValues(label, val) {
+  var tbody = document.getElementById('qs_billing_table');
+  if (!tbody) return;
+  var tr = document.createElement('tr');
+  tr.className = 'bil-row';
+  tr.innerHTML = `
+    <td style="padding:4px 4px 4px 0;width:68%">
+      <input class="bil-label qs-total-input" value="${label.replace(/"/g,'&quot;')}"
+        oninput="syncBillingToContent()"
+        style="width:100%;padding:6px 8px;font-size:12px;margin:0">
+    </td>
+    <td style="padding:4px 0 4px 4px">
+      <input class="bil-val qs-total-input" value="${val.replace(/"/g,'&quot;')}"
+        oninput="syncBillingToContent()"
+        style="width:100%;padding:6px 8px;font-size:12px;margin:0;text-align:right">
+    </td>
+    <td style="padding:4px 0 4px 6px;width:24px">
+      <button onclick="removeBillingRow(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;" title="삭제">×</button>
+    </td>`;
+  tbody.appendChild(tr);
+  syncBillingToContent();
+}
+
+// 모달 열 때 어드민 옵션 초기화
+function resetAdminOptions(content) {
+  _qsAttendees = parseAttendees(content);
+  // 라디오/체크박스 모두 초기화
+  document.querySelectorAll('input[name="adm_badge"]').forEach(function(r) { r.checked = false; });
+  document.querySelectorAll('input[name="adm_lanyard"]').forEach(function(r) { r.checked = false; });
+  ['adm_alimtalk','adm_sms','adm_email_send'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.checked = false;
+  });
 }
 
 async function saveBillingEdits() {
