@@ -4,7 +4,7 @@ description: "FAIRPASS presented its unmanned kiosk and reusable badge solution 
 pubDate: 2025-10-31
 category: "Media Clipping"
 tags: ["FAIRPASS", "WiT Bootcamp", "reusable badge", "unmanned kiosk", "event tech", "MICE", "sustainable events", "Korea travel tech"]
-author: ""
+author: "전서윤"
 authorTitle: ""
 draft: true
 status: draft
