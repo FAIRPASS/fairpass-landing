@@ -6001,3 +6001,71 @@ select.form-input option {
   /* badge.html: 갤러리 2열 → 1열 */
   .badge-gallery-grid { grid-template-columns: 1fr; }
 }
+
+/* ==============================
+   Flatpickr 다크 테마 오버라이드
+   ============================== */
+.flatpickr-calendar {
+  background: #1e1e2e !important;
+  border: 1px solid rgba(139,92,246,0.3) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+  color: #e2e8f0 !important;
+  font-family: inherit !important;
+}
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month,
+.flatpickr-monthDropdown-months {
+  background: transparent !important;
+  color: #e2e8f0 !important;
+  fill: #e2e8f0 !important;
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year {
+  color: #e2e8f0 !important;
+  background: transparent !important;
+}
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+  color: #94a3b8 !important;
+  fill: #94a3b8 !important;
+}
+.flatpickr-months .flatpickr-prev-month:hover,
+.flatpickr-months .flatpickr-next-month:hover {
+  color: #8b5cf6 !important;
+  fill: #8b5cf6 !important;
+}
+.flatpickr-weekday {
+  color: #64748b !important;
+  background: transparent !important;
+}
+.flatpickr-day {
+  color: #e2e8f0 !important;
+  border-radius: 6px !important;
+}
+.flatpickr-day:hover {
+  background: rgba(139,92,246,0.2) !important;
+  border-color: transparent !important;
+}
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: #8b5cf6 !important;
+  border-color: #8b5cf6 !important;
+  color: #fff !important;
+}
+.flatpickr-day.inRange {
+  background: rgba(139,92,246,0.18) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: #e2e8f0 !important;
+}
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+  color: #374151 !important;
+}
+.flatpickr-day.today {
+  border-color: rgba(139,92,246,0.5) !important;
+}
+.fp-range { position: relative; }

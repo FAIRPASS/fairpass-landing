@@ -186,8 +186,10 @@
     currencySymbol: "\u20A9",
     // #1 솔루션 사용료 (참가자수 구간별)
     solutionTiers: [
-      { max: 300, price: 399000 },
-      { max: 1000, price: 599000 },
+      { max: 300,   price:  399000 },
+      { max: 1000,  price:  599000 },
+      { max: 3000,  price:  799000 },
+      { max: 5000,  price: 1190000 },
       { max: 10000, price: 1590000 },
       { max: 30000, price: 1990000 },
       { max: 50000, price: 2590000 },
@@ -317,8 +319,8 @@
 
       if (pkg.kioskIncluded) {
         var attendees = Math.max(1, toInt(quoteForm.attendees.value, 300));
-        var _sd = quoteForm.eventStartDate ? new Date(quoteForm.eventStartDate.value) : null;
-        var _ed = quoteForm.eventEndDate   ? new Date(quoteForm.eventEndDate.value)   : null;
+        var _sd = new Date((document.getElementById("eventStartDateHidden") || {}).value || "");
+        var _ed = new Date((document.getElementById("eventEndDateHidden")   || {}).value || "");
         var days = (_sd && _ed && !isNaN(_sd) && !isNaN(_ed) && _ed >= _sd)
           ? Math.max(1, Math.round((_ed - _sd) / 86400000) + 1) : 1;
         var recommended = getRecommendedKiosks(attendees, days);
@@ -343,12 +345,7 @@
     if (quoteForm.attendees) {
       quoteForm.attendees.addEventListener("input", function () { kioskQtyManuallySet = false; });
     }
-    if (quoteForm.eventStartDate) {
-      quoteForm.eventStartDate.addEventListener("change", function () { kioskQtyManuallySet = false; });
-    }
-    if (quoteForm.eventEndDate) {
-      quoteForm.eventEndDate.addEventListener("change", function () { kioskQtyManuallySet = false; });
-    }
+    // 날짜 변경은 Flatpickr onChange에서 처리
     // 패키지 변경 시에도 리셋
     $$('input[name="package"]', quoteForm).forEach(function (radio) {
       radio.addEventListener("change", function () { kioskQtyManuallySet = false; });
@@ -357,9 +354,9 @@
     function calculate() {
       const attendees = Math.max(1, toInt(quoteForm.attendees.value, 300));
 
-      // 날짜 범위로 운영일수 계산
-      var eventStartDate = quoteForm.eventStartDate ? quoteForm.eventStartDate.value : "";
-      var eventEndDate   = quoteForm.eventEndDate   ? quoteForm.eventEndDate.value   : "";
+      // 날짜 범위로 운영일수 계산 (Flatpickr hidden input)
+      var eventStartDate = (document.getElementById("eventStartDateHidden") || {}).value || "";
+      var eventEndDate   = (document.getElementById("eventEndDateHidden")   || {}).value || "";
       var days = 1;
       if (eventStartDate && eventEndDate) {
         var sd = new Date(eventStartDate), ed = new Date(eventEndDate);
@@ -835,6 +832,58 @@
 
     // Initial render
     render();
+
+    // ============================
+    // Flatpickr 날짜 피커 초기화
+    // ============================
+    var fpLocale = {
+      firstDayOfWeek: 0,
+      weekdays: {
+        shorthand: ["일","월","화","수","목","금","토"],
+        longhand: ["일요일","월요일","화요일","수요일","목요일","금요일","토요일"],
+      },
+      months: {
+        shorthand: ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
+        longhand: ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
+      },
+      rangeSeparator: " ~ ",
+    };
+
+    function fmtDate(d) {
+      return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+    }
+
+    // 행사 기간 (range picker)
+    if (document.getElementById("eventDateRange")) {
+      flatpickr("#eventDateRange", {
+        mode: "range",
+        dateFormat: "Y-m-d",
+        locale: fpLocale,
+        disableMobile: true,
+        onChange: function(selectedDates) {
+          var s = document.getElementById("eventStartDateHidden");
+          var e = document.getElementById("eventEndDateHidden");
+          if (s) s.value = selectedDates[0] ? fmtDate(selectedDates[0]) : "";
+          if (e) e.value = selectedDates[1] ? fmtDate(selectedDates[1]) : "";
+          kioskQtyManuallySet = false;
+          render();
+        },
+      });
+    }
+
+    // 설치일/철거일 (single picker)
+    ["installDatePicker", "teardownDatePicker"].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) {
+        flatpickr(el, {
+          dateFormat: "Y-m-d",
+          locale: fpLocale,
+          disableMobile: true,
+          allowInput: false,
+          onChange: function() { render(); },
+        });
+      }
+    });
   }
 
   // ============================
