@@ -110,7 +110,7 @@ export default async function handler(req, res) {
         <!-- 헤더 -->
         <tr>
           <td style="background:linear-gradient(135deg,#1a1a2e 0%,#2d1b69 60%,#0e4f6b 100%);padding:28px 40px 24px;text-align:center;">
-            <img src="https://fairpass.world/Images/FAIRPASS%28W%2BBlack%29.png" alt="FAIRPASS" width="160" style="display:block;margin:0 auto 10px;background:rgba(255,255,255,0.92);padding:8px 20px;border-radius:8px;max-width:160px;height:auto;" onerror="this.style.display='none'">
+            <img src="https://fairpass.world/images/FAIRPASS%28W%2BBlack%29.png" alt="FAIRPASS" width="160" style="display:block;margin:0 auto 10px;background:rgba(255,255,255,0.92);padding:8px 20px;border-radius:8px;max-width:160px;height:auto;" onerror="this.style.display='none'">
             <div style="color:rgba(255,255,255,0.7);font-size:13px;letter-spacing:0.05em;">맞춤 견적서 · Quotation</div>
           </td>
         </tr>
@@ -157,6 +157,15 @@ export default async function handler(req, res) {
               ${billingRows}
               ${discountRow}
             </table>
+          </td>
+        </tr>
+
+        <!-- 정산 강조 문구 -->
+        <tr>
+          <td style="padding:0 40px 16px;">
+            <div style="background:#fffbeb;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:12px 16px;">
+              <p style="margin:0;font-size:13px;color:#92400e;font-weight:800;line-height:1.6;">⚠️ 행사 후, 실제 발급 수 만큼만 정산 됩니다.</p>
+            </div>
           </td>
         </tr>
 

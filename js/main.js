@@ -392,10 +392,10 @@
       // I. 솔루션 사용료
       const solutionCost = getSolutionPrice(attendees);
       if (solutionCost > 0) {
-        items.push({ label: "솔루션 사용료", cost: solutionCost });
+        items.push({ label: "FAIRPASS 솔루션 사용료", cost: solutionCost });
         subtotal += solutionCost;
       } else {
-        items.push({ label: "솔루션 사용료 (협의)", cost: 0 });
+        items.push({ label: "FAIRPASS 솔루션 사용료 (협의)", cost: 0 });
       }
 
       // II. 종이명찰 + 목걸이줄
@@ -412,25 +412,25 @@
       // III. 키오스크
       if (kioskQty > 0) {
         const kioskCost = kioskQty * days * PRICING.kioskPerUnitPerDay;
-        items.push({ label: "키오스크 (" + kioskQty + "대 \u00D7 " + days + "일 \u00D7 " + PRICING.kioskPerUnitPerDay.toLocaleString() + "원)", cost: kioskCost });
+        items.push({ label: "무인발권키오스크 (" + kioskQty + "대 \u00D7 " + days + "일 \u00D7 " + PRICING.kioskPerUnitPerDay.toLocaleString() + "원)", cost: kioskCost });
         subtotal += kioskCost;
 
-        // 설치/철거 인건비
-        const installCost = days === 1 ? PRICING.installFee.oneDay : PRICING.installFee.multiDay;
-        items.push({ label: "설치/철거 인건비", cost: installCost });
-        subtotal += installCost;
-
-        // 운송비 (지역별)
+        // 운송비 (지역별) — Excel VI 순서
         items.push({ label: "운송비 (" + regionLabel + ")", cost: regionData.shipping });
         subtotal += regionData.shipping;
 
-        // 매니저 인건비
+        // 설치/철거 매니저 인건비 — Excel VII 순서
+        const installCost = days === 1 ? PRICING.installFee.oneDay : PRICING.installFee.multiDay;
+        items.push({ label: "설치/철거 매니저 인건비", cost: installCost });
+        subtotal += installCost;
+
+        // 현장 상주 매니저 인건비 — Excel VIII
         if (managerQty > 0) {
           const mgrPay = managerQty * days * PRICING.managerDailyPay;
-          items.push({ label: "매니저 인건비 (" + managerQty + "인 \u00D7 " + days + "일)", cost: mgrPay });
+          items.push({ label: "현장 상주 매니저 인건비 (" + managerQty + "인 \u00D7 " + days + "일)", cost: mgrPay });
           subtotal += mgrPay;
 
-          // 매니저 출장비 (지역별)
+          // 매니저 출장비 (지역별) — Excel IX
           if (regionData.bizTrip > 0) {
             const bizTripCost = managerQty * days * regionData.bizTrip;
             items.push({ label: "매니저 출장비 (" + regionLabel + ")", cost: bizTripCost });

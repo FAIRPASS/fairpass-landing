@@ -1195,9 +1195,9 @@
           </div>
         </div>
 
-        <!-- 발송 서비스 -->
+        <!-- 발송 서비스 (V) -->
         <div>
-          <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">발송 서비스 추가</p>
+          <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">V. 발송 서비스 (선택)</p>
           <div style="display:flex;flex-direction:column;gap:6px">
             <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
               <input type="checkbox" id="adm_alimtalk" onchange="applyMessaging()">
@@ -1214,15 +1214,36 @@
           </div>
         </div>
 
+        <!-- 현장 상주 매니저 (VIII, 선택) -->
+        <div>
+          <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">VIII. 현장 상주 매니저 (선택)</p>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <input type="checkbox" id="adm_manager" onchange="applyManagerOption()">
+              <span>현장 상주 매니저 — ₩300,000/인/일 <span style="color:var(--muted);font-size:11px">(+지역별 출장비 별도)</span></span>
+            </label>
+            <div id="adm_manager_qty_wrap" style="display:none;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
+              <label style="font-size:12px;display:flex;align-items:center;gap:8px">
+                인원 수:
+                <input type="number" id="adm_manager_qty" value="1" min="1" max="10"
+                  style="width:64px;padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:rgba(255,255,255,0.08);color:var(--text);font-size:13px"
+                  oninput="applyManagerOption()">
+                명
+              </label>
+            </div>
+          </div>
+        </div>
+
       </div>
     </details>
 
     <!-- 비용 내역 편집 테이블 -->
     <div id="qs_billing_section" style="margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <p style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:#8b5cf6;text-transform:uppercase;margin:0">비용 내역 <span style="font-size:10px;font-weight:400;color:var(--muted);text-transform:none">(항목·금액 직접 수정 가능)</span></p>
+        <p style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:#8b5cf6;text-transform:uppercase;margin:0">비용 내역 <span style="font-size:10px;font-weight:400;color:var(--muted);text-transform:none">(항목명·금액 클릭하면 수정 가능)</span></p>
         <div style="display:flex;gap:6px">
           <button class="btn btn-ghost btn-sm" onclick="addBillingRow()" style="font-size:11px">+ 항목</button>
+          <button class="btn btn-ghost btn-sm" onclick="autoCalcTotal()" style="font-size:11px" title="비용 항목 합계를 자동 계산하여 총 금액에 입력">🧮 합계</button>
           <button class="btn btn-ghost btn-sm" onclick="saveBillingEdits()" style="font-size:11px">💾 저장</button>
         </div>
       </div>
@@ -2627,7 +2648,7 @@ window.deleteBrochure = async function(id) {
 window.openQuotePdf = function(index) {
   const item = quoteItems[index];
   if (!item) return;
-  const p = parseQuoteContent(item.content || '');
+  const p = parseQuoteContent(item.content_edited || item.content || '');
   const date = item.created_at ? new Date(item.created_at).toLocaleDateString('ko-KR') : '-';
 
   // 모달에서 현재 입력된 값 읽기
@@ -2710,8 +2731,9 @@ window.openQuotePdf = function(index) {
     </div>
     <div class="card">
       <div class="card-header">
-        <div class="brand">FAIRPASS</div>
-        <div class="brand-sub">맞춤 견적서 · Quotation</div>
+        <img src="https://fairpass.world/images/FAIRPASS%28W%2BBlack%29.png" alt="FAIRPASS" width="140" style="display:block;margin:0 auto 12px;background:rgba(255,255,255,0.92);padding:7px 18px;border-radius:8px;max-width:140px;height:auto;" onerror="this.style.display='none'">
+        <div class="brand" style="text-align:center">FAIRPASS</div>
+        <div class="brand-sub" style="text-align:center">맞춤 견적서 · Quotation</div>
         <div class="badge-row">
           <span class="badge badge-date">📅 ${date}</span>
           <span class="badge badge-pkg">${p.패키지||'패키지 미선택'}</span>
@@ -2729,7 +2751,11 @@ window.openQuotePdf = function(index) {
         <div class="section-label">행사 정보</div>
         <div class="info-grid">
           ${p.행사명 ? `<div class="info-cell" style="grid-column:1/-1;border-right:none"><div class="info-label">행사명</div><div class="info-val">${p.행사명}</div></div>` : ''}
+          ${p.행사지역 ? `<div class="info-cell"><div class="info-label">행사 지역</div><div class="info-val">${p.행사지역}</div></div>` : ''}
           ${p.행사장소 ? `<div class="info-cell"><div class="info-label">행사 장소</div><div class="info-val">${p.행사장소}</div></div>` : ''}
+          ${p.행사기간 ? `<div class="info-cell" style="grid-column:1/-1;border-right:none"><div class="info-label">행사 기간</div><div class="info-val">${p.행사기간}</div></div>` : ''}
+          ${p.설치일시 ? `<div class="info-cell"><div class="info-label">설치 예정일</div><div class="info-val">${p.설치일시}</div></div>` : ''}
+          ${p.철거일시 ? `<div class="info-cell"><div class="info-label">철거 예정일</div><div class="info-val">${p.철거일시}</div></div>` : ''}
           ${p.패키지 ? `<div class="info-cell"><div class="info-label">패키지</div><div class="info-val">${p.패키지}</div></div>` : ''}
           ${p.참가자수 ? `<div class="info-cell"><div class="info-label">참가자 수</div><div class="info-val">${p.참가자수}</div></div>` : ''}
           ${p.운영일수 ? `<div class="info-cell"><div class="info-label">운영 일수</div><div class="info-val">${p.운영일수}</div></div>` : ''}
@@ -2741,7 +2767,10 @@ window.openQuotePdf = function(index) {
         <hr class="divider">
         <div class="section-label">비용 내역</div>
         <table class="billing">${billingLines}${discountLine}</table>
-        <div class="total-box">
+        <div style="margin:14px 0 0;padding:11px 14px;background:#fffbeb;border-left:4px solid #f59e0b;border-radius:0 6px 6px 0;">
+          <p style="margin:0;font-size:13px;color:#92400e;font-weight:800;line-height:1.5;">⚠️ 행사 후, 실제 발급 수 만큼만 정산 됩니다.</p>
+        </div>
+        <div class="total-box" style="margin-top:12px">
           <div class="total-label">최종 견적 금액</div>
           <div class="total-amount">${finalTotal}</div>
         </div>
@@ -3058,30 +3087,8 @@ function applyLanyardType(radio) {
   }
 }
 
-// 발송 서비스 토글 → 빌링 행 추가/제거
-function applyMessaging() {
-  var att = _qsAttendees || 0;
-  var items = [
-    { id: 'adm_alimtalk',   keyword: '알림톡', label: '알림톡 발송 (' + att.toLocaleString() + '건 × 20원)', price: att * 20 },
-    { id: 'adm_sms',        keyword: '문자(LMS)', label: '문자(LMS) 발송 (' + att.toLocaleString() + '건 × 100원)', price: att * 100 },
-    { id: 'adm_email_send', keyword: '이메일 발송', label: '이메일 발송 (' + att.toLocaleString() + '건 × 50원)', price: att * 50 },
-  ];
-  items.forEach(function(item) {
-    var checked = document.getElementById(item.id) && document.getElementById(item.id).checked;
-    if (checked) {
-      if (!updateBillingRowByKeyword(item.keyword, item.label, formatKRWAdmin(item.price))) {
-        addBillingRowWithValues(item.label, formatKRWAdmin(item.price));
-      }
-    } else {
-      removeBillingRowByKeyword(item.keyword);
-    }
-  });
-}
-
-// 특정 값으로 빌링 행 추가
-function addBillingRowWithValues(label, val) {
-  var tbody = document.getElementById('qs_billing_table');
-  if (!tbody) return;
+// 빌링 행 생성 헬퍼 (공통)
+function createBillingRowEl(label, val) {
   var tr = document.createElement('tr');
   tr.className = 'bil-row';
   tr.innerHTML = `
@@ -3098,7 +3105,114 @@ function addBillingRowWithValues(label, val) {
     <td style="padding:4px 0 4px 6px;width:24px">
       <button onclick="removeBillingRow(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;" title="삭제">×</button>
     </td>`;
-  tbody.appendChild(tr);
+  return tr;
+}
+
+// 특정 키워드 포함 행 다음에 삽입 (없으면 맨 끝에 추가)
+function insertBillingRowAfterKeyword(afterKeyword, label, val) {
+  var rows = Array.from(document.querySelectorAll('#qs_billing_table .bil-row'));
+  var afterIdx = -1;
+  for (var i = rows.length - 1; i >= 0; i--) {
+    var lbl = rows[i].querySelector('.bil-label');
+    if (lbl && lbl.value.includes(afterKeyword)) { afterIdx = i; break; }
+  }
+  var tr = createBillingRowEl(label, val);
+  var tbody = document.getElementById('qs_billing_table');
+  if (afterIdx >= 0 && afterIdx < rows.length - 1) {
+    tbody.insertBefore(tr, rows[afterIdx + 1]);
+  } else {
+    tbody.appendChild(tr);
+  }
+  syncBillingToContent();
+}
+
+// 발송 서비스 토글 → 키오스크 다음 위치에 삽입/제거
+function applyMessaging() {
+  var att = _qsAttendees || 0;
+  var items = [
+    { id: 'adm_alimtalk',   keyword: '알림톡', label: '알림톡 발송 (' + att.toLocaleString() + '건 × 20원)', price: att * 20 },
+    { id: 'adm_sms',        keyword: '문자(LMS)', label: '문자(LMS) 발송 (' + att.toLocaleString() + '건 × 100원)', price: att * 100 },
+    { id: 'adm_email_send', keyword: '이메일 발송', label: '이메일 발송 (' + att.toLocaleString() + '건 × 50원)', price: att * 50 },
+  ];
+  items.forEach(function(item) {
+    var checked = document.getElementById(item.id) && document.getElementById(item.id).checked;
+    if (checked) {
+      if (!updateBillingRowByKeyword(item.keyword, item.label, formatKRWAdmin(item.price))) {
+        // 키오스크 다음, 없으면 운송비 앞, 없으면 끝
+        var inserted = false;
+        var anchors = ['키오스크', '무인발권'];
+        for (var a = 0; a < anchors.length; a++) {
+          var rows = Array.from(document.querySelectorAll('#qs_billing_table .bil-row'));
+          for (var i = 0; i < rows.length; i++) {
+            var lbl = rows[i].querySelector('.bil-label');
+            if (lbl && lbl.value.includes(anchors[a])) {
+              var tr = createBillingRowEl(item.label, formatKRWAdmin(item.price));
+              var tbody = document.getElementById('qs_billing_table');
+              if (i < rows.length - 1) {
+                tbody.insertBefore(tr, rows[i + 1]);
+              } else {
+                tbody.appendChild(tr);
+              }
+              syncBillingToContent();
+              inserted = true;
+              break;
+            }
+          }
+          if (inserted) break;
+        }
+        if (!inserted) addBillingRowWithValues(item.label, formatKRWAdmin(item.price));
+      }
+    } else {
+      removeBillingRowByKeyword(item.keyword);
+    }
+  });
+}
+
+// 현장 상주 매니저 토글 → 설치/철거 다음 위치에 삽입/제거
+function applyManagerOption() {
+  var checked = document.getElementById('adm_manager') && document.getElementById('adm_manager').checked;
+  var qtyWrap = document.getElementById('adm_manager_qty_wrap');
+  if (qtyWrap) qtyWrap.style.display = checked ? 'block' : 'none';
+  if (!checked) {
+    removeBillingRowByKeyword('현장 상주 매니저');
+    return;
+  }
+  var qty = parseInt((document.getElementById('adm_manager_qty') || {}).value || '1', 10) || 1;
+  // 운영일수 파악
+  var content = (document.getElementById('qs_content') || {}).value || '';
+  var daysMatch = content.match(/(\d+)일\b/);
+  var days = daysMatch ? parseInt(daysMatch[1], 10) : 1;
+  var cost = qty * days * 300000;
+  var label = '현장 상주 매니저 인건비 (' + qty + '인 × ' + days + '일 × 300,000원)';
+  var val = formatKRWAdmin(cost);
+  if (!updateBillingRowByKeyword('현장 상주 매니저', label, val)) {
+    insertBillingRowAfterKeyword('설치/철거', label, val);
+  }
+}
+
+// 🧮 비용 항목 합산 → 총 금액 자동 계산
+function autoCalcTotal() {
+  var rows = document.querySelectorAll('#qs_billing_table .bil-row');
+  var sum = 0;
+  rows.forEach(function(row) {
+    var v = row.querySelector('.bil-val');
+    if (v) {
+      var n = Number(v.value.replace(/[^0-9]/g, ''));
+      if (!isNaN(n)) sum += n;
+    }
+  });
+  if (sum > 0) {
+    document.getElementById('qs_total').value = '₩' + sum.toLocaleString('ko-KR');
+    _qsOriginalTotal = '₩' + sum.toLocaleString('ko-KR');
+    showToast('총 금액 자동 계산: ₩' + sum.toLocaleString('ko-KR'));
+  }
+}
+
+// 특정 값으로 빌링 행 추가 (끝에 추가)
+function addBillingRowWithValues(label, val) {
+  var tbody = document.getElementById('qs_billing_table');
+  if (!tbody) return;
+  tbody.appendChild(createBillingRowEl(label, val));
   syncBillingToContent();
 }
 
@@ -3108,10 +3222,14 @@ function resetAdminOptions(content) {
   // 라디오/체크박스 모두 초기화
   document.querySelectorAll('input[name="adm_badge"]').forEach(function(r) { r.checked = false; });
   document.querySelectorAll('input[name="adm_lanyard"]').forEach(function(r) { r.checked = false; });
-  ['adm_alimtalk','adm_sms','adm_email_send'].forEach(function(id) {
+  ['adm_alimtalk','adm_sms','adm_email_send','adm_manager'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.checked = false;
   });
+  var qtyWrap = document.getElementById('adm_manager_qty_wrap');
+  if (qtyWrap) qtyWrap.style.display = 'none';
+  var qtyEl = document.getElementById('adm_manager_qty');
+  if (qtyEl) qtyEl.value = '1';
 }
 
 async function saveBillingEdits() {
