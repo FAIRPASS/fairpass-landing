@@ -2928,10 +2928,27 @@ snsCopy:
       }
       if (r.ok) {
         initKoreanEditor();
-        let koContent = data.content || data.markdown || '';
-        // EN 게시일을 KO에 동기화
+        const ko = data.ko || {};
         const enDate = document.getElementById('fDate').value;
-        if (enDate) koContent = koContent.replace(/^pubDate:.*$/m, `pubDate: ${enDate}`);
+        const enSlug = document.getElementById('fSlug').value.trim();
+        const enCategory = document.getElementById('fCategory').value;
+        const koCategory = enCategory === 'Media Clipping' ? '미디어 클리핑' : enCategory;
+        const tagsYaml = Array.isArray(ko.tags) && ko.tags.length
+          ? ko.tags.map(t => `  - "${t}"`).join('\n')
+          : '';
+        const koContent = `---
+title: "${(ko.title || '').replace(/"/g, '\\"')}"
+description: "${(ko.description || '').replace(/"/g, '\\"')}"
+pubDate: ${enDate || new Date().toISOString().split('T')[0]}
+category: "${koCategory}"
+tags:
+${tagsYaml}
+status: "draft"
+draft: true
+slug: "${ko.slug || enSlug}"
+---
+
+${ko.body || ''}`;
         easyMDEKo.value(koContent);
         document.getElementById('koTranslateResult').classList.add('open');
       } else {
