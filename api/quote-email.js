@@ -94,6 +94,7 @@ export default async function handler(req, res) {
         email: email || "",
         phone: phone || "",
         content: quoteText || "",
+        content_original: quoteText || "",
         total: quoteTotal || "",
         ip: ip,
       });

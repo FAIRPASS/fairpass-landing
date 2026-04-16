@@ -1144,8 +1144,17 @@
       <div class="qs-info-item"><span>전화번호</span><a id="qs_phone" href="#">-</a></div>
     </div>
 
-    <!-- 비용 내역 미리보기 -->
-    <div id="qs_billing_preview" style="margin-bottom:16px"></div>
+    <!-- 비용 내역 편집 테이블 -->
+    <div id="qs_billing_section" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <p style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:#8b5cf6;text-transform:uppercase;margin:0">비용 내역 <span style="font-size:10px;font-weight:400;color:var(--muted);text-transform:none">(항목·금액 직접 수정 가능)</span></p>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="addBillingRow()" style="font-size:11px">+ 항목</button>
+          <button class="btn btn-ghost btn-sm" onclick="saveBillingEdits()" style="font-size:11px">💾 저장</button>
+        </div>
+      </div>
+      <table id="qs_billing_table" style="width:100%;border-collapse:collapse"></table>
+    </div>
 
     <!-- 할인 -->
     <div style="margin-bottom:12px">
@@ -1647,7 +1656,11 @@ function parseQuoteContent(content) {
     담당자: get('담당자'),
     소속: get('소속'),
     행사명: get('행사명'),
+    행사지역: get('행사 지역'),
     행사장소: get('행사 장소'),
+    행사기간: get('행사 기간'),
+    설치일시: get('설치일시'),
+    철거일시: get('철거일시'),
     패키지: get('패키지'),
     참가자수: atParts[0] ? atParts[0].trim() : '',
     운영일수: atParts[1] ? atParts[1].trim() : '',
@@ -2799,31 +2812,17 @@ function openQuoteSendModal(idx) {
   const phoneEl = document.getElementById('qs_phone');
   phoneEl.textContent = item.phone || '-';
   phoneEl.href = item.phone ? `tel:${item.phone}` : '#';
-  document.getElementById('qs_content').value = item.content || '';
+  // qs_content: content_edited 우선 (원본 보존), 없으면 content
+  const editableContent = item.content_edited || item.content || '';
+  document.getElementById('qs_content').value = editableContent;
   _qsOriginalTotal = item.total || '';
   document.getElementById('qs_total').value = _qsOriginalTotal;
   setDiscountType('krw');
   document.getElementById('qs_notes').value = '';
 
-  // 비용 내역 미리보기 렌더
-  const p = parseQuoteContent(item.content || '');
-  const billingRows = (p.비용상세 || '').split('\n').filter(l => l.trim()).map(l => {
-    const parts = l.replace(/^- /, '').split(': ');
-    const label = parts[0] || '';
-    const val = parts.slice(1).join(': ') || '';
-    return `<tr>
-      <td style="padding:8px 2px;font-size:13px;color:var(--muted);border-bottom:1px solid rgba(255,255,255,0.06)">${label}</td>
-      <td style="padding:8px 2px;font-size:13px;font-weight:600;text-align:right;border-bottom:1px solid rgba(255,255,255,0.06)">${val}</td>
-    </tr>`;
-  }).join('');
-  const total = item.total || p.총계 || '-';
-  document.getElementById('qs_billing_preview').innerHTML = billingRows ? `
-    <p style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:#8b5cf6;text-transform:uppercase;margin:0 0 8px">비용 내역</p>
-    <table style="width:100%;border-collapse:collapse;margin-bottom:10px">${billingRows}</table>
-    <div style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
-      <span style="font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.05em">합계</span>
-      <span style="font-size:18px;font-weight:900;color:#fff">${total}</span>
-    </div>` : '';
+  // 비용 내역 편집 테이블 렌더
+  const p = parseQuoteContent(editableContent);
+  renderBillingTable(p.비용상세 || '');
 
   const btn = document.getElementById('qs_sendBtn');
   document.getElementById('qs_sendLabel').textContent = '고객에게 발송하기';
@@ -2841,6 +2840,99 @@ document.getElementById('quoteSendModalBg').addEventListener('click', e => {
   if (e.target === document.getElementById('quoteSendModalBg')) closeQuoteSendModal();
 });
 
+// ── 비용 내역 편집 테이블 ──
+function renderBillingTable(billingSection) {
+  const tbody = document.getElementById('qs_billing_table');
+  if (!tbody) return;
+  const lines = (billingSection || '').split('\n').filter(l => l.trim());
+  tbody.innerHTML = lines.map((l, i) => {
+    const parts = l.replace(/^- /, '').split(': ');
+    const label = parts[0] || '';
+    const val = parts.slice(1).join(': ') || '';
+    return `<tr class="bil-row">
+      <td style="padding:4px 4px 4px 0;width:68%">
+        <input class="bil-label qs-total-input" value="${label.replace(/"/g,'&quot;')}"
+          oninput="syncBillingToContent()"
+          style="width:100%;padding:6px 8px;font-size:12px;margin:0">
+      </td>
+      <td style="padding:4px 0 4px 4px">
+        <input class="bil-val qs-total-input" value="${val.replace(/"/g,'&quot;')}"
+          oninput="syncBillingToContent()"
+          style="width:100%;padding:6px 8px;font-size:12px;margin:0;text-align:right">
+      </td>
+      <td style="padding:4px 0 4px 6px;width:24px">
+        <button onclick="removeBillingRow(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;" title="삭제">×</button>
+      </td>
+    </tr>`;
+  }).join('');
+  syncBillingToContent();
+}
+
+function addBillingRow() {
+  const tbody = document.getElementById('qs_billing_table');
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  tr.className = 'bil-row';
+  tr.innerHTML = `
+    <td style="padding:4px 4px 4px 0;width:68%">
+      <input class="bil-label qs-total-input" value="" placeholder="항목명"
+        oninput="syncBillingToContent()"
+        style="width:100%;padding:6px 8px;font-size:12px;margin:0">
+    </td>
+    <td style="padding:4px 0 4px 4px">
+      <input class="bil-val qs-total-input" value="" placeholder="₩0"
+        oninput="syncBillingToContent()"
+        style="width:100%;padding:6px 8px;font-size:12px;margin:0;text-align:right">
+    </td>
+    <td style="padding:4px 0 4px 6px;width:24px">
+      <button onclick="removeBillingRow(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;" title="삭제">×</button>
+    </td>`;
+  tbody.appendChild(tr);
+}
+
+function removeBillingRow(btn) {
+  btn.closest('tr').remove();
+  syncBillingToContent();
+}
+
+function buildContentFromBillingTable() {
+  const content = document.getElementById('qs_content').value;
+  const newLines = [];
+  document.querySelectorAll('#qs_billing_table .bil-row').forEach(row => {
+    const label = row.querySelector('.bil-label').value.trim();
+    const val   = row.querySelector('.bil-val').value.trim();
+    if (label) newLines.push('- ' + label + ': ' + val);
+  });
+  const newBilling = newLines.join('\n');
+  return content.replace(
+    /(\[비용 상세\])([\s\S]*?)(\[총계\])/,
+    '[비용 상세]\n' + newBilling + '\n\n[총계]'
+  );
+}
+
+function syncBillingToContent() {
+  const el = document.getElementById('qs_content');
+  if (el) el.value = buildContentFromBillingTable();
+}
+
+async function saveBillingEdits() {
+  if (_qsIdx === null) return;
+  const item = quoteItems[_qsIdx];
+  const newContent = buildContentFromBillingTable();
+  try {
+    const res = await fetch('/api/inquiries', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: sessionPw, id: item.id, content_edited: newContent }),
+    });
+    if (!res.ok) throw new Error('저장 실패');
+    quoteItems[_qsIdx] = { ...item, content_edited: newContent };
+    showToast('비용 내역 저장 완료');
+  } catch (err) {
+    showToast('저장 실패: ' + err.message, true);
+  }
+}
+
 async function sendQuoteEmail() {
   if (_qsIdx === null) return;
   const item = quoteItems[_qsIdx];
@@ -2852,6 +2944,8 @@ async function sendQuoteEmail() {
   document.getElementById('qs_sendLabel').textContent = '발송 중...';
   btn.disabled = true;
 
+  const finalContent = buildContentFromBillingTable();
+
   try {
     const res = await fetch('/api/quote-send', {
       method: 'POST',
@@ -2861,7 +2955,7 @@ async function sendQuoteEmail() {
         id: item.id,
         customerEmail: item.email,
         customerName: item.name,
-        quoteContent: document.getElementById('qs_content').value,
+        quoteContent: finalContent,
         quoteTotal: total,
         quoteDiscount: getDiscountValue(),
         quoteNotes: document.getElementById('qs_notes').value.trim(),
@@ -2870,12 +2964,11 @@ async function sendQuoteEmail() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || '발송 실패');
 
-    // 메모리 상태 업데이트 → 테이블 즉시 반영 (최종 발송 기준으로 덮어씌움)
     quoteItems[_qsIdx] = {
       ...item,
       quote_sent_at: new Date().toISOString(),
       total: total,
-      content: document.getElementById('qs_content').value,
+      content_edited: finalContent,
     };
     renderQuoteTable();
     closeQuoteSendModal();

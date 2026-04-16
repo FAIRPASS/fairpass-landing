@@ -16,7 +16,11 @@ function parseQuoteContent(content) {
     담당자: get("담당자"),
     소속: get("소속"),
     행사명: get("행사명"),
+    행사지역: get("행사 지역"),
     행사장소: get("행사 장소"),
+    행사기간: get("행사 기간"),
+    설치일시: get("설치일시"),
+    철거일시: get("철거일시"),
     패키지: get("패키지"),
     비용상세: detailMatch ? detailMatch[1].trim() : "",
     총계: (content || "").match(/\[총계\] (.+)/)?.[1]?.trim() || "",
@@ -78,7 +82,11 @@ export default async function handler(req, res) {
   // 행사 정보 행
   const eventRows = [
     p.행사명 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;width:28%;border-bottom:1px solid #f0f1f5;background:#fafbff;">행사명</td><td style="padding:8px 14px;font-size:13px;font-weight:600;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.행사명}</td></tr>` : "",
-    p.행사장소 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">장소</td><td style="padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.행사장소}</td></tr>` : "",
+    p.행사지역 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">행사 지역</td><td style="padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.행사지역}</td></tr>` : "",
+    p.행사장소 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">행사 장소</td><td style="padding:8px 14px;font-size:13px;font-weight:600;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.행사장소}</td></tr>` : "",
+    p.행사기간 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">행사 기간</td><td style="padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.행사기간}</td></tr>` : "",
+    p.설치일시 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">설치 예정일</td><td style="padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.설치일시}</td></tr>` : "",
+    p.철거일시 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">철거 예정일</td><td style="padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.철거일시}</td></tr>` : "",
     p.패키지 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">패키지</td><td style="padding:8px 14px;font-size:13px;font-weight:600;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.패키지}</td></tr>` : "",
   ].filter(Boolean).join("");
 
@@ -101,9 +109,9 @@ export default async function handler(req, res) {
 
         <!-- 헤더 -->
         <tr>
-          <td style="background:linear-gradient(135deg,#1a1a2e 0%,#2d1b69 60%,#0e4f6b 100%);padding:32px 40px;text-align:center;">
-            <div style="color:#ffffff;font-size:26px;font-weight:800;letter-spacing:2px;">FAIRPASS</div>
-            <div style="color:rgba(255,255,255,0.7);font-size:13px;margin-top:6px;letter-spacing:0.05em;">맞춤 견적서 · Quotation</div>
+          <td style="background:linear-gradient(135deg,#1a1a2e 0%,#2d1b69 60%,#0e4f6b 100%);padding:28px 40px 24px;text-align:center;">
+            <img src="https://fairpass.world/Images/FAIRPASS%28W%2BBlack%29.png" alt="FAIRPASS" width="160" style="display:block;margin:0 auto 10px;background:rgba(255,255,255,0.92);padding:8px 20px;border-radius:8px;max-width:160px;height:auto;" onerror="this.style.display='none'">
+            <div style="color:rgba(255,255,255,0.7);font-size:13px;letter-spacing:0.05em;">맞춤 견적서 · Quotation</div>
           </td>
         </tr>
 
@@ -256,7 +264,8 @@ export default async function handler(req, res) {
         <!-- 푸터 -->
         <tr>
           <td style="background:#f9f9fc;padding:20px 40px;border-top:1px solid #e8e8f0;text-align:center;">
-            <p style="margin:0 0 6px;font-size:11px;color:#bbb;">본 메일은 발송 전용 메일로, 회신이 불가합니다. 문의: fairpass@fairpass.world</p>
+            <p style="margin:0 0 4px;font-size:11px;color:#bbb;">본 메일은 발송 전용(noreply) 주소로 발송되어 <strong>직접 회신이 불가</strong>합니다.</p>
+            <p style="margin:0 0 6px;font-size:11px;color:#aaa;">문의 및 회신은 <a href="mailto:fairpass@fairpass.world" style="color:#7c3aed;text-decoration:none;">fairpass@fairpass.world</a> 로 보내주세요.</p>
             <p style="margin:0;font-size:12px;color:#aaa;">FAIRPASS · fairpass.co.kr</p>
           </td>
         </tr>
@@ -270,6 +279,7 @@ export default async function handler(req, res) {
   const { error: resendErr } = await resend.emails.send({
     from: fromEmail,
     to: customerEmail,
+    cc: ["fairpass@fairpass.world"],
     subject: `[FAIRPASS] ${name}님, 맞춤 견적서를 보내드립니다`,
     html,
   });
@@ -290,7 +300,7 @@ export default async function handler(req, res) {
       .update({
         quote_sent_at: new Date().toISOString(),
         total: quoteTotal,
-        content: quoteContent,
+        content_edited: quoteContent,
       })
       .eq("id", id);
   } catch (dbErr) {

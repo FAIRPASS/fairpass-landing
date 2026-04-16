@@ -1042,22 +1042,22 @@
             <h3 class="card-title-sm">기본 정보</h3>
             <div class="form-row">
               <label class="form-label">
-                <span>담당자 성함</span>
-                <input type="text" name="contactName" class="form-input" placeholder="홍길동" data-ph-ko="홍길동" data-ph-en="John Doe">
+                <span>담당자 성함 <span style="color:#f87171">*</span></span>
+                <input type="text" name="contactName" class="form-input" placeholder="홍길동" data-ph-ko="홍길동" data-ph-en="John Doe" required>
               </label>
               <label class="form-label">
-                <span>소속</span>
-                <input type="text" name="contactOrg" class="form-input" placeholder="회사명 또는 기관명">
+                <span>소속 <span style="color:#f87171">*</span></span>
+                <input type="text" name="contactOrg" class="form-input" placeholder="회사명 또는 기관명" required>
               </label>
             </div>
             <div class="form-row">
               <label class="form-label">
-                <span>행사명</span>
-                <input type="text" name="eventName" class="form-input" placeholder="행사명을 입력하세요">
+                <span>행사명 <span style="color:#f87171">*</span></span>
+                <input type="text" name="eventName" class="form-input" placeholder="행사명을 입력하세요" required>
               </label>
               <label class="form-label">
-                <span>행사 장소</span>
-                <select name="region" class="form-input">
+                <span>행사 지역 <span style="color:#f87171">*</span></span>
+                <select name="region" class="form-input" required>
                   <optgroup label="수도권">
                     <option value="seoul" selected>서울</option>
                     <option value="incheon">인천광역시</option>
@@ -1095,13 +1095,39 @@
               </label>
             </div>
             <div class="form-row">
+              <label class="form-label" style="grid-column:1/-1">
+                <span>행사 장소 <span style="color:#f87171">*</span> <span style="font-size:11px;font-weight:400;color:#94a3b8">예: 코엑스 E홀, 그랜드볼룸 A</span></span>
+                <input type="text" name="eventVenue" class="form-input" placeholder="예: 코엑스 E홀" required>
+              </label>
+            </div>
+            <div class="form-row">
               <label class="form-label">
-                <span>예상 참가자 수</span>
-                <input type="number" min="1" step="1" value="300" name="attendees" class="form-input">
+                <span>행사 시작일 <span style="color:#f87171">*</span></span>
+                <input type="date" name="eventStartDate" class="form-input" required>
               </label>
               <label class="form-label">
-                <span>행사 운영 일수</span>
-                <input type="number" min="1" step="1" value="1" name="days" class="form-input">
+                <span>행사 종료일 <span style="color:#f87171">*</span></span>
+                <input type="date" name="eventEndDate" class="form-input" required>
+              </label>
+            </div>
+            <div class="form-row" style="margin-bottom:0">
+              <label class="form-label">
+                <span>설치 예정일 <span style="font-size:11px;font-weight:400;color:#94a3b8">선택 · 미정이면 비워두세요</span></span>
+                <input type="date" name="installDate" class="form-input">
+              </label>
+              <label class="form-label">
+                <span>철거 예정일 <span style="font-size:11px;font-weight:400;color:#94a3b8">선택 · 미정이면 비워두세요</span></span>
+                <input type="date" name="teardownDate" class="form-input">
+              </label>
+            </div>
+            <div class="form-row" style="margin-top:12px;margin-bottom:0">
+              <label class="form-label">
+                <span>예상 참가자 수 <span style="color:#f87171">*</span></span>
+                <input type="number" min="1" step="1" value="300" name="attendees" class="form-input" required>
+              </label>
+              <label class="form-label">
+                <span>운영 일수</span>
+                <input type="text" id="daysDisplay" class="form-input" value="1일" readonly style="background:rgba(255,255,255,0.04);color:#94a3b8;cursor:default">
               </label>
             </div>
           </div>

@@ -204,27 +204,27 @@
     managerDailyPay: 300000,
     // #6 운송비 & #7 매니저 출장비 (지역별)
     regions: {
-      seoul:      { shipping: 100000, bizTrip: 0 },
-      incheon:    { shipping: 150000, bizTrip: 150000 },
-      suwon:      { shipping: 150000, bizTrip: 150000 },
-      pyeongtaek: { shipping: 200000, bizTrip: 150000 },
-      sejong:     { shipping: 200000, bizTrip: 150000 },
-      daejeon:    { shipping: 200000, bizTrip: 150000 },
-      cheongju:   { shipping: 200000, bizTrip: 150000 },
-      hongseong:  { shipping: 250000, bizTrip: 150000 },
-      chuncheon:  { shipping: 200000, bizTrip: 150000 },
-      hongcheon:  { shipping: 250000, bizTrip: 150000 },
-      sokcho:     { shipping: 300000, bizTrip: 150000 },
-      gwangju:    { shipping: 350000, bizTrip: 150000 },
-      jeonju:     { shipping: 300000, bizTrip: 150000 },
-      muan:       { shipping: 400000, bizTrip: 150000 },
-      daegu:      { shipping: 350000, bizTrip: 150000 },
-      busan:      { shipping: 400000, bizTrip: 150000 },
-      ulsan:      { shipping: 400000, bizTrip: 150000 },
-      changwon:   { shipping: 400000, bizTrip: 150000 },
-      gyeongju:   { shipping: 400000, bizTrip: 150000 },
-      andong:     { shipping: 300000, bizTrip: 150000 },
-      jeju:       { shipping: 600000, bizTrip: 200000 },
+      seoul:      { shipping: 200000, bizTrip: 0 },
+      incheon:    { shipping: 300000, bizTrip: 150000 },
+      suwon:      { shipping: 300000, bizTrip: 150000 },
+      pyeongtaek: { shipping: 400000, bizTrip: 150000 },
+      sejong:     { shipping: 400000, bizTrip: 150000 },
+      daejeon:    { shipping: 400000, bizTrip: 150000 },
+      cheongju:   { shipping: 400000, bizTrip: 150000 },
+      hongseong:  { shipping: 500000, bizTrip: 150000 },
+      chuncheon:  { shipping: 400000, bizTrip: 150000 },
+      hongcheon:  { shipping: 500000, bizTrip: 150000 },
+      sokcho:     { shipping: 600000, bizTrip: 150000 },
+      gwangju:    { shipping: 700000, bizTrip: 150000 },
+      jeonju:     { shipping: 600000, bizTrip: 150000 },
+      muan:       { shipping: 800000, bizTrip: 150000 },
+      daegu:      { shipping: 700000, bizTrip: 150000 },
+      busan:      { shipping: 800000, bizTrip: 150000 },
+      ulsan:      { shipping: 800000, bizTrip: 150000 },
+      changwon:   { shipping: 800000, bizTrip: 150000 },
+      gyeongju:   { shipping: 800000, bizTrip: 150000 },
+      andong:     { shipping: 600000, bizTrip: 150000 },
+      jeju:       { shipping: 1200000, bizTrip: 200000 },
     },
     // 기술료율
     techFeeRate: 0.10,
@@ -317,7 +317,10 @@
 
       if (pkg.kioskIncluded) {
         var attendees = Math.max(1, toInt(quoteForm.attendees.value, 300));
-        var days = Math.max(1, toInt(quoteForm.days.value, 1));
+        var _sd = quoteForm.eventStartDate ? new Date(quoteForm.eventStartDate.value) : null;
+        var _ed = quoteForm.eventEndDate   ? new Date(quoteForm.eventEndDate.value)   : null;
+        var days = (_sd && _ed && !isNaN(_sd) && !isNaN(_ed) && _ed >= _sd)
+          ? Math.max(1, Math.round((_ed - _sd) / 86400000) + 1) : 1;
         var recommended = getRecommendedKiosks(attendees, days);
         var hint = $("#kioskRecommendHint");
         if (hint) hint.textContent = "100,000원/대/일 · 권장: " + recommended + "대";
@@ -340,8 +343,11 @@
     if (quoteForm.attendees) {
       quoteForm.attendees.addEventListener("input", function () { kioskQtyManuallySet = false; });
     }
-    if (quoteForm.days) {
-      quoteForm.days.addEventListener("input", function () { kioskQtyManuallySet = false; });
+    if (quoteForm.eventStartDate) {
+      quoteForm.eventStartDate.addEventListener("change", function () { kioskQtyManuallySet = false; });
+    }
+    if (quoteForm.eventEndDate) {
+      quoteForm.eventEndDate.addEventListener("change", function () { kioskQtyManuallySet = false; });
     }
     // 패키지 변경 시에도 리셋
     $$('input[name="package"]', quoteForm).forEach(function (radio) {
@@ -350,13 +356,28 @@
 
     function calculate() {
       const attendees = Math.max(1, toInt(quoteForm.attendees.value, 300));
-      const days = Math.max(1, toInt(quoteForm.days.value, 1));
+
+      // 날짜 범위로 운영일수 계산
+      var eventStartDate = quoteForm.eventStartDate ? quoteForm.eventStartDate.value : "";
+      var eventEndDate   = quoteForm.eventEndDate   ? quoteForm.eventEndDate.value   : "";
+      var days = 1;
+      if (eventStartDate && eventEndDate) {
+        var sd = new Date(eventStartDate), ed = new Date(eventEndDate);
+        if (!isNaN(sd) && !isNaN(ed) && ed >= sd) {
+          days = Math.round((ed - sd) / 86400000) + 1;
+        }
+      }
+      days = Math.max(1, days);
+
       const pkgKey = getSelectedPackage();
       const pkg = PRICING.packageAdjust[pkgKey];
 
-      const contactName = quoteForm.contactName ? quoteForm.contactName.value.trim() : "";
-      const contactOrg = quoteForm.contactOrg ? quoteForm.contactOrg.value.trim() : "";
-      const eventName = quoteForm.eventName ? quoteForm.eventName.value.trim() : "";
+      const contactName  = quoteForm.contactName  ? quoteForm.contactName.value.trim()  : "";
+      const contactOrg   = quoteForm.contactOrg   ? quoteForm.contactOrg.value.trim()   : "";
+      const eventName    = quoteForm.eventName    ? quoteForm.eventName.value.trim()    : "";
+      const eventVenue   = quoteForm.eventVenue   ? quoteForm.eventVenue.value.trim()   : "";
+      const installDate  = quoteForm.installDate  ? quoteForm.installDate.value         : "";
+      const teardownDate = quoteForm.teardownDate ? quoteForm.teardownDate.value        : "";
       const regionKey = quoteForm.region ? quoteForm.region.value : "seoul";
       const regionData = PRICING.regions[regionKey] || PRICING.regions.seoul;
       const regionLabel = getRegionLabel(regionKey);
@@ -440,6 +461,11 @@
         contactName,
         contactOrg,
         eventName,
+        eventVenue,
+        installDate,
+        teardownDate,
+        eventStartDate,
+        eventEndDate,
         regionKey,
         regionLabel,
         attendees,
@@ -458,7 +484,16 @@
       if (data.contactName) lines.push("- 담당자: " + data.contactName);
       if (data.contactOrg) lines.push("- 소속: " + data.contactOrg);
       if (data.eventName) lines.push("- 행사명: " + data.eventName);
-      lines.push("- 행사 장소: " + data.regionLabel);
+      lines.push("- 행사 지역: " + data.regionLabel);
+      if (data.eventVenue) lines.push("- 행사 장소: " + data.eventVenue);
+      var periodStr = data.eventStartDate && data.eventEndDate
+        ? data.eventStartDate + " ~ " + data.eventEndDate + " (" + data.days + "일)"
+        : data.days + "일";
+      lines.push("- 행사 기간: " + periodStr);
+      if (data.installDate) lines.push("- 설치일시: " + data.installDate);
+      else lines.push("- 설치일시: 미정");
+      if (data.teardownDate) lines.push("- 철거일시: " + data.teardownDate);
+      else lines.push("- 철거일시: 미정");
       lines.push("- 패키지: " + data.pkgLabel);
       lines.push("- 참가자/일수: " + data.attendees.toLocaleString() + "명 / " + data.days + "일");
       if (data.badgeQty > 0) lines.push("- 종이명찰: " + data.badgeQty.toLocaleString() + "장");
@@ -479,6 +514,10 @@
     function render() {
       syncKioskOptions();
       const res = calculate();
+
+      // 운영일수 자동 표시
+      var daysDisplay = $("#daysDisplay");
+      if (daysDisplay) daysDisplay.value = res.days + "일";
 
       if ($("#sumPackage")) $("#sumPackage").textContent = res.pkgLabel;
       if ($("#sumBasics")) $("#sumBasics").textContent = res.attendees.toLocaleString() + "명 / " + res.days + "일";
@@ -567,7 +606,11 @@
       var pdfEventName = $("#pdfEventName");
       var pdfEventRegion = $("#pdfEventRegion");
       if (pdfEventName) pdfEventName.textContent = data.eventName || "-";
-      if (pdfEventRegion) pdfEventRegion.textContent = data.regionLabel || "-";
+      if (pdfEventRegion) {
+        var regionStr = data.regionLabel || "-";
+        if (data.eventVenue) regionStr += " · " + data.eventVenue;
+        pdfEventRegion.textContent = regionStr;
+      }
 
       $("#pdfPackage").textContent = data.pkgLabel;
       $("#pdfBasics").textContent = data.attendees.toLocaleString() + "명 / " + data.days + "일";
