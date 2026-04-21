@@ -1759,11 +1759,22 @@
     isNew = false;
     currentSha = sha;
     currentPath = path;
+    // 경로에서 언어 자동 감지 (클리핑 목록 등 어느 뷰에서 열어도 올바른 언어로 설정)
+    if (path.includes('/journal-en/')) {
+      currentLang = 'en';
+      document.getElementById('tabKo').classList.remove('active');
+      document.getElementById('tabEn').classList.add('active');
+    } else if (path.includes('/journal-ko/')) {
+      currentLang = 'ko';
+      document.getElementById('tabKo').classList.add('active');
+      document.getElementById('tabEn').classList.remove('active');
+    }
     document.getElementById('saveStatus').textContent = '불러오는 중...';
     document.getElementById('listView').style.display = 'none';
     document.getElementById('editorPanel').classList.add('open');
     document.getElementById('deleteBtn').style.display = '';
     closeTranslateResult();
+    closeKoTranslateResult();
     updateTranslateVisibility();
 
     try {
@@ -2410,13 +2421,13 @@ ${body}`;
   }
 
   function openPreview() {
-    const title = document.getElementById('fTitle').value || '(제목 없음)';
+    const title = document.getElementById('fTitle').value || (currentLang === 'en' ? '(no title)' : '(제목 없음)');
     const body = easyMDE.value();
     let html = marked.parse(body).replace(/\/journal\/journal-images\//g, '/journal-images/');
     for (const [githubUrl, blobUrl] of _uploadedImages) {
       html = html.split(githubUrl).join(blobUrl);
     }
-    document.getElementById('previewModalTitle').textContent = '📄 미리보기 (한국어)';
+    document.getElementById('previewModalTitle').textContent = currentLang === 'en' ? '📄 Preview (English)' : '📄 미리보기 (한국어)';
     document.getElementById('previewContent').innerHTML =
       `<h1>${escHtml(title)}</h1><hr style="margin:16px 0 24px;border-color:rgba(255,255,255,0.1);">` + html;
     document.getElementById('previewModal').classList.add('open');
@@ -3193,6 +3204,7 @@ ${ko.body || ''}`;
       if (!r.ok) throw new Error((data.error || '가져오기 실패') + (data.detail ? ': ' + data.detail : ''));
 
       _importData = data;
+      _importData._lang = sourceLang; // 언어 정보 보존 (applyImportToEditor에서 사용)
       document.getElementById('importResTitle').textContent    = data.title || '—';
       document.getElementById('importResDesc').textContent     = data.description || '—';
       document.getElementById('importResCategory').textContent = data.category || '—';
@@ -3252,23 +3264,29 @@ ${ko.body || ''}`;
 
   function applyImportToEditor() {
     if (!_importData) return;
+    // 언어 감지: pressImport 시 저장된 _lang 사용, 없으면 ko
+    const lang = _importData._lang || 'ko';
     closeImportModal();
     // Open new post editor
     isNew = true;
     currentSha = null;
     currentPath = null;
+    currentEnSha = null;
+    currentEnPath = null;
+    currentKoSha = null;
+    currentKoPath = null;
     document.getElementById('editorTitle').textContent = '새 포스트';
-    document.getElementById('editorLangBadge').textContent = '🇰🇷 한국어';
+    document.getElementById('editorLangBadge').textContent = lang === 'ko' ? '🇰🇷 한국어' : '🇺🇸 English';
     document.getElementById('fTitle').value = _importData.title || '';
     document.getElementById('fDesc').value  = _importData.description || '';
-    const autoSlug = _importData.slug || generateSlug(_importData.title || '', 'ko');
+    const autoSlug = _importData.slug || generateSlug(_importData.title || '', lang);
     document.getElementById('fSlug').value = autoSlug;
     document.getElementById('fSlug').dataset.manual = 'false';
     document.getElementById('slugHint').textContent = autoSlug
-      ? `URL: /journal/ko/${autoSlug}/`
+      ? `URL: /journal/${lang}/${autoSlug}/`
       : '';
-    populateCategorySelect('ko');
-    const cats = KO_CATEGORIES;
+    populateCategorySelect(lang);
+    const cats = lang === 'ko' ? KO_CATEGORIES : EN_CATEGORIES;
     if (_importData.category && cats.includes(_importData.category)) {
       document.getElementById('fCategory').value = _importData.category;
     }
@@ -3282,7 +3300,11 @@ ${ko.body || ''}`;
     document.getElementById('saveStatus').textContent = '';
     clearSnsFields();
     closeTranslateResult();
-    currentLang = 'ko';
+    closeKoTranslateResult();
+    // 탭 UI 동기화
+    document.getElementById('tabKo').classList.toggle('active', lang === 'ko');
+    document.getElementById('tabEn').classList.toggle('active', lang === 'en');
+    currentLang = lang;
     updateTranslateVisibility();
     // 본문 첫 줄 H1이 제목과 중복되면 제거
     let importBody = (_importData.body || '').replace(/^\s*#\s+[^\n]*\n+/, '').trimStart();

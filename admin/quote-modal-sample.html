@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>견적 모달 샘플 UI v2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0e0e1a; font-family: 'Apple SD Gothic Neo', Arial, sans-serif; display: flex; align-items: flex-start; justify-content: center; min-height: 100vh; padding: 20px; }
+
+  .modal { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 14px; width: 100%; max-width: 580px; padding: 24px; }
+  .modal-title { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 16px; }
+  .badge { font-size: 10px; font-weight: 400; color: #8b5cf6; background: rgba(139,92,246,.15); padding: 2px 8px; border-radius: 20px; margin-left: 8px; }
+
+  /* 연락처 */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+  .contact-item { background: #12122a; border: 1px solid #2a2a4a; border-radius: 8px; padding: 9px 12px; }
+  .contact-item label { font-size: 10px; color: #6b7280; display: block; margin-bottom: 2px; }
+  .contact-item a, .contact-item strong { font-size: 12px; color: #e2e8f0; font-weight: 600; text-decoration: none; }
+  .contact-item a { color: #8b5cf6; }
+
+  /* details 공통 */
+  details { margin-bottom: 10px; border: 1px solid #2a2a4a; border-radius: 8px; overflow: hidden; }
+  summary { padding: 10px 14px; font-size: 11px; font-weight: 700; cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center; gap: 6px; }
+  summary::-webkit-details-marker { display: none; }
+
+  /* [1] 원본 견적 */
+  #panel-original summary { background: rgba(255,255,255,.03); color: #94a3b8; }
+  #panel-original pre { margin: 0; padding: 14px; font-size: 11px; color: #94a3b8; background: #0f0f1e; white-space: pre-wrap; line-height: 1.7; max-height: 180px; overflow-y: auto; border-top: 1px solid #2a2a4a; }
+
+  /* [2] 수정 이력 */
+  #panel-history summary { background: rgba(255,255,255,.03); color: #94a3b8; }
+  .history-list { padding: 12px 14px; background: #0f0f1e; border-top: 1px solid #2a2a4a; display: flex; flex-direction: column; gap: 6px; }
+  .history-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid #2a2a4a; border-radius: 6px; background: #1a1a2e; cursor: pointer; font-size: 11px; color: #94a3b8; }
+  .history-item:hover { border-color: #8b5cf6; color: #e2e8f0; }
+  .history-item .ver { font-weight: 700; color: #8b5cf6; min-width: 40px; }
+  .history-item .ts { color: #4a4a6a; margin-left: auto; }
+  .history-note { font-size: 10px; color: #4a4a6a; padding: 8px 14px 12px; background: #0f0f1e; }
+
+  /* [3] 세부 옵션 */
+  #panel-options summary { background: rgba(139,92,246,.08); color: #a78bfa; }
+  .options-body { padding: 14px; background: #0f0f1e; border-top: 1px solid #2a2a4a; display: flex; flex-direction: column; gap: 14px; }
+  .opt-label { font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+
+  select.opt-select {
+    width: 100%; padding: 7px 10px; font-size: 12px;
+    background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 6px; color: #e2e8f0;
+    margin-bottom: 8px;
+  }
+  .opt-row { display: flex; gap: 6px; align-items: center; }
+  input.opt-input {
+    padding: 7px 8px; font-size: 12px; background: #1a1a2e; border: 1px solid #2a2a4a;
+    border-radius: 6px; color: #e2e8f0; width: 90px;
+  }
+  input.opt-input:focus { outline: none; border-color: #8b5cf6; }
+  .opt-unit { font-size: 11px; color: #6b7280; }
+  .btn-apply { padding: 7px 14px; font-size: 12px; background: #8b5cf6; color: #fff; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+  .btn-apply:hover { background: #7c3aed; }
+  .opt-desc { font-size: 10px; color: #4a4a6a; margin-top: 4px; }
+
+  /* 비용 내역 */
+  .billing-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .section-label { font-size: 10px; font-weight: 800; letter-spacing: .12em; color: #8b5cf6; text-transform: uppercase; }
+  .btn-ghost { background: none; border: 1px solid #2a2a4a; color: #a5b4fc; border-radius: 6px; padding: 5px 10px; font-size: 11px; cursor: pointer; }
+  .btn-ghost:hover { background: #2a2a4a; }
+
+  table { width: 100%; border-collapse: collapse; }
+  tr.sec-hdr td { background: #1e1e38; color: #a5b4fc; font-size: 11px; font-weight: 700; padding: 6px 10px; border-top: 1px solid #2a2a4a; }
+  tr.bil { }
+  tr.bil td { padding: 6px 8px; border-bottom: 1px solid #16162e; font-size: 12px; color: #cbd5e1; vertical-align: middle; }
+  tr.bil:hover { background: rgba(139,92,246,.04); }
+  td.td-name { color: #e2e8f0; padding-left: 16px; }
+  td.td-qty { color: #94a3b8; text-align: center; white-space: nowrap; font-size: 11px; }
+  td.td-amt { color: #e2e8f0; font-weight: 600; text-align: right; white-space: nowrap; }
+  td.td-act { width: 28px; text-align: center; }
+
+  /* 편집 모드 */
+  tr.bil.editing { background: rgba(139,92,246,.06); }
+  .edit-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .edit-fields { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .edit-lbl { font-size: 10px; color: #6b7280; display: block; margin-bottom: 3px; }
+  input.edit-inp {
+    background: #0e0e1a; border: 1px solid #3a3a5a; border-radius: 6px;
+    color: #e2e8f0; font-size: 12px; padding: 6px 8px; width: 90px;
+  }
+  input.edit-inp:focus { outline: none; border-color: #8b5cf6; }
+  .edit-result { display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
+  .edit-result-val { font-size: 13px; font-weight: 700; color: #8b5cf6; }
+  .btn-confirm { background: #8b5cf6; border: none; color: #fff; border-radius: 5px; padding: 5px 10px; font-size: 11px; cursor: pointer; }
+  .btn-pencil { background: none; border: none; color: #4a4a6a; cursor: pointer; font-size: 13px; padding: 2px 4px; }
+  .btn-pencil:hover { color: #a5b4fc; }
+
+  /* 합계 */
+  .total-wrap { margin-top: 10px; border-top: 1px solid #2a2a4a; padding-top: 10px; }
+  .total-row { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
+  .total-row.final { font-size: 15px; font-weight: 800; color: #fff; border-top: 1px solid #3a3a5a; padding-top: 8px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="modal">
+  <div class="modal-title">📄 견적서 상세 <span class="badge">샘플 UI v2</span></div>
+
+  <!-- 연락처 -->
+  <div class="contact-grid">
+    <div class="contact-item"><label>담당자</label><strong>홍길동</strong></div>
+    <div class="contact-item"><label>소속</label><strong>ABC 주식회사</strong></div>
+    <div class="contact-item"><label>이메일</label><a>hong@abc.co.kr</a></div>
+    <div class="contact-item"><label>전화번호</label><a>010-1234-5678</a></div>
+  </div>
+
+  <!-- [1] 원본 견적 (고객 최초 제출) -->
+  <details id="panel-original">
+    <summary>📋 원본 견적 (고객 최초 제출)</summary>
+    <pre>[FAIRPASS 모의견적 요약]
+- 담당자: 홍길동
+- 소속: ABC 주식회사
+- 행사명: 2026 스마트물류대전
+- 행사 지역: 서울
+- 행사 장소: 코엑스 A홀
+- 행사 기간: 2026-07-10 ~ 2026-07-12 (3일)
+- 설치일시: 2026-07-09
+- 철거일시: 2026-07-13
+- 패키지: 플랫폼 + 명찰 + 키오스크
+- 참가자/일수: 1,000명 / 3일
+
+[비용 상세]
+- 솔루션 사용료: ₩599,000
+- 종이명찰 일반형(중) (1,000장 × 1,500원): ₩1,500,000
+- 목걸이줄 AI(P) (1,000개 × 1,300원): ₩1,300,000
+- 무인발권 키오스크 (4대 × 3일 × 100,000원): ₩1,200,000
+- 운송비 (서울): ₩200,000
+
+[총계] ₩5,279,000</pre>
+  </details>
+
+  <!-- [2] 수정 이력 -->
+  <details id="panel-history">
+    <summary>🕓 수정 이력 <span style="font-size:10px;color:#4a4a6a;margin-left:4px">(Save할 때마다 자동 기록 — 추후 구현)</span></summary>
+    <div class="history-list">
+      <div class="history-item"><span class="ver">v2</span><span>명찰 일반형(대)로 변경, 키오스크 5대로 수정</span><span class="ts">2026-04-21 14:32</span></div>
+      <div class="history-item"><span class="ver">v1</span><span>운송비 서울→수원으로 변경</span><span class="ts">2026-04-20 10:15</span></div>
+      <div class="history-item"><span class="ver">원본</span><span>고객 최초 제출</span><span class="ts">2026-04-18 09:01</span></div>
+    </div>
+    <p class="history-note">* 이 기능은 현재 UI 미리보기입니다. 실제 저장 이력은 별도 구현 예정.</p>
+  </details>
+
+  <!-- [3] 세부 옵션 -->
+  <details id="panel-options">
+    <summary>⚙️ 세부 옵션 (명찰·줄·발송서비스)</summary>
+    <div class="options-body">
+
+      <!-- 종이명찰 -->
+      <div>
+        <p class="opt-label">종이명찰 타입</p>
+        <select class="opt-select" id="badge_sel" onchange="syncBadgePrice()">
+          <option value="1500" data-label="일반형(중)" selected>일반형(중) — ₩1,500</option>
+          <option value="2000" data-label="일반형(대)">일반형(대) — ₩2,000</option>
+          <option value="1500" data-label="티켓형">티켓형 — ₩1,500</option>
+          <option value="1500" data-label="가슴 명찰형(집게 포함)">가슴 명찰형(집게 포함) — ₩1,500</option>
+          <option value="0"    data-label="사용 안함">사용 안함 — ₩0</option>
+        </select>
+        <div class="opt-row">
+          <input class="opt-input" id="badge_qty" type="number" placeholder="수량(장)" min="1">
+          <span class="opt-unit">장 ×</span>
+          <input class="opt-input" id="badge_price" type="number" value="1500" min="0">
+          <span class="opt-unit">원</span>
+          <button class="btn-apply" onclick="applyBadge()">적용 →</button>
+        </div>
+      </div>
+
+      <!-- 목걸이줄 -->
+      <div>
+        <p class="opt-label">목걸이줄 타입</p>
+        <select class="opt-select" id="lanyard_sel" onchange="syncLanyardPrice()">
+          <option value="1300" data-label="AI(P)" selected>AI(P) — ₩1,300</option>
+          <option value="600"  data-label="B1(P)">B1(P) — ₩600</option>
+          <option value="1000" data-label="A1">A1 — ₩1,000</option>
+          <option value="1100" data-label="A2">A2 — ₩1,100</option>
+          <option value="500"  data-label="B1">B1 — ₩500</option>
+          <option value="600"  data-label="B2">B2 — ₩600</option>
+          <option value="0"    data-label="사용 안함">사용 안함 — ₩0</option>
+        </select>
+        <div id="lanyard_desc" class="opt-desc">A 굵은 줄 1.6cm, 종이 고리 1개</div>
+        <div class="opt-row" style="margin-top:8px">
+          <input class="opt-input" id="lanyard_qty" type="number" placeholder="수량(개)" min="1">
+          <span class="opt-unit">개 ×</span>
+          <input class="opt-input" id="lanyard_price" type="number" value="1300" min="0">
+          <span class="opt-unit">원</span>
+          <button class="btn-apply" onclick="applyLanyard()">적용 →</button>
+        </div>
+      </div>
+
+    </div>
+  </details>
+
+  <!-- 비용 내역 테이블 -->
+  <div style="margin-bottom:16px">
+    <div class="billing-header">
+      <p class="section-label">비용 내역</p>
+      <div style="display:flex;gap:6px">
+        <button class="btn-ghost" onclick="recalcTotal()">🧮 합계</button>
+        <button class="btn-ghost">💾 저장</button>
+      </div>
+    </div>
+
+    <table id="billing">
+      <tr class="sec-hdr"><td colspan="4">1. 페어패스 솔루션 사용료</td></tr>
+      <tr class="bil" data-name="솔루션 사용료" data-up="599000" data-q1="1" data-u1="회" data-q2="" data-u2="">
+        <td class="td-name">솔루션 사용료</td>
+        <td class="td-qty">1회 × ₩599,000</td>
+        <td class="td-amt">₩599,000</td>
+        <td class="td-act"><button class="btn-pencil" onclick="startEdit(this)">✏️</button></td>
+      </tr>
+
+      <tr class="sec-hdr"><td colspan="4">2. 종이 명찰 발급비</td></tr>
+      <tr class="bil" id="row-badge" data-name="종이명찰 일반형(중)" data-up="1500" data-q1="1000" data-u1="장" data-q2="" data-u2="">
+        <td class="td-name">종이명찰 일반형(중)</td>
+        <td class="td-qty">1,000장 × ₩1,500</td>
+        <td class="td-amt">₩1,500,000</td>
+        <td class="td-act"><button class="btn-pencil" onclick="startEdit(this)">✏️</button></td>
+      </tr>
+      <tr class="bil" id="row-lanyard" data-name="목걸이줄 AI(P)" data-up="1300" data-q1="1000" data-u1="개" data-q2="" data-u2="">
+        <td class="td-name">목걸이줄 AI(P)</td>
+        <td class="td-qty">1,000개 × ₩1,300</td>
+        <td class="td-amt">₩1,300,000</td>
+        <td class="td-act"><button class="btn-pencil" onclick="startEdit(this)">✏️</button></td>
+      </tr>
+
+      <tr class="sec-hdr"><td colspan="4">3. 키오스크 현장 운영</td></tr>
+      <tr class="bil" data-name="무인발권 키오스크" data-up="100000" data-q1="4" data-u1="대" data-q2="3" data-u2="일">
+        <td class="td-name">무인발권 키오스크</td>
+        <td class="td-qty">4대 × 3일 × ₩100,000</td>
+        <td class="td-amt">₩1,200,000</td>
+        <td class="td-act"><button class="btn-pencil" onclick="startEdit(this)">✏️</button></td>
+      </tr>
+
+      <tr class="sec-hdr"><td colspan="4">4. 운영 대행비</td></tr>
+      <tr class="bil" data-name="운송비 (서울)" data-up="200000" data-q1="1" data-u1="식" data-q2="" data-u2="">
+        <td class="td-name">운송비 (서울)</td>
+        <td class="td-qty">₩200,000</td>
+        <td class="td-amt">₩200,000</td>
+        <td class="td-act"><button class="btn-pencil" onclick="startEdit(this)">✏️</button></td>
+      </tr>
+    </table>
+
+    <div class="total-wrap">
+      <div class="total-row"><span>소계</span><span id="subtotal">₩4,829,000</span></div>
+      <div class="total-row"><span>기술료 (10%)</span><span id="tech">₩482,900</span></div>
+      <div class="total-row"><span>부가가치세 (10%)</span><span id="vat">₩531,190</span></div>
+      <div class="total-row final"><span>총 견적금액</span><span id="grand">₩5,843,090</span></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const LANYARD_DESC = {
+  '1300': 'A 굵은 줄 1.6cm, 종이 고리 1개',
+  '600_b1p': 'B 굵은 줄 0.4cm, 종이 고리 1개',
+  '1000': 'A 굵은 줄 1.6cm, 고리 1개',
+  '1100': 'A 굵은 줄 1.6cm, 고리 2개',
+  '500': 'B 굵은 줄 0.4cm, 고리 1개',
+  '600_b2': 'B 굵은 줄 0.4cm, 고리 2개',
+};
+const LANYARD_DESC_BY_LABEL = {
+  'AI(P)': 'A 굵은 줄 1.6cm, 종이 고리 1개',
+  'B1(P)': 'B 굵은 줄 0.4cm, 종이 고리 1개',
+  'A1':    'A 굵은 줄 1.6cm, 고리 1개',
+  'A2':    'A 굵은 줄 1.6cm, 고리 2개',
+  'B1':    'B 굵은 줄 0.4cm, 고리 1개',
+  'B2':    'B 굵은 줄 0.4cm, 고리 2개',
+};
+
+function syncBadgePrice() {
+  const sel = document.getElementById('badge_sel');
+  document.getElementById('badge_price').value = sel.value;
+}
+function syncLanyardPrice() {
+  const sel = document.getElementById('lanyard_sel');
+  const opt = sel.options[sel.selectedIndex];
+  const label = opt.dataset.label || '';
+  document.getElementById('lanyard_price').value = sel.value;
+  document.getElementById('lanyard_desc').textContent = LANYARD_DESC_BY_LABEL[label] || '';
+}
+
+function applyBadge() {
+  const sel = document.getElementById('badge_sel');
+  const opt = sel.options[sel.selectedIndex];
+  const label = opt.dataset.label || opt.text.split(' —')[0].trim();
+  const qty = parseInt(document.getElementById('badge_qty').value) || 1000;
+  const price = parseInt(document.getElementById('badge_price').value) || parseInt(sel.value);
+  const amt = qty * price;
+  const row = document.getElementById('row-badge');
+  if (row) {
+    row.dataset.name = '종이명찰 ' + label;
+    row.dataset.up   = price;
+    row.dataset.q1   = qty;
+    row.querySelector('.td-name').textContent = '종이명찰 ' + label;
+    row.querySelector('.td-qty').textContent  = qty.toLocaleString() + '장 × ₩' + price.toLocaleString();
+    row.querySelector('.td-amt').textContent  = '₩' + amt.toLocaleString();
+    recalcTotal();
+  }
+}
+
+function applyLanyard() {
+  const sel = document.getElementById('lanyard_sel');
+  const opt = sel.options[sel.selectedIndex];
+  const label = opt.dataset.label || opt.text.split(' —')[0].trim();
+  const qty = parseInt(document.getElementById('lanyard_qty').value) || 1000;
+  const price = parseInt(document.getElementById('lanyard_price').value) || parseInt(sel.value);
+  const amt = qty * price;
+  const row = document.getElementById('row-lanyard');
+  if (row) {
+    row.dataset.name = '목걸이줄 ' + label;
+    row.dataset.up   = price;
+    row.dataset.q1   = qty;
+    row.querySelector('.td-name').textContent = '목걸이줄 ' + label;
+    row.querySelector('.td-qty').textContent  = qty.toLocaleString() + '개 × ₩' + price.toLocaleString();
+    row.querySelector('.td-amt').textContent  = '₩' + amt.toLocaleString();
+    recalcTotal();
+  }
+}
+
+// ── 연필 편집 ──
+function startEdit(btn) {
+  const row = btn.closest('tr');
+  if (row.classList.contains('editing')) return;
+  const name  = row.dataset.name  || '';
+  const up    = parseInt(row.dataset.up  || 0);
+  const q1    = parseInt(row.dataset.q1  || 1);
+  const u1    = row.dataset.u1 || '';
+  const q2    = row.dataset.q2 ? parseInt(row.dataset.q2) : null;
+  const u2    = row.dataset.u2 || '';
+  const hasQ2 = q2 !== null && u2;
+
+  row.classList.add('editing');
+  row.innerHTML = `
+    <td colspan="3" style="padding:10px 8px">
+      <div class="edit-wrap">
+        <div class="edit-fields">
+          <div>
+            <span class="edit-lbl">단가 (₩)</span>
+            <input class="edit-inp" id="ei_up" type="number" value="${up}">
+          </div>
+          <div>
+            <span class="edit-lbl">수량 (${u1||'개'})</span>
+            <input class="edit-inp" id="ei_q1" type="number" value="${q1}">
+          </div>
+          ${hasQ2 ? `<div>
+            <span class="edit-lbl">${u2} 수</span>
+            <input class="edit-inp" id="ei_q2" type="number" value="${q2}">
+          </div>` : ''}
+        </div>
+        <div class="edit-result">
+          <span style="font-size:11px;color:#6b7280">금액 자동계산</span>
+          <span class="edit-result-val" id="ei_res">₩${(up*q1*(q2||1)).toLocaleString()}</span>
+        </div>
+      </div>
+    </td>
+    <td class="td-act" style="vertical-align:middle">
+      <button class="btn-confirm" onclick="confirmEdit(this,'${name}','${u1}','${u2}')">✅</button>
+    </td>`;
+
+  ['ei_up','ei_q1','ei_q2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => {
+      const u = parseInt(document.getElementById('ei_up')?.value||0);
+      const a = parseInt(document.getElementById('ei_q1')?.value||1);
+      const b = document.getElementById('ei_q2') ? parseInt(document.getElementById('ei_q2').value||1) : 1;
+      document.getElementById('ei_res').textContent = '₩' + (u*a*b).toLocaleString();
+    });
+  });
+}
+
+function confirmEdit(btn, name, u1, u2) {
+  const row = btn.closest('tr');
+  const up = parseInt(document.getElementById('ei_up')?.value || 0);
+  const q1 = parseInt(document.getElementById('ei_q1')?.value || 1);
+  const q2El = document.getElementById('ei_q2');
+  const q2 = q2El ? parseInt(q2El.value || 1) : 1;
+  const hasQ2 = !!u2;
+  const amt = up * q1 * q2;
+
+  let qtyTxt = q1.toLocaleString() + u1;
+  if (hasQ2) qtyTxt += ' × ' + q2 + u2;
+  qtyTxt += ' × ₩' + up.toLocaleString();
+
+  row.dataset.up = up; row.dataset.q1 = q1;
+  if (hasQ2) row.dataset.q2 = q2;
+  row.classList.remove('editing');
+  row.innerHTML = `
+    <td class="td-name">${name}</td>
+    <td class="td-qty">${qtyTxt}</td>
+    <td class="td-amt">₩${amt.toLocaleString()}</td>
+    <td class="td-act"><button class="btn-pencil" onclick="startEdit(this)">✏️</button></td>`;
+  recalcTotal();
+}
+
+function recalcTotal() {
+  let sub = 0;
+  document.querySelectorAll('#billing tr.bil').forEach(row => {
+    const amt = row.querySelector('.td-amt');
+    if (amt) {
+      const v = parseInt(amt.textContent.replace(/[₩,]/g,'')) || 0;
+      sub += v;
+    }
+  });
+  const tech = Math.round(sub * 0.1);
+  const vat  = Math.round((sub + tech) * 0.1);
+  document.getElementById('subtotal').textContent = '₩' + sub.toLocaleString();
+  document.getElementById('tech').textContent     = '₩' + tech.toLocaleString();
+  document.getElementById('vat').textContent      = '₩' + vat.toLocaleString();
+  document.getElementById('grand').textContent    = '₩' + (sub + tech + vat).toLocaleString();
+}
+</script>
+</body>
+</html>

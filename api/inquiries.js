@@ -2,7 +2,7 @@
 // FAIRPASS — Inquiries API
 // 문의/요청 저장 및 조회
 //
-// [Supabase SQL Editor에서 실행]:
+// [Supabase SQL Editor에서 실행 — 최초 테이블 생성]:
 // CREATE TABLE inquiries (
 //   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 //   type TEXT NOT NULL,
@@ -10,11 +10,23 @@
 //   company TEXT DEFAULT '',
 //   position TEXT DEFAULT '',
 //   email TEXT DEFAULT '',
+//   phone TEXT DEFAULT '',
 //   content TEXT DEFAULT '',
+//   content_original TEXT DEFAULT '',
+//   content_edited TEXT DEFAULT '',
 //   total TEXT DEFAULT '',
+//   quote_sent_at TIMESTAMPTZ,
+//   deal_status TEXT DEFAULT '',
 //   created_at TIMESTAMPTZ DEFAULT NOW()
 // );
 // ALTER TABLE inquiries ENABLE ROW LEVEL SECURITY;
+//
+// [기존 테이블에 컬럼 추가 — content_edited 없으면 실행]:
+// ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS content_edited TEXT DEFAULT '';
+// ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS content_original TEXT DEFAULT '';
+// ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS phone TEXT DEFAULT '';
+// ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS quote_sent_at TIMESTAMPTZ;
+// ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS deal_status TEXT DEFAULT '';
 // =============================================
 
 import { createClient } from "@supabase/supabase-js";

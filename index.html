@@ -1119,7 +1119,7 @@
                 <input type="text" name="teardownDate" id="teardownDatePicker" class="form-input fp-single" placeholder="날짜 선택" readonly style="cursor:pointer">
               </label>
             </div>
-            <div class="form-row" style="margin-top:12px;margin-bottom:0">
+            <div class="form-row" style="margin-top:12px">
               <label class="form-label">
                 <span>예상 참가자 수 <span style="color:#f87171">*</span></span>
                 <input type="number" min="1" step="1" value="300" name="attendees" class="form-input" required>
@@ -1127,6 +1127,15 @@
               <label class="form-label">
                 <span>운영 일수</span>
                 <input type="text" id="daysDisplay" class="form-input" value="1일" readonly style="background:rgba(255,255,255,0.04);color:#94a3b8;cursor:default">
+              </label>
+            </div>
+            <div class="form-row" style="margin-bottom:0">
+              <label class="form-label">
+                <span>행사 등록비</span>
+                <select name="regFee" class="form-input" id="regFeeSelect">
+                  <option value="무료">무료 (무료 행사)</option>
+                  <option value="유료">유료 (참가자 등록비 결제)</option>
+                </select>
               </label>
             </div>
           </div>
@@ -1200,20 +1209,6 @@
                   <small class="form-hint">300,000원/인/일 + 지역별 출장비 별도</small>
                 </label>
               </div>
-            </div>
-          </div>
-
-          <!-- 행사 등록비 -->
-          <div class="glass-card fade-up" style="--delay: 0.3s">
-            <h3 class="card-title-sm">행사 등록비</h3>
-            <div class="form-row">
-              <label class="form-label">
-                <span>등록비 결제 방식</span>
-                <select name="regFee" class="form-input" id="regFeeSelect">
-                  <option value="무료">무료 (무료 행사)</option>
-                  <option value="유료">유료 (참가자 등록비 결제)</option>
-                </select>
-              </label>
             </div>
           </div>
 
