@@ -3474,15 +3474,29 @@ function initBillingForm(content) {
   // 컨텍스트 파악
   var attMatch = (p['참가자수'] || '').match(/(\d+)/);
   _bfState.attendees = attMatch ? parseInt(attMatch[1], 10) : 300;
-  var daysStr = (p['운영일수'] || p['행사기간'] || '').match(/(\d+)/);
-  _bfState.days = daysStr ? parseInt(daysStr[1], 10) : 1;
-  // 지역 레이블로 역매핑
+  // 운영일수 우선, 폴백: 행사기간의 "(N일)" 또는 단독 숫자 — 연도 추출 방지
+  var daysRaw = p['운영일수'] || '';
+  var daysM = daysRaw.match(/(\d+)/);
+  if (daysM) {
+    _bfState.days = parseInt(daysM[1], 10);
+  } else {
+    var hm = (p['행사기간'] || '').match(/\((\d+)일\)/) || (p['행사기간'] || '').match(/^(\d+)일?$/);
+    _bfState.days = hm ? parseInt(hm[1], 10) : 1;
+  }
+  // 지역 레이블로 역매핑 (완전 일치 우선, 없으면 indexOf — 긴 레이블 우선 정렬)
   var regionLabel = p['행사지역'] || '';
   var regionKey = 'seoul';
   if (regionLabel) {
-    Object.keys(_REGION_PRICING).forEach(function(k) {
-      if (_REGION_PRICING[k].label && regionLabel.indexOf(_REGION_PRICING[k].label) >= 0) regionKey = k;
-    });
+    var exactKey = Object.keys(_REGION_PRICING).find(function(k){ return _REGION_PRICING[k].label === regionLabel; });
+    if (exactKey) {
+      regionKey = exactKey;
+    } else {
+      Object.keys(_REGION_PRICING).sort(function(a,b){
+        return (_REGION_PRICING[b].label||'').length - (_REGION_PRICING[a].label||'').length;
+      }).forEach(function(k){
+        if (_REGION_PRICING[k].label && regionLabel.indexOf(_REGION_PRICING[k].label) >= 0) regionKey = k;
+      });
+    }
   }
   _bfState.region = regionKey;
   var rp = _REGION_PRICING[regionKey] || _REGION_PRICING.default;
@@ -3492,6 +3506,22 @@ function initBillingForm(content) {
   var pkg = p['패키지'] || '';
   _bfState.pkgBadge = /명찰/.test(pkg);
   _bfState.pkgKiosk = /키오스크/.test(pkg);
+
+  // ── 체크박스·토글 섹션 초기화 (이전 견적 상태 누수 방지) ──
+  ['bf_mkiosk_check','bf_manager_check','bf_biztrip_check','bf_access_check','bf_send_check'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.checked = false;
+  });
+  ['bf_mkiosk_inputs','bf_manager_inputs','bf_biztrip_inputs','bf_access_items','bf_send_items'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+
+  // ── 지역 기반 기본값 초기화 (content 파싱보다 먼저 — 이후 override됨) ──
+  var shNameEl = document.getElementById('bf_shipping_name');
+  if (shNameEl) shNameEl.textContent = '왕복 운송비 (' + rp.label + ')';
+  _setVal2('bf_shipping_amt', rp.shipping > 0 ? _fmtKRW(rp.shipping) : '₩0');
+  var btNameEl = document.getElementById('bf_biztrip_name');
+  if (btNameEl) btNameEl.textContent = '현장 상주 매니저 출장비 (' + rp.label + ')';
+  _setVal2('bf_biztrip_price', rp.biztrip);
 
   // 섹션 표시/숨김
   var sec2 = document.getElementById('bf_sec2');
@@ -3530,13 +3560,14 @@ function initBillingForm(content) {
         _setVal2('bf_badge_qty', _bfState.attendees);
         _setVal2('bf_badge_price', 1500);
       }
-      // SELECT 복원 — 저장된 label 기반
-      var bTypeLbl = badgeKey.replace(/^종이명찰\s+/, '').replace(/\s*\(.+$/, '');
+      // SELECT 복원 — 저장된 label 기반 (괄호 포함 타입명 보존: /\s+\([0-9,].*$/ 로 수량부만 제거)
+      var bTypeLbl = badgeKey.replace(/^종이명찰\s+/, '').replace(/\s+\([0-9,].*$/, '');
       var bSel = document.getElementById('bf_badge_type');
-      if (bSel && bTypeLbl) {
+      if (bSel && bTypeLbl && !bTypeLbl.startsWith('(')) {
         for (var bi = 0; bi < bSel.options.length; bi++) {
           if (bSel.options[bi].dataset.lbl === bTypeLbl) { bSel.selectedIndex = bi; break; }
         }
+        onBadgeTypeChange();
       }
     } else {
       _setVal2('bf_badge_qty', _bfState.attendees);
@@ -3552,13 +3583,14 @@ function initBillingForm(content) {
         _setVal2('bf_lanyard_qty', _bfState.attendees);
         _setVal2('bf_lanyard_price', 1300);
       }
-      // SELECT 복원
-      var lTypeLbl = lanyardKey.replace(/^목걸이줄\s+/, '').replace(/\s*\(.+$/, '');
+      // SELECT 복원 (괄호 포함 타입명 보존: "AI(P)" 등)
+      var lTypeLbl = lanyardKey.replace(/^목걸이줄\s+/, '').replace(/\s+\([0-9,].*$/, '');
       var lSel2 = document.getElementById('bf_lanyard_type');
-      if (lSel2 && lTypeLbl) {
+      if (lSel2 && lTypeLbl && !lTypeLbl.startsWith('(')) {
         for (var li = 0; li < lSel2.options.length; li++) {
           if (lSel2.options[li].dataset.lbl === lTypeLbl) { lSel2.selectedIndex = li; break; }
         }
+        onLanyardTypeChange();
       }
     } else {
       _setVal2('bf_lanyard_qty', _bfState.attendees);
