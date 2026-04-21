@@ -808,6 +808,27 @@
       emailForm.addEventListener("submit", async function (e) {
         e.preventDefault();
         var formData = new FormData(emailForm);
+
+        // 전화번호 유효성 검사 — 010 / 070 / 지역번호(02,031~064) 시작 여부 확인
+        var phoneVal = (formData.get("phone") || "").replace(/\s/g, "");
+        var phoneValid = /^(010|011|016|017|018|019|070|02|031|032|033|041|042|043|044|051|052|053|054|055|061|062|063|064)[\-\d]/.test(phoneVal);
+        if (phoneVal && !phoneValid) {
+          var phoneInput = emailForm.querySelector('input[name="phone"]');
+          var phoneHint = phoneInput ? phoneInput.nextElementSibling : null;
+          if (phoneHint && phoneHint.tagName === "SMALL") {
+            phoneHint.style.color = "#f87171";
+            phoneHint.textContent = "자세한 상담을 위해 올바른 연락처를 기재해 주세요. (예: 010-0000-0000)";
+            phoneInput.focus();
+            setTimeout(function() {
+              phoneHint.style.color = "";
+              phoneHint.textContent = "견적 검토 후 담당자가 영업일 1~2일 내 연락드립니다.";
+            }, 4000);
+          } else {
+            alert("자세한 상담을 위해 올바른 연락처를 기재해 주세요. (예: 010-0000-0000)");
+          }
+          return;
+        }
+
         var quoteData = calculate();
         var payload = {
           name: quoteData.contactName,
