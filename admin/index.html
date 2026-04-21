@@ -1152,6 +1152,17 @@
       <pre id="qs_original_content" style="margin:0;padding:14px;font-size:11px;color:#94a3b8;background:#0f0f1e;white-space:pre-wrap;word-break:break-all;line-height:1.6;max-height:200px;overflow-y:auto;border-top:1px solid var(--border)"></pre>
     </details>
 
+    <!-- 수정 이력 -->
+    <details id="qs_history_panel" style="margin-bottom:14px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <summary style="padding:10px 14px;font-size:11px;font-weight:700;color:#94a3b8;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;background:rgba(255,255,255,0.03);user-select:none">
+        🕓 수정 이력
+      </summary>
+      <div id="qs_history_list" style="border-top:1px solid var(--border);background:#0f0f1e;max-height:200px;overflow-y:auto"></div>
+      <div style="border-top:1px solid var(--border);padding:10px 14px;background:#0f0f1e;display:flex;gap:6px;align-items:center">
+        <input id="qs_history_comment" class="qs-total-input" placeholder="저장 시 남길 코멘트 (선택)" style="flex:1;margin:0;font-size:12px">
+      </div>
+    </details>
+
     <!-- 어드민 세부 옵션 -->
     <details id="qs_admin_options" style="margin-bottom:14px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
       <summary style="padding:10px 14px;font-size:11px;font-weight:700;color:#a78bfa;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;background:rgba(139,92,246,0.08);user-select:none">
@@ -2943,6 +2954,14 @@ function openQuoteSendModal(idx) {
   if (originalEl) originalEl.textContent = originalContent || '(원본 없음)';
   if (originalPanel) originalPanel.open = false; // 기본 접힌 상태
 
+  // 수정 이력 패널 초기화
+  const historyEntries = parseHistoryFromContent(item.content_edited || '');
+  renderHistoryPanel(historyEntries);
+  const histPanel = document.getElementById('qs_history_panel');
+  if (histPanel) histPanel.open = false;
+  const histComment = document.getElementById('qs_history_comment');
+  if (histComment) histComment.value = '';
+
   // qs_content: content_edited 우선 (원본 보존), 없으면 content
   const editableContent = item.content_edited || item.content || '';
   document.getElementById('qs_content').value = editableContent;
@@ -3442,10 +3461,88 @@ function resetAdminOptions(content) {
   if (qtyEl) qtyEl.value = '1';
 }
 
+// ── 수정 이력 ──
+function parseHistoryFromContent(content) {
+  const m = (content || '').match(/\[수정 이력\]([\s\S]*)$/);
+  if (!m) return [];
+  return m[1].trim().split('\n---\n').filter(Boolean).map(entry => {
+    const lines = entry.trim().split('\n');
+    const header = lines[0] || '';
+    const tm = header.match(/\[(.+?)\]/);
+    const comment = lines.filter(l => l.startsWith('코멘트: ')).map(l => l.replace('코멘트: ','')).join('');
+    const changes = lines.filter(l => l.startsWith('- ')).map(l => l.slice(2));
+    return { ts: tm ? tm[1] : '', comment, changes };
+  }).reverse(); // 최신순
+}
+
+function renderHistoryPanel(entries) {
+  const el = document.getElementById('qs_history_list');
+  if (!el) return;
+  if (!entries.length) {
+    el.innerHTML = '<p style="padding:12px 14px;font-size:11px;color:var(--muted)">아직 수정 이력이 없습니다.</p>';
+    return;
+  }
+  el.innerHTML = entries.map((e, i) => `
+    <div style="padding:10px 14px;border-bottom:1px solid var(--border);${i===0?'background:rgba(139,92,246,.04)':''}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:10px;font-weight:700;color:#8b5cf6;background:rgba(139,92,246,.15);padding:2px 7px;border-radius:10px">v${entries.length - i}</span>
+        <span style="font-size:10px;color:var(--muted)">${e.ts}</span>
+        ${e.comment ? `<span style="font-size:11px;color:#e2e8f0;margin-left:4px">"${e.comment}"</span>` : ''}
+      </div>
+      ${e.changes.map(c => `<div style="font-size:11px;color:#94a3b8;padding-left:4px">• ${c}</div>`).join('')}
+    </div>`).join('');
+}
+
+function detectBillingChanges(oldContent, newContent) {
+  const getItems = c => {
+    const m = c.match(/\[비용 상세\]([\s\S]*?)(\[총계\]|\[수정 이력\]|$)/);
+    if (!m) return {};
+    const map = {};
+    m[1].trim().split('\n').forEach(l => {
+      const p = l.replace(/^- /,'').split(': ');
+      if (p[0]) map[p[0].trim()] = p.slice(1).join(': ').trim();
+    });
+    return map;
+  };
+  const oldMap = getItems(oldContent);
+  const newMap = getItems(newContent);
+  const changes = [];
+  const allKeys = new Set([...Object.keys(oldMap), ...Object.keys(newMap)]);
+  allKeys.forEach(k => {
+    if (!oldMap[k]) changes.push(`추가: ${k} ${newMap[k]}`);
+    else if (!newMap[k]) changes.push(`삭제: ${k}`);
+    else if (oldMap[k] !== newMap[k]) changes.push(`변경: ${k} ${oldMap[k]} → ${newMap[k]}`);
+  });
+  return changes;
+}
+
+function appendHistoryEntry(content, changes, comment) {
+  const now = new Date();
+  const ts = now.toLocaleDateString('ko-KR') + ' ' + now.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
+  const entry = `[${ts}]\n${changes.map(c => '- ' + c).join('\n')}${comment ? '\n코멘트: ' + comment : ''}`;
+  // 기존 이력 섹션 교체 or 새로 추가
+  if (content.includes('[수정 이력]')) {
+    return content.replace(/\[수정 이력\]([\s\S]*)$/, match => match + '\n---\n' + entry);
+  }
+  return content + '\n\n[수정 이력]\n' + entry;
+}
+
 async function saveBillingEdits() {
   if (_qsIdx === null) return;
   const item = quoteItems[_qsIdx];
-  const newContent = buildContentFromBillingTable();
+  const prevContent = item.content_edited || item.content || '';
+  const billingContent = buildContentFromBillingTable();
+  const comment = (document.getElementById('qs_history_comment')?.value || '').trim();
+
+  // 변경 감지
+  const changes = detectBillingChanges(prevContent, billingContent);
+  if (!changes.length && !comment) {
+    showToast('변경된 내용이 없습니다');
+    return;
+  }
+
+  // 이력 추가 후 저장
+  const newContent = appendHistoryEntry(billingContent, changes, comment);
   try {
     const res = await fetch('/api/inquiries', {
       method: 'PATCH',
@@ -3454,7 +3551,10 @@ async function saveBillingEdits() {
     });
     if (!res.ok) throw new Error('저장 실패');
     quoteItems[_qsIdx] = { ...item, content_edited: newContent };
-    showToast('비용 내역 저장 완료');
+    // 이력 패널 갱신
+    renderHistoryPanel(parseHistoryFromContent(newContent));
+    if (document.getElementById('qs_history_comment')) document.getElementById('qs_history_comment').value = '';
+    showToast('저장 완료 (' + changes.length + '건 변경)');
   } catch (err) {
     showToast('저장 실패: ' + err.message, true);
   }
