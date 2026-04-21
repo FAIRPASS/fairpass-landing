@@ -1254,7 +1254,7 @@
     <!-- 비용 내역 편집 테이블 -->
     <div id="qs_billing_section" style="margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <p style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:#8b5cf6;text-transform:uppercase;margin:0">비용 내역 <span style="font-size:10px;font-weight:400;color:var(--muted);text-transform:none">(항목명·금액 클릭하면 수정 가능)</span></p>
+        <p style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:#8b5cf6;text-transform:uppercase;margin:0">비용 내역 <span style="font-size:10px;font-weight:400;color:var(--muted);text-transform:none">(✏️ 클릭하여 수정)</span></p>
         <div style="display:flex;gap:6px">
           <button class="btn btn-ghost btn-sm" onclick="addBillingRow()" style="font-size:11px">+ 항목</button>
           <button class="btn btn-ghost btn-sm" onclick="autoCalcTotal()" style="font-size:11px" title="비용 항목 합계를 자동 계산하여 총 금액에 입력">🧮 합계</button>
@@ -2967,53 +2967,77 @@ document.getElementById('quoteSendModalBg').addEventListener('click', e => {
 });
 
 // ── 비용 내역 편집 테이블 ──
+function makeBillingRowHtml(label, val) {
+  const safeLabel = label.replace(/"/g, '&quot;');
+  const safeVal   = val.replace(/"/g, '&quot;');
+  return `<tr class="bil-row" data-label="${safeLabel}" data-val="${safeVal}">
+    <td class="bil-name" style="padding:5px 4px 5px 0;font-size:12px;color:var(--text);width:62%">${label.replace(/</g,'&lt;')}</td>
+    <td class="bil-amt"  style="padding:5px 4px;font-size:12px;color:var(--text);text-align:right;white-space:nowrap">${val.replace(/</g,'&lt;')}</td>
+    <td style="padding:5px 0 5px 4px;width:22px;text-align:center">
+      <button onclick="startBillingEdit(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 3px" title="수정">✏️</button>
+    </td>
+    <td style="padding:5px 0 5px 2px;width:22px;text-align:center">
+      <button onclick="removeBillingRow(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 3px" title="삭제">×</button>
+    </td>
+  </tr>`;
+}
+
 function renderBillingTable(billingSection) {
   const tbody = document.getElementById('qs_billing_table');
   if (!tbody) return;
   const lines = (billingSection || '').split('\n').filter(l => l.trim());
-  tbody.innerHTML = lines.map((l, i) => {
+  tbody.innerHTML = lines.map(l => {
     const parts = l.replace(/^- /, '').split(': ');
     const label = parts[0] || '';
-    const val = parts.slice(1).join(': ') || '';
-    return `<tr class="bil-row">
-      <td style="padding:4px 4px 4px 0;width:68%">
-        <input class="bil-label qs-total-input" value="${label.replace(/"/g,'&quot;')}"
-          oninput="syncBillingToContent()"
-          style="width:100%;padding:6px 8px;font-size:12px;margin:0">
-      </td>
-      <td style="padding:4px 0 4px 4px">
-        <input class="bil-val qs-total-input" value="${val.replace(/"/g,'&quot;')}"
-          oninput="syncBillingToContent()"
-          style="width:100%;padding:6px 8px;font-size:12px;margin:0;text-align:right">
-      </td>
-      <td style="padding:4px 0 4px 6px;width:24px">
-        <button onclick="removeBillingRow(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;" title="삭제">×</button>
-      </td>
-    </tr>`;
+    const val   = parts.slice(1).join(': ') || '';
+    return makeBillingRowHtml(label, val);
   }).join('');
   syncBillingToContent();
+}
+
+function startBillingEdit(btn) {
+  const row = btn.closest('tr');
+  if (row.classList.contains('editing')) return;
+  const label = row.dataset.label || '';
+  const val   = row.dataset.val   || '';
+  row.classList.add('editing');
+  row.innerHTML = `
+    <td colspan="2" style="padding:6px 4px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <input class="bil-edit-label qs-total-input" value="${label.replace(/"/g,'&quot;')}" placeholder="항목명"
+          style="width:100%;padding:6px 8px;font-size:12px;margin:0">
+        <input class="bil-edit-val qs-total-input" value="${val.replace(/"/g,'&quot;')}" placeholder="₩0"
+          style="width:100%;padding:6px 8px;font-size:12px;margin:0;text-align:right">
+      </div>
+    </td>
+    <td colspan="2" style="padding:6px 4px;text-align:center;vertical-align:middle;white-space:nowrap">
+      <button onclick="confirmBillingEdit(this)"
+        style="background:#8b5cf6;border:none;color:#fff;border-radius:5px;padding:5px 8px;font-size:11px;cursor:pointer">✅</button>
+      <button onclick="cancelBillingEdit(this,'${label.replace(/'/g,"\\'")}','${val.replace(/'/g,"\\'")}')"
+        style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:5px 8px;font-size:11px;cursor:pointer;margin-left:3px">✕</button>
+    </td>`;
+}
+
+function confirmBillingEdit(btn) {
+  const row = btn.closest('tr');
+  const label = row.querySelector('.bil-edit-label').value.trim();
+  const val   = row.querySelector('.bil-edit-val').value.trim();
+  row.classList.remove('editing');
+  row.outerHTML = makeBillingRowHtml(label, val);
+  syncBillingToContent();
+  autoCalcTotal();
+}
+
+function cancelBillingEdit(btn, label, val) {
+  const row = btn.closest('tr');
+  row.classList.remove('editing');
+  row.outerHTML = makeBillingRowHtml(label, val);
 }
 
 function addBillingRow() {
   const tbody = document.getElementById('qs_billing_table');
   if (!tbody) return;
-  const tr = document.createElement('tr');
-  tr.className = 'bil-row';
-  tr.innerHTML = `
-    <td style="padding:4px 4px 4px 0;width:68%">
-      <input class="bil-label qs-total-input" value="" placeholder="항목명"
-        oninput="syncBillingToContent()"
-        style="width:100%;padding:6px 8px;font-size:12px;margin:0">
-    </td>
-    <td style="padding:4px 0 4px 4px">
-      <input class="bil-val qs-total-input" value="" placeholder="₩0"
-        oninput="syncBillingToContent()"
-        style="width:100%;padding:6px 8px;font-size:12px;margin:0;text-align:right">
-    </td>
-    <td style="padding:4px 0 4px 6px;width:24px">
-      <button onclick="removeBillingRow(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;" title="삭제">×</button>
-    </td>`;
-  tbody.appendChild(tr);
+  tbody.insertAdjacentHTML('beforeend', makeBillingRowHtml('', ''));
 }
 
 function removeBillingRow(btn) {
@@ -3025,8 +3049,8 @@ function buildContentFromBillingTable() {
   const content = document.getElementById('qs_content').value;
   const newLines = [];
   document.querySelectorAll('#qs_billing_table .bil-row').forEach(row => {
-    const label = row.querySelector('.bil-label').value.trim();
-    const val   = row.querySelector('.bil-val').value.trim();
+    const label = (row.dataset.label || '').trim();
+    const val   = (row.dataset.val   || '').trim();
     if (label) newLines.push('- ' + label + ': ' + val);
   });
   const newBilling = newLines.join('\n');
@@ -3057,10 +3081,8 @@ function formatKRWAdmin(n) {
 function updateBillingRowByKeyword(keyword, newLabel, newVal) {
   var rows = document.querySelectorAll('#qs_billing_table .bil-row');
   for (var i = 0; i < rows.length; i++) {
-    var lbl = rows[i].querySelector('.bil-label');
-    if (lbl && lbl.value.includes(keyword)) {
-      lbl.value = newLabel;
-      rows[i].querySelector('.bil-val').value = newVal;
+    if ((rows[i].dataset.label || '').includes(keyword)) {
+      rows[i].outerHTML = makeBillingRowHtml(newLabel, newVal);
       syncBillingToContent();
       return true;
     }
@@ -3072,8 +3094,7 @@ function updateBillingRowByKeyword(keyword, newLabel, newVal) {
 function removeBillingRowByKeyword(keyword) {
   var rows = document.querySelectorAll('#qs_billing_table .bil-row');
   for (var i = 0; i < rows.length; i++) {
-    var lbl = rows[i].querySelector('.bil-label');
-    if (lbl && lbl.value.includes(keyword)) {
+    if ((rows[i].dataset.label || '').includes(keyword)) {
       rows[i].remove();
       syncBillingToContent();
       return;
@@ -3135,19 +3156,16 @@ function applyLanyardTypeFromSelect() {
 function createBillingRowEl(label, val) {
   var tr = document.createElement('tr');
   tr.className = 'bil-row';
+  tr.dataset.label = label;
+  tr.dataset.val   = val;
   tr.innerHTML = `
-    <td style="padding:4px 4px 4px 0;width:68%">
-      <input class="bil-label qs-total-input" value="${label.replace(/"/g,'&quot;')}"
-        oninput="syncBillingToContent()"
-        style="width:100%;padding:6px 8px;font-size:12px;margin:0">
+    <td class="bil-name" style="padding:5px 4px 5px 0;font-size:12px;color:var(--text);width:62%">${label.replace(/</g,'&lt;')}</td>
+    <td class="bil-amt"  style="padding:5px 4px;font-size:12px;color:var(--text);text-align:right;white-space:nowrap">${val.replace(/</g,'&lt;')}</td>
+    <td style="padding:5px 0 5px 4px;width:22px;text-align:center">
+      <button onclick="startBillingEdit(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 3px" title="수정">✏️</button>
     </td>
-    <td style="padding:4px 0 4px 4px">
-      <input class="bil-val qs-total-input" value="${val.replace(/"/g,'&quot;')}"
-        oninput="syncBillingToContent()"
-        style="width:100%;padding:6px 8px;font-size:12px;margin:0;text-align:right">
-    </td>
-    <td style="padding:4px 0 4px 6px;width:24px">
-      <button onclick="removeBillingRow(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;" title="삭제">×</button>
+    <td style="padding:5px 0 5px 2px;width:22px;text-align:center">
+      <button onclick="removeBillingRow(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 3px" title="삭제">×</button>
     </td>`;
   return tr;
 }
@@ -3157,8 +3175,7 @@ function insertBillingRowAfterKeyword(afterKeyword, label, val) {
   var rows = Array.from(document.querySelectorAll('#qs_billing_table .bil-row'));
   var afterIdx = -1;
   for (var i = rows.length - 1; i >= 0; i--) {
-    var lbl = rows[i].querySelector('.bil-label');
-    if (lbl && lbl.value.includes(afterKeyword)) { afterIdx = i; break; }
+    if ((rows[i].dataset.label || '').includes(afterKeyword)) { afterIdx = i; break; }
   }
   var tr = createBillingRowEl(label, val);
   var tbody = document.getElementById('qs_billing_table');
@@ -3188,8 +3205,7 @@ function applyMessaging() {
         for (var a = 0; a < anchors.length; a++) {
           var rows = Array.from(document.querySelectorAll('#qs_billing_table .bil-row'));
           for (var i = 0; i < rows.length; i++) {
-            var lbl = rows[i].querySelector('.bil-label');
-            if (lbl && lbl.value.includes(anchors[a])) {
+            if ((rows[i].dataset.label || '').includes(anchors[a])) {
               var tr = createBillingRowEl(item.label, formatKRWAdmin(item.price));
               var tbody = document.getElementById('qs_billing_table');
               if (i < rows.length - 1) {
@@ -3239,11 +3255,9 @@ function autoCalcTotal() {
   var rows = document.querySelectorAll('#qs_billing_table .bil-row');
   var sum = 0;
   rows.forEach(function(row) {
-    var v = row.querySelector('.bil-val');
-    if (v) {
-      var n = Number(v.value.replace(/[^0-9]/g, ''));
-      if (!isNaN(n)) sum += n;
-    }
+    var val = row.dataset.val || '';
+    var n = Number(val.replace(/[^0-9]/g, ''));
+    if (!isNaN(n)) sum += n;
   });
   if (sum > 0) {
     document.getElementById('qs_total').value = '₩' + sum.toLocaleString('ko-KR');
