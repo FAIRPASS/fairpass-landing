@@ -2866,9 +2866,9 @@ window.openQuotePdf = function(index) {
     .card-body { padding:32px 40px; }
     .section-label { font-size:10px; font-weight:800; letter-spacing:0.15em; color:#8b5cf6; text-transform:uppercase; margin:0 0 12px; }
     .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid #e8eaf0; border-radius:10px; overflow:hidden; margin-bottom:24px; }
-    .info-cell { padding:10px 16px; border-bottom:1px solid #e8eaf0; }
+    .info-cell { padding:10px 16px; border-bottom:1px solid #e8eaf0; background:#fff; }
     .info-cell:nth-last-child(-n+2) { border-bottom:none; }
-    .info-cell:nth-child(odd) { border-right:1px solid #e8eaf0; background:#fafbff; }
+    .info-cell:nth-child(odd) { border-right:1px solid #e8eaf0; }
     .info-label { font-size:10px; font-weight:700; color:#94a3b8; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:3px; }
     .info-val { font-size:14px; font-weight:600; color:#1a1a2e; }
     .divider { border:none; border-top:1px solid #e8eaf0; margin:24px 0; }
@@ -2942,7 +2942,6 @@ window.openQuotePdf = function(index) {
           ${p.패키지 ? `<div class="info-cell"><div class="info-label">패키지</div><div class="info-val">${p.패키지}</div></div>` : ''}
           ${p.참가자수 ? `<div class="info-cell"><div class="info-label">참가자 수</div><div class="info-val">${p.참가자수}</div></div>` : ''}
           ${p.운영일수 ? `<div class="info-cell"><div class="info-label">운영 일수</div><div class="info-val">${p.운영일수}</div></div>` : ''}
-          ${p.종이명찰 ? `<div class="info-cell"><div class="info-label">종이명찰</div><div class="info-val">${p.종이명찰}</div></div>` : ''}
           ${p.키오스크 ? `<div class="info-cell"><div class="info-label">키오스크</div><div class="info-val">${p.키오스크}</div></div>` : ''}
           ${p.매니저 ? `<div class="info-cell"><div class="info-label">매니저</div><div class="info-val">${p.매니저}</div></div>` : ''}
         </div>
