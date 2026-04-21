@@ -1140,15 +1140,19 @@
 <div class="modal-bg" id="quoteSendModalBg">
   <div class="modal" style="max-width:600px">
     <button class="modal-close-btn" onclick="closeQuoteSendModal()">&times;</button>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
       <div class="modal-title" style="margin-bottom:0">견적서 상세</div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-ghost btn-sm" onclick="openQuotePdf(_qsIdx)" style="white-space:nowrap">🖨️ PDF</button>
-        <button class="btn btn-primary btn-sm" id="qs_topSendBtn" onclick="sendQuoteEmail()" style="white-space:nowrap">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          고객에게 발송
-        </button>
-      </div>
+      <button class="btn btn-primary btn-sm" onclick="openQuotePdf(_qsIdx)" style="white-space:nowrap">👁 미리보기</button>
+    </div>
+    <!-- 작성자 선택 -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:8px 12px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:8px">
+      <span style="font-size:11px;font-weight:700;color:#8b5cf6;white-space:nowrap">작성자 <span style="color:#f87171">*</span></span>
+      <select id="qs_writer" style="flex:1;padding:5px 10px;font-size:12px;background:#12122a;border:1px solid var(--border);border-radius:6px;color:#fff">
+        <option value="">— 선택 필수 —</option>
+        <option value="전서윤 대표">전서윤 대표</option>
+        <option value="최윤지 이사">최윤지 이사</option>
+        <option value="윤지훈 대리">윤지훈 대리</option>
+      </select>
     </div>
 
     <!-- 고객 정보 -->
@@ -2459,7 +2463,7 @@ function renderQuoteTable() {
       <td class="td-muted" style="text-align:right">${p.참가자수||'-'}</td>
       <td class="td-muted" style="text-align:right">${p.운영일수||'-'}</td>
       <td style="font-weight:700;white-space:nowrap;color:var(--cyan-light)">${item.total||p.총계||'-'}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="openQuoteSendModal(${idx})" style="white-space:nowrap">📄 PDF / 메일 발송</button></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openQuoteSendModal(${idx})" style="white-space:nowrap">📋 견적 내역</button></td>
       <td>${item.quote_sent_at
         ? `<span class="sent-badge" onclick="openDealModal(${item.id},${idx})" style="cursor:pointer;" title="클릭하여 수주 결과 입력">✓ 발송</span>`
         : `<span onclick="openDealModal(${item.id},${idx})" style="font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,0.06);color:var(--muted);cursor:pointer;" title="클릭하여 수주 결과 입력">미발송</span>`
@@ -2788,34 +2792,48 @@ window.openQuotePdf = function(index) {
   const notesVal = (document.getElementById('qs_notes').value || '').trim();
   const finalTotal = (document.getElementById('qs_total').value || '').trim() || item.total || p.총계 || '-';
 
-  // 비용 내역 — 섹션 헤더 자동 삽입
+  // 비용 내역 — 종이명찰/목걸이줄 제외 + 섹션 헤더 자동 삽입
   const BILLING_SECTION_PATTERNS = [
     { pattern: /솔루션 사용료|유료 결제/, header: '1. FAIRPASS 솔루션' },
-    { pattern: /종이명찰|목걸이줄/, header: '2. 종이명찰' },
-    { pattern: /무인발권키오스크|유인발급/, header: '3. 무인발권키오스크' },
-    { pattern: /운송비|설치.철거|상주 매니저 인건비|출장비/, header: '4. 운영 대행' },
-    { pattern: /솔루션\(장소별\)|QR장비|알림톡|문자|이메일 발송|뉴스레터/, header: '5. 부가 서비스' },
+    { pattern: /무인발권키오스크|유인발급/, header: '2. 무인발권키오스크' },
+    { pattern: /운송비|설치.철거|상주 매니저 인건비|출장비/, header: '3. 운영 대행' },
+    { pattern: /솔루션\(장소별\)|QR장비|알림톡|문자|이메일 발송|뉴스레터/, header: '4. 부가 서비스' },
   ];
+  const EXCLUDE_PATTERNS = [/종이명찰/, /목걸이줄/];
   const billingRawLines = (p.비용상세 || '').split('\n').filter(l => l.trim());
   let lastHeader = '';
-  const billingLines = billingRawLines.map(l => {
-    const parts = l.replace(/^- /, '').split(': ');
-    const label = parts[0] || '';
-    const val = parts.slice(1).join(': ') || '';
-    let headerRow = '';
-    for (const s of BILLING_SECTION_PATTERNS) {
-      if (s.pattern.test(label) && s.header !== lastHeader) {
-        lastHeader = s.header;
-        headerRow = `<tr><td colspan="2" style="padding:14px 0 6px;font-size:10px;font-weight:800;letter-spacing:0.1em;color:#8b5cf6;text-transform:uppercase;border-bottom:none">${s.header}</td></tr>`;
-        break;
+  const billingLines = billingRawLines
+    .filter(l => !EXCLUDE_PATTERNS.some(pat => pat.test(l)))
+    .map((l, idx) => {
+      const parts = l.replace(/^- /, '').split(': ');
+      const label = parts[0] || '';
+      const val = parts.slice(1).join(': ') || '';
+      const bg = idx % 2 === 0 ? '' : 'background:#faf8ff';
+      let headerRow = '';
+      for (const s of BILLING_SECTION_PATTERNS) {
+        if (s.pattern.test(label) && s.header !== lastHeader) {
+          lastHeader = s.header;
+          headerRow = `<tr><td colspan="2" style="padding:14px 0 5px;font-size:10px;font-weight:800;letter-spacing:0.1em;color:#8b5cf6;text-transform:uppercase;border-bottom:2px solid #e8e0ff">${s.header}</td></tr>`;
+          break;
+        }
       }
-    }
-    return headerRow + `<tr><td class="bl">${label}</td><td class="br">${val}</td></tr>`;
-  }).join('');
-
-  const discountLine = discountVal
-    ? `<tr><td class="bl" style="color:#16a34a;font-weight:600">할인</td><td class="br" style="color:#16a34a">- ${discountVal}</td></tr>`
-    : '';
+      return headerRow + `<tr style="${bg}"><td class="bl" style="padding-left:${headerRow?'0':'8px'}">${label}</td><td class="br">${val}</td></tr>`;
+    }).join('');
+  // 소계/기술료/공급가액/할인/VAT — 모달 DOM에서 직접 읽기
+  const pdfSubtotal  = document.getElementById('qs_subtotal')?.textContent || '';
+  const pdfTechfee   = document.getElementById('qs_techfee')?.textContent || '';
+  const pdfSupply    = document.getElementById('qs_supply')?.textContent || '';
+  const pdfVat       = document.getElementById('qs_vat')?.textContent || '';
+  const pdfGrand     = document.getElementById('qs_grand')?.textContent || '';
+  const pdfWriter    = document.getElementById('qs_writer')?.value || '';
+  const totalRows = `
+    <tr><td colspan="2" style="border-top:2px solid #e8eaf0;padding:0"></td></tr>
+    <tr><td class="bl">소계</td><td class="br">${pdfSubtotal}</td></tr>
+    <tr><td class="bl">기술료 (10%)</td><td class="br">${pdfTechfee}</td></tr>
+    <tr style="border-top:1px solid #e8eaf0"><td class="bl" style="font-weight:700;color:#1a1a2e">합계 (공급가액)</td><td class="br" style="font-weight:700;color:#1a1a2e">${pdfSupply}</td></tr>
+    ${discountVal ? `<tr><td class="bl" style="color:#16a34a">할인</td><td class="br" style="color:#16a34a">- ${discountVal}</td></tr>` : ''}
+    <tr><td class="bl">부가가치세 (10%)</td><td class="br">${pdfVat}</td></tr>
+  `;
 
   const notesBlock = notesVal
     ? `<div style="margin-top:20px;padding:14px 16px;background:#f9f7ff;border-left:3px solid #8b5cf6;border-radius:0 8px 8px 0;">
@@ -2884,12 +2902,23 @@ window.openQuotePdf = function(index) {
     </div>
     <div class="card">
       <div class="card-header">
-        <img src="https://fairpass.world/images/FAIRPASS%28W%2BBlack%29.png" alt="FAIRPASS" width="140" style="display:block;margin:0 auto 12px;background:rgba(255,255,255,0.92);padding:7px 18px;border-radius:8px;max-width:140px;height:auto;" onerror="this.style.display='none'">
-        <div class="brand" style="text-align:center">FAIRPASS</div>
-        <div class="brand-sub" style="text-align:center">맞춤 견적서 · Quotation</div>
-        <div class="badge-row">
-          <span class="badge badge-date">📅 ${date}</span>
-          <span class="badge badge-pkg">${p.패키지||'패키지 미선택'}</span>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px">
+          <div style="flex:1">
+            <img src="https://fairpass.world/images/FAIRPASS%28W%2BBlack%29.png" alt="FAIRPASS" height="32" style="display:block;margin-bottom:8px;filter:invert(1);mix-blend-mode:screen;height:32px;width:auto;" onerror="this.style.display='none'">
+            <div class="brand-sub" style="margin-top:2px">맞춤 견적서 · Quotation</div>
+            <div class="badge-row">
+              <span class="badge badge-date">📅 ${date}</span>
+              <span class="badge badge-pkg">${p.패키지||'패키지 미선택'}</span>
+            </div>
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.65);line-height:1.9;text-align:right;white-space:nowrap">
+            <div style="font-weight:700;color:#fff;font-size:11px;margin-bottom:4px">(주)블루오리진</div>
+            <div>법인등록번호 110111-7335105</div>
+            <div>대표 전서윤</div>
+            <div>중소기업 · 벤처기업 · 여성기업 · 가족친화기업</div>
+            <div>업태 서비스 | 전시회/공연·국제회의·소프트웨어 개발</div>
+            ${pdfWriter ? `<div style="margin-top:6px;padding:3px 8px;background:rgba(255,255,255,0.12);border-radius:4px;color:#fff;font-weight:700">작성자: ${pdfWriter}</div>` : ''}
+          </div>
         </div>
       </div>
       <div class="card-body">
@@ -2920,13 +2949,13 @@ window.openQuotePdf = function(index) {
 
         <hr class="divider">
         <div class="section-label">비용 내역</div>
-        <table class="billing">${billingLines}${discountLine}</table>
-        <div style="margin:14px 0 0;padding:11px 14px;background:#fffbeb;border-left:4px solid #f59e0b;border-radius:0 6px 6px 0;">
-          <p style="margin:0;font-size:13px;color:#92400e;font-weight:800;line-height:1.5;">⚠️ 행사 후, 실제 발급 수 만큼만 정산 됩니다.</p>
+        <table class="billing">${billingLines}${totalRows}</table>
+        <div style="margin:12px 0 0;padding:10px 14px;background:#fffbeb;border-left:4px solid #f59e0b;border-radius:0 6px 6px 0;">
+          <p style="margin:0;font-size:12px;color:#92400e;font-weight:700;line-height:1.5;">⚠️ 행사 후, 실제 발급 수 만큼만 정산 됩니다.</p>
         </div>
         <div class="total-box" style="margin-top:12px">
-          <div class="total-label">최종 견적 금액</div>
-          <div class="total-amount">${finalTotal}</div>
+          <div class="total-label">최종 견적 금액 (VAT 포함)</div>
+          <div class="total-amount">${pdfGrand || finalTotal}</div>
         </div>
 
         ${notesBlock}
@@ -3477,6 +3506,14 @@ function initBillingForm(content) {
         _setVal2('bf_badge_qty', _bfState.attendees);
         _setVal2('bf_badge_price', 1500);
       }
+      // SELECT 복원 — 저장된 label 기반
+      var bTypeLbl = badgeKey.replace(/^종이명찰\s+/, '').replace(/\s*\(.+$/, '');
+      var bSel = document.getElementById('bf_badge_type');
+      if (bSel && bTypeLbl) {
+        for (var bi = 0; bi < bSel.options.length; bi++) {
+          if (bSel.options[bi].dataset.lbl === bTypeLbl) { bSel.selectedIndex = bi; break; }
+        }
+      }
     } else {
       _setVal2('bf_badge_qty', _bfState.attendees);
       _setVal2('bf_badge_price', 1500);
@@ -3490,6 +3527,14 @@ function initBillingForm(content) {
       } else {
         _setVal2('bf_lanyard_qty', _bfState.attendees);
         _setVal2('bf_lanyard_price', 1300);
+      }
+      // SELECT 복원
+      var lTypeLbl = lanyardKey.replace(/^목걸이줄\s+/, '').replace(/\s*\(.+$/, '');
+      var lSel2 = document.getElementById('bf_lanyard_type');
+      if (lSel2 && lTypeLbl) {
+        for (var li = 0; li < lSel2.options.length; li++) {
+          if (lSel2.options[li].dataset.lbl === lTypeLbl) { lSel2.selectedIndex = li; break; }
+        }
       }
     } else {
       _setVal2('bf_lanyard_qty', _bfState.attendees);
@@ -3733,6 +3778,13 @@ function appendHistoryEntry(content, changes, comment) {
 
 async function saveBillingEdits() {
   if (_qsIdx === null) return;
+  // 작성자 필수 검증
+  const writerSel = document.getElementById('qs_writer');
+  if (!writerSel || !writerSel.value) {
+    showToast('작성자를 선택해주세요', true);
+    writerSel && writerSel.focus();
+    return;
+  }
   const item = quoteItems[_qsIdx];
   const prevContent = item.content_edited || item.content || '';
   const billingContent = buildContentFromBillingTable();
@@ -3755,6 +3807,9 @@ async function saveBillingEdits() {
     });
     if (!res.ok) throw new Error('저장 실패');
     quoteItems[_qsIdx] = { ...item, content_edited: newContent };
+    // qs_content 동기화 (다음 저장 시 이력 유실 방지)
+    const qsContentEl = document.getElementById('qs_content');
+    if (qsContentEl) qsContentEl.value = newContent;
     // 이력 패널 갱신
     renderHistoryPanel(parseHistoryFromContent(newContent));
     if (document.getElementById('qs_history_comment')) document.getElementById('qs_history_comment').value = '';
