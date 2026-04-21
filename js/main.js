@@ -385,6 +385,7 @@
       const kioskQty = pkg.kioskIncluded ? Math.max(1, toInt(quoteForm.kioskQty.value, getRecommendedKiosks(attendees, days))) : 0;
       // 매니저: 키오스크 포함 시에만
       const managerQty = pkg.kioskIncluded ? Math.max(0, toInt(quoteForm.managerQty.value, 1)) : 0;
+      const regFee = quoteForm.regFee ? quoteForm.regFee.value : "무료";
 
       const items = [];
       let subtotal = 0;
@@ -396,6 +397,10 @@
         subtotal += solutionCost;
       } else {
         items.push({ label: "FAIRPASS 솔루션 사용료 (협의)", cost: 0 });
+      }
+      // 유료 등록비 안내 (비용 없음, 정보성)
+      if (regFee === "유료") {
+        items.push({ label: "등록비 유료 결제 서비스 (행사 종료 후, 총 결제금액의 5% 수수료 제외 후 정산)", cost: null, isInfo: true });
       }
 
       // II. 종이명찰 + 목걸이줄
@@ -470,6 +475,7 @@
         badgeQty,
         kioskQty,
         managerQty,
+        regFee,
         items,
         total,
       };
@@ -496,9 +502,16 @@
       if (data.badgeQty > 0) lines.push("- 종이명찰: " + data.badgeQty.toLocaleString() + "장");
       if (data.kioskQty > 0) lines.push("- 키오스크: " + data.kioskQty + "대");
       if (data.managerQty > 0) lines.push("- 매니저: " + data.managerQty + "인");
+      lines.push("- 행사 등록비: " + (data.regFee || "무료"));
       lines.push("");
       lines.push("[비용 상세]");
-      data.items.forEach((it) => lines.push("- " + it.label + ": " + formatKRW(it.cost)));
+      data.items.forEach((it) => {
+        if (it.isInfo) {
+          lines.push("- " + it.label + ": ");
+        } else {
+          lines.push("- " + it.label + ": " + formatKRW(it.cost));
+        }
+      });
       lines.push("");
       lines.push("[총계] " + formatKRW(data.total));
       lines.push("");
@@ -524,8 +537,13 @@
         sumItems.innerHTML = "";
         res.items.forEach((it) => {
           const row = document.createElement("div");
-          row.className = "sum-item";
-          row.innerHTML = "<span>" + escapeHTML(it.label) + "</span><strong>" + formatKRW(it.cost) + "</strong>";
+          if (it.isInfo) {
+            row.className = "sum-item sum-item-info";
+            row.innerHTML = "<span style='color:var(--cyan-light);font-size:0.85em'>📌 " + escapeHTML(it.label) + "</span>";
+          } else {
+            row.className = "sum-item";
+            row.innerHTML = "<span>" + escapeHTML(it.label) + "</span><strong>" + formatKRW(it.cost) + "</strong>";
+          }
           sumItems.appendChild(row);
         });
       }

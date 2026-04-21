@@ -1240,6 +1240,20 @@
           </div>
         </div>
 
+        <!-- 행사 등록비 -->
+        <div>
+          <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">행사 등록비</p>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="adm_regfee_select" onchange="applyRegFeeOption()" style="flex:1;padding:7px 8px;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)">
+              <option value="무료">무료 (무료 행사)</option>
+              <option value="유료">유료 (참가자 등록비 결제)</option>
+            </select>
+          </div>
+          <div id="adm_regfee_note" style="display:none;margin-top:6px;padding:6px 10px;border-radius:6px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);font-size:11px;color:#a78bfa">
+            📌 비용 내역에 안내 항목이 추가됩니다: "등록비 유료 결제 서비스(행사 종료 후, 총 결제금액의 5% 수수료 제외 후 정산)"
+          </div>
+        </div>
+
         <!-- 현장 상주 매니저 (VIII, 선택) -->
         <div>
           <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">VIII. 현장 상주 매니저 (선택)</p>
@@ -3283,6 +3297,28 @@ function syncLanyardUnitPrice() {
   }
 }
 
+// 행사 등록비 선택 → 솔루션 사용료 하단 안내 행 추가/제거
+function applyRegFeeOption() {
+  var sel = document.getElementById('adm_regfee_select');
+  var noteEl = document.getElementById('adm_regfee_note');
+  var val = sel ? sel.value : '무료';
+  if (noteEl) noteEl.style.display = val === '유료' ? 'block' : 'none';
+  var REG_NOTE_LABEL = '등록비 유료 결제 서비스(행사 종료 후, 총 결제금액의 5% 수수료 제외 후 정산)';
+  if (val === '유료') {
+    var rows = document.querySelectorAll('#qs_billing_table .bil-row');
+    var already = false;
+    for (var i = 0; i < rows.length; i++) {
+      if ((rows[i].dataset.label || '').includes('유료 결제 서비스')) { already = true; break; }
+    }
+    if (!already) {
+      insertBillingRowAfterKeyword('솔루션 사용료', REG_NOTE_LABEL, '');
+    }
+  } else {
+    removeBillingRowByKeyword('유료 결제 서비스');
+  }
+  autoCalcTotal();
+}
+
 // 목걸이줄 적용 → 빌링 행 업데이트
 function applyLanyardTypeFromSelect() {
   var sel = document.getElementById('adm_lanyard_select');
@@ -3450,6 +3486,11 @@ function resetAdminOptions(content) {
   if (lanyardSel) { lanyardSel.selectedIndex = 0; syncLanyardUnitPrice(); }
   var lanyardQty = document.getElementById('adm_lanyard_qty');
   if (lanyardQty) lanyardQty.value = '';
+  // 행사 등록비 초기화
+  var regfeeSel = document.getElementById('adm_regfee_select');
+  if (regfeeSel) regfeeSel.selectedIndex = 0;
+  var regfeeNote = document.getElementById('adm_regfee_note');
+  if (regfeeNote) regfeeNote.style.display = 'none';
   // 체크박스 초기화
   ['adm_alimtalk','adm_sms','adm_email_send','adm_manager'].forEach(function(id) {
     var el = document.getElementById(id);
