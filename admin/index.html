@@ -3155,11 +3155,25 @@ var _qsAttendees = 0; // 호환성 유지
 
 // 지역별 운송비 및 출장비 단가
 var _REGION_PRICING = {
-  seoul:   { shipping:       0, biztrip:       0, label: '서울' },
-  near:    { shipping:  80000, biztrip:  150000, label: '서울 근교' },
-  local:   { shipping: 150000, biztrip:  150000, label: '지방' },
-  jeju:    { shipping: 250000, biztrip:  200000, label: '제주도' },
-  default: { shipping: 150000, biztrip:  150000, label: '지역' },
+  // 편도 × 2 = 왕복 운송비 / 출장비는 서울·인천·경기 0원, 제주 200,000원, 기타 150,000원
+  seoul:     { shipping:  200000, biztrip:      0, label: '서울특별시' },
+  incheon:   { shipping:  300000, biztrip:      0, label: '인천광역시' },
+  busan:     { shipping:  800000, biztrip: 150000, label: '부산광역시' },
+  daegu:     { shipping:  700000, biztrip: 150000, label: '대구광역시' },
+  gwangju:   { shipping:  700000, biztrip: 150000, label: '광주광역시' },
+  daejeon:   { shipping:  400000, biztrip: 150000, label: '대전광역시' },
+  ulsan:     { shipping:  800000, biztrip: 150000, label: '울산광역시' },
+  sejong:    { shipping:  400000, biztrip: 150000, label: '세종특별자치시' },
+  gyeonggi:  { shipping:  300000, biztrip:      0, label: '경기도' },
+  gangwon:   { shipping:  400000, biztrip: 150000, label: '강원특별자치도' },
+  chungbuk:  { shipping:  400000, biztrip: 150000, label: '충청북도' },
+  chungnam:  { shipping:  500000, biztrip: 150000, label: '충청남도' },
+  jeonbuk:   { shipping:  600000, biztrip: 150000, label: '전북특별자치도' },
+  jeonnam:   { shipping:  800000, biztrip: 150000, label: '전라남도' },
+  gyeongbuk: { shipping:  600000, biztrip: 150000, label: '경상북도' },
+  gyeongnam: { shipping:  800000, biztrip: 150000, label: '경상남도' },
+  jeju:      { shipping: 1200000, biztrip: 200000, label: '제주특별자치도' },
+  default:   { shipping:  400000, biztrip: 150000, label: '기타' },
 };
 
 function _fmtKRW(n) { return '₩' + Math.round(n).toLocaleString('ko-KR'); }
