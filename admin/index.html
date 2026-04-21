@@ -259,12 +259,15 @@
     .bil-sec-title { padding: 7px 12px; font-size: 11px; font-weight: 700; color: #a5b4fc; background: #1e1e38; border-bottom: 1px solid var(--border); letter-spacing: 0.03em; }
     .bil-row-flex { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 12px; flex-wrap: wrap; }
     .bil-row-name { font-size: 12px; color: var(--text); flex-shrink: 0; }
-    .bil-amt-input { width: 130px; padding: 5px 8px; font-size: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; color: var(--text); text-align: right; }
+    .bil-amt-input { width: 130px; padding: 5px 8px; font-size: 12px; background: #12122a; border: 1px solid var(--border); border-radius: 5px; color: #fff; text-align: right; }
     .bil-calc-row { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
-    .bil-calc-row input[type="number"] { padding: 5px 6px; font-size: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; color: var(--text); text-align: right; }
+    .bil-calc-row input[type="number"] { padding: 5px 6px; font-size: 12px; background: #12122a; border: 1px solid var(--border); border-radius: 5px; color: #fff; text-align: right; }
     .bil-calc-right { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); flex-wrap: wrap; justify-content: flex-end; }
-    .bil-calc-result { font-size: 12px; font-weight: 700; color: var(--text); min-width: 80px; text-align: right; }
+    .bil-calc-result { font-size: 12px; font-weight: 700; color: #fff; min-width: 80px; text-align: right; }
     .bil-opt-sub { padding: 4px 0; }
+    /* 드롭다운 select — option 배경 흰색 방지 */
+    #qs_billing_section select { background: #12122a; color: #fff; color-scheme: dark; border: 1px solid var(--border); border-radius: 5px; }
+    #qs_billing_section select option { background: #12122a; color: #fff; }
 
     /* ── Seed progress ── */
     .seed-progress { display: none; position: fixed; bottom: 28px; right: 28px; z-index: 300; background: #0e0e1a; border: 1px solid var(--green); border-radius: var(--radius-sm); padding: 16px 22px; min-width: 240px; }
@@ -1198,7 +1201,7 @@
       <!-- 행사 등록비 토글 -->
       <div style="margin:-4px 0 10px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)">
         <span>행사 등록비:</span>
-        <select id="bf_regfee_sel" onchange="toggleRegFeeNote()" style="padding:4px 8px;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--text)">
+        <select id="bf_regfee_sel" onchange="toggleRegFeeNote()" style="padding:4px 8px;font-size:11px;background:#12122a;border:1px solid var(--border);border-radius:5px;color:#fff">
           <option value="무료">무료</option>
           <option value="유료">유료 (5% 수수료 정산)</option>
         </select>
@@ -1211,7 +1214,7 @@
         <div class="bil-row-flex bil-calc-row">
           <div style="display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap">
             <span class="bil-row-name" style="min-width:60px">종이명찰</span>
-            <select id="bf_badge_type" onchange="onBadgeTypeChange()" style="padding:5px 7px;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--text)">
+            <select id="bf_badge_type" onchange="onBadgeTypeChange()" style="padding:5px 7px;font-size:11px;background:#12122a;border:1px solid var(--border);border-radius:5px;color:#fff">
               <option value="1500" data-lbl="일반형(중)">일반형(중) — ₩1,500</option>
               <option value="2000" data-lbl="일반형(대)">일반형(대) — ₩2,000</option>
               <option value="1500" data-lbl="티켓형">티켓형 — ₩1,500</option>
@@ -1230,7 +1233,7 @@
           <div style="display:flex;flex-direction:column;gap:3px;flex:1">
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
               <span class="bil-row-name" style="min-width:60px">목걸이줄</span>
-              <select id="bf_lanyard_type" onchange="onLanyardTypeChange()" style="padding:5px 7px;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--text)">
+              <select id="bf_lanyard_type" onchange="onLanyardTypeChange()" style="padding:5px 7px;font-size:11px;background:#12122a;border:1px solid var(--border);border-radius:5px;color:#fff">
                 <option value="1300" data-lbl="AI(P)" data-desc="A 굵은 줄 1.6cm, 종이 고리 1개">AI(P) — ₩1,300</option>
                 <option value="600"  data-lbl="B1(P)" data-desc="B 굵은 줄 0.4cm, 종이 고리 1개">B1(P) — ₩600</option>
                 <option value="1000" data-lbl="A1"    data-desc="A 굵은 줄 1.6cm, 고리 1개">A1 — ₩1,000</option>
