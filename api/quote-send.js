@@ -35,7 +35,7 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
   const {
-    password, id, customerEmail, customerName,
+    password, id, customerEmail, customerName, customerPhone,
     quoteContent, quoteTotal, quoteDiscount, quoteNotes,
   } = req.body;
 
@@ -56,38 +56,101 @@ export default async function handler(req, res) {
   const p = parseQuoteContent(quoteContent || "");
   const hasDiscount = quoteDiscount && quoteDiscount.trim() && quoteDiscount.trim() !== "0";
 
-  // 비용 내역 행 생성
+  // 비용 내역 섹션 분류
+  const BILLING_SECTIONS = [
+    { title: "1. 페어패스 솔루션 사용료", pattern: /솔루션 사용료|유료 결제 서비스/ },
+    { title: "2. 종이명찰 발급비", pattern: /종이명찰|목걸이줄/ },
+    { title: "3. 키오스크 현장 운영", pattern: /키오스크|유인발급 장비/ },
+    { title: "4. 운영 대행비", pattern: /운송비|설치.철거|상주 매니저|출장비/ },
+    { title: "5. 부가 서비스", pattern: /장소별|QR장비|알림톡|문자|이메일|뉴스레터/ },
+  ];
+  function getBillingSection(label) {
+    for (const s of BILLING_SECTIONS) if (s.pattern.test(label)) return s.title;
+    return null;
+  }
+
+  // 비용 내역 행 생성 (섹션 헤더 포함, 기술료/부가세 제외)
+  let lastSection = null;
+  let billingSubtotal = 0;
   const billingRows = (p.비용상세 || "").split("\n").filter(l => l.trim()).map(l => {
     const parts = l.replace(/^- /, "").split(": ");
-    const label = parts[0] || "";
-    const val = parts.slice(1).join(": ") || "";
-    return `<tr>
-      <td style="padding:9px 0;font-size:13px;color:#444;border-bottom:1px solid #f0f1f5;">${label}</td>
-      <td style="padding:9px 0;font-size:13px;font-weight:600;text-align:right;border-bottom:1px solid #f0f1f5;">${val}</td>
+    const label = parts[0]?.trim() || "";
+    const val = parts.slice(1).join(": ")?.trim() || "";
+    if (!label) return "";
+    // 기술료/부가가치세는 아래서 별도 계산
+    if (/기술료|부가가치세/.test(label)) return "";
+    // 금액 누적
+    const amt = parseInt(val.replace(/[^0-9]/g, ""), 10) || 0;
+    billingSubtotal += amt;
+    // 섹션 헤더 삽입
+    const sec = getBillingSection(label);
+    let headerHtml = "";
+    if (sec && sec !== lastSection) {
+      lastSection = sec;
+      headerHtml = `<tr><td colspan="2" style="padding:10px 0 4px;font-size:10px;font-weight:800;letter-spacing:0.08em;color:#8b5cf6;text-transform:uppercase;border-top:${lastSection ? "1px solid #e8e8f0" : "none"}">${sec}</td></tr>`;
+    }
+    const isInfo = !val || val.trim() === "";
+    return headerHtml + `<tr>
+      <td style="padding:7px 0;font-size:13px;color:${isInfo ? "#9ca3af" : "#444"};border-bottom:1px solid #f5f5fb;padding-left:${sec ? "10px" : "0"}">${isInfo ? "📌 " : ""}${label}</td>
+      <td style="padding:7px 0;font-size:13px;font-weight:600;text-align:right;border-bottom:1px solid #f5f5fb;color:${isInfo ? "#9ca3af" : "#1a1a2e"}">${isInfo ? "안내" : val}</td>
     </tr>`;
   }).join("");
 
-  // 할인 행 (조건부)
-  const discountRow = hasDiscount ? `<tr>
-    <td style="padding:9px 0;font-size:13px;color:#16a34a;font-weight:600;border-bottom:1px solid #f0f1f5;">할인</td>
-    <td style="padding:9px 0;font-size:13px;font-weight:700;text-align:right;color:#16a34a;border-bottom:1px solid #f0f1f5;">- ${quoteDiscount.trim()}</td>
-  </tr>` : "";
+  // 기술료/합계/할인/VAT 계산 행
+  const techFee = Math.round(billingSubtotal * 0.1);
+  const supply = Math.floor((billingSubtotal + techFee) / 1000) * 1000;
+  const hasDiscount = quoteDiscount && quoteDiscount.trim() && quoteDiscount.trim() !== "0";
+  const discountNum = hasDiscount ? parseInt((quoteDiscount || "0").replace(/[^0-9]/g, ""), 10) || 0 : 0;
+  const afterDiscount = Math.max(0, supply - discountNum);
+  const vat = Math.round(afterDiscount * 0.1);
+  const fmt = n => "₩" + Math.round(n).toLocaleString("ko-KR");
+  const totalRows = `
+    <tr><td colspan="2" style="padding:12px 0 4px;border-top:2px solid #e8e8f0;"></td></tr>
+    <tr>
+      <td style="padding:6px 0;font-size:12px;color:#888;">소계</td>
+      <td style="padding:6px 0;font-size:12px;color:#888;text-align:right;">${fmt(billingSubtotal)}</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0;font-size:12px;color:#888;">기술료 (전체 산출액의 10%) 1식</td>
+      <td style="padding:6px 0;font-size:12px;color:#888;text-align:right;">${fmt(techFee)}</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 0;font-size:13px;font-weight:700;color:#1a1a2e;border-top:1px solid #e8e8f0;">합계 (공급가액)</td>
+      <td style="padding:8px 0;font-size:13px;font-weight:700;color:#1a1a2e;text-align:right;border-top:1px solid #e8e8f0;">${fmt(supply)}</td>
+    </tr>
+    ${hasDiscount ? `<tr>
+      <td style="padding:6px 0;font-size:13px;color:#16a34a;font-weight:600;">할인</td>
+      <td style="padding:6px 0;font-size:13px;font-weight:700;text-align:right;color:#16a34a;">- ${quoteDiscount.trim()}</td>
+    </tr>` : ""}
+    <tr>
+      <td style="padding:6px 0;font-size:12px;color:#888;">부가가치세 (10%)</td>
+      <td style="padding:6px 0;font-size:12px;color:#888;text-align:right;">${fmt(vat)}</td>
+    </tr>
+  `;
+
+  // 할인 행은 totalRows에 통합됨
+
+  // 정보 표 공통 셀 스타일 (색상 통일)
+  const tdL = `padding:8px 14px;font-size:11px;font-weight:700;color:#7c3aed;width:28%;border-bottom:1px solid #ede9fe;background:#faf8ff;`;
+  const tdR = `padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #ede9fe;`;
+  const tdRb = `padding:8px 14px;font-size:13px;font-weight:600;color:#1a1a2e;border-bottom:1px solid #ede9fe;`;
 
   // 신청자 정보 행
   const infoRows = [
-    p.담당자 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;width:28%;border-bottom:1px solid #f0f1f5;background:#fafbff;">담당자</td><td style="padding:8px 14px;font-size:13px;font-weight:600;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.담당자}</td></tr>` : "",
-    p.소속 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">소속</td><td style="padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.소속}</td></tr>` : "",
+    p.담당자 ? `<tr><td style="${tdL}">담당자</td><td style="${tdRb}">${p.담당자}</td></tr>` : "",
+    p.소속   ? `<tr><td style="${tdL}">소속</td><td style="${tdR}">${p.소속}</td></tr>` : "",
+    customerPhone ? `<tr><td style="${tdL}">연락처</td><td style="${tdR}">${customerPhone}</td></tr>` : "",
   ].filter(Boolean).join("");
 
   // 행사 정보 행
   const eventRows = [
-    p.행사명 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;width:28%;border-bottom:1px solid #f0f1f5;background:#fafbff;">행사명</td><td style="padding:8px 14px;font-size:13px;font-weight:600;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.행사명}</td></tr>` : "",
-    p.행사지역 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">행사 지역</td><td style="padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.행사지역}</td></tr>` : "",
-    p.행사장소 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">행사 장소</td><td style="padding:8px 14px;font-size:13px;font-weight:600;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.행사장소}</td></tr>` : "",
-    p.행사기간 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">행사 기간</td><td style="padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.행사기간}</td></tr>` : "",
-    p.설치일시 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">설치 예정일</td><td style="padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.설치일시}</td></tr>` : "",
-    p.철거일시 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">철거 예정일</td><td style="padding:8px 14px;font-size:13px;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.철거일시}</td></tr>` : "",
-    p.패키지 ? `<tr><td style="padding:8px 14px;font-size:11px;font-weight:700;color:#94a3b8;border-bottom:1px solid #f0f1f5;background:#fafbff;">패키지</td><td style="padding:8px 14px;font-size:13px;font-weight:600;color:#1a1a2e;border-bottom:1px solid #f0f1f5;">${p.패키지}</td></tr>` : "",
+    p.행사명   ? `<tr><td style="${tdL}">행사명</td><td style="${tdRb}">${p.행사명}</td></tr>` : "",
+    p.행사지역 ? `<tr><td style="${tdL}">행사 지역</td><td style="${tdR}">${p.행사지역}</td></tr>` : "",
+    p.행사장소 ? `<tr><td style="${tdL}">행사 장소</td><td style="${tdRb}">${p.행사장소}</td></tr>` : "",
+    p.행사기간 ? `<tr><td style="${tdL}">행사 기간</td><td style="${tdR}">${p.행사기간}</td></tr>` : "",
+    p.설치일시 ? `<tr><td style="${tdL}">설치 예정일</td><td style="${tdR}">${p.설치일시}</td></tr>` : "",
+    p.철거일시 ? `<tr><td style="${tdL}">철거 예정일</td><td style="${tdR}">${p.철거일시}</td></tr>` : "",
+    p.패키지   ? `<tr><td style="${tdL}">패키지</td><td style="${tdRb}">${p.패키지}</td></tr>` : "",
   ].filter(Boolean).join("");
 
   // 추가 메모 섹션 (조건부)
@@ -155,7 +218,7 @@ export default async function handler(req, res) {
             <p style="margin:0 0 12px;font-size:10px;font-weight:800;letter-spacing:0.12em;color:#8b5cf6;text-transform:uppercase;">비용 내역</p>
             <table width="100%" cellpadding="0" cellspacing="0">
               ${billingRows}
-              ${discountRow}
+              ${totalRows}
             </table>
           </td>
         </tr>
