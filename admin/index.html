@@ -2792,18 +2792,17 @@ window.openQuotePdf = function(index) {
   const notesVal = (document.getElementById('qs_notes').value || '').trim();
   const finalTotal = (document.getElementById('qs_total').value || '').trim() || item.total || p.총계 || '-';
 
-  // 비용 내역 — 종이명찰/목걸이줄 제외 + 섹션 헤더 자동 삽입
+  // 비용 내역 — 섹션 헤더 자동 삽입 (종이명찰/목걸이줄 비용 내역에는 포함)
   const BILLING_SECTION_PATTERNS = [
     { pattern: /솔루션 사용료|유료 결제/, header: '1. FAIRPASS 솔루션' },
-    { pattern: /무인발권키오스크|유인발급/, header: '2. 무인발권키오스크' },
-    { pattern: /운송비|설치.철거|상주 매니저 인건비|출장비/, header: '3. 운영 대행' },
-    { pattern: /솔루션\(장소별\)|QR장비|알림톡|문자|이메일 발송|뉴스레터/, header: '4. 부가 서비스' },
+    { pattern: /종이명찰|목걸이줄/, header: '2. 종이명찰 발급비' },
+    { pattern: /무인발권키오스크|유인발급/, header: '3. 무인발권키오스크' },
+    { pattern: /운송비|설치.철거|상주 매니저 인건비|출장비/, header: '4. 운영 대행' },
+    { pattern: /솔루션\(장소별\)|QR장비|알림톡|문자|이메일 발송|뉴스레터/, header: '5. 부가 서비스' },
   ];
-  const EXCLUDE_PATTERNS = [/종이명찰/, /목걸이줄/];
   const billingRawLines = (p.비용상세 || '').split('\n').filter(l => l.trim());
   let lastHeader = '';
   const billingLines = billingRawLines
-    .filter(l => !EXCLUDE_PATTERNS.some(pat => pat.test(l)))
     .map((l, idx) => {
       const parts = l.replace(/^- /, '').split(': ');
       const label = parts[0] || '';
@@ -2826,12 +2825,24 @@ window.openQuotePdf = function(index) {
   const pdfVat       = document.getElementById('qs_vat')?.textContent || '';
   const pdfGrand     = document.getElementById('qs_grand')?.textContent || '';
   const pdfWriter    = document.getElementById('qs_writer')?.value || '';
+  // 할인 표시 — % 타입이면 실제 차감 금액도 함께 표시
+  let discountLabel = '';
+  if (discountVal) {
+    if (_discountType === 'pct') {
+      const rawPct = parseInt((document.getElementById('qs_discount')?.value || '').replace(/[^0-9]/g, ''), 10) || 0;
+      const supplyNum = parseInt(pdfSupply.replace(/[^0-9]/g, ''), 10) || 0;
+      const discKRW = Math.round(supplyNum * rawPct / 100);
+      discountLabel = `할인 ${rawPct}% (-₩${discKRW.toLocaleString('ko-KR')})`;
+    } else {
+      discountLabel = `할인 (-${discountVal})`;
+    }
+  }
   const totalRows = `
     <tr><td colspan="2" style="border-top:2px solid #e8eaf0;padding:0"></td></tr>
     <tr><td class="bl">소계</td><td class="br">${pdfSubtotal}</td></tr>
     <tr><td class="bl">기술료 (10%)</td><td class="br">${pdfTechfee}</td></tr>
     <tr style="border-top:1px solid #e8eaf0"><td class="bl" style="font-weight:700;color:#1a1a2e">합계 (공급가액)</td><td class="br" style="font-weight:700;color:#1a1a2e">${pdfSupply}</td></tr>
-    ${discountVal ? `<tr><td class="bl" style="color:#16a34a">할인</td><td class="br" style="color:#16a34a">- ${discountVal}</td></tr>` : ''}
+    ${discountLabel ? `<tr><td class="bl" style="color:#16a34a">${discountLabel}</td><td class="br" style="color:#16a34a"></td></tr>` : ''}
     <tr><td class="bl">부가가치세 (10%)</td><td class="br">${pdfVat}</td></tr>
   `;
 
@@ -2902,13 +2913,15 @@ window.openQuotePdf = function(index) {
     </div>
     <div class="card">
       <div class="card-header">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px">
-          <div style="flex:1">
-            <img src="https://fairpass.world/images/FAIRPASS%28W%2BBlack%29.png" alt="FAIRPASS" height="32" style="display:block;margin-bottom:8px;filter:invert(1);mix-blend-mode:screen;height:32px;width:auto;" onerror="this.style.display='none'">
-            <div class="brand-sub" style="margin-top:2px">맞춤 견적서 · Quotation</div>
-            <div class="badge-row">
-              <span class="badge badge-date">📅 ${date}</span>
-              <span class="badge badge-pkg">${p.패키지||'패키지 미선택'}</span>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between">
+            <img src="https://fairpass.world/images/FAIRPASS%28w%2BBlue%29.png" alt="FAIRPASS" height="32" style="display:block;height:32px;width:auto;" onerror="this.style.display='none'">
+            <div style="margin-top:20px">
+              <div class="brand-sub">맞춤 견적서 · Quotation</div>
+              <div class="badge-row">
+                <span class="badge badge-date">📅 ${date}</span>
+                <span class="badge badge-pkg">${p.패키지||'패키지 미선택'}</span>
+              </div>
             </div>
           </div>
           <div style="font-size:10px;color:rgba(255,255,255,0.65);line-height:1.9;text-align:right;white-space:nowrap">
