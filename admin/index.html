@@ -2995,35 +2995,119 @@ function renderBillingTable(billingSection) {
   syncBillingToContent();
 }
 
+// 라벨에서 수량·단가 파싱: "(1,000장 × 1,500원)" / "(4대 × 3일 × 100,000원)"
+function parseBillingLabel(label) {
+  // 3항: N단위1 × M단위2 × P원
+  var m3 = label.match(/\(([0-9,]+)(\S+?)\s*×\s*([0-9,]+)(\S+?)\s*×\s*([0-9,]+)원\)/);
+  if (m3) return {
+    baseName: label.replace(/\s*\(.*\)/, '').trim(),
+    qty1: parseInt(m3[1].replace(/,/g,'')), unit1: m3[2],
+    qty2: parseInt(m3[3].replace(/,/g,'')), unit2: m3[4],
+    unitPrice: parseInt(m3[5].replace(/,/g,''))
+  };
+  // 2항: N단위 × P원
+  var m2 = label.match(/\(([0-9,]+)(\S+?)\s*×\s*([0-9,]+)원\)/);
+  if (m2) return {
+    baseName: label.replace(/\s*\(.*\)/, '').trim(),
+    qty1: parseInt(m2[1].replace(/,/g,'')), unit1: m2[2],
+    qty2: null, unit2: '',
+    unitPrice: parseInt(m2[3].replace(/,/g,''))
+  };
+  // 파싱 불가 → 단가/수량 없이 금액만 편집
+  return { baseName: label, qty1: null, unit1: '', qty2: null, unit2: '', unitPrice: null };
+}
+
 function startBillingEdit(btn) {
   const row = btn.closest('tr');
   if (row.classList.contains('editing')) return;
   const label = row.dataset.label || '';
   const val   = row.dataset.val   || '';
+  const p     = parseBillingLabel(label);
+  const hasQty = p.qty1 !== null;
+  const hasQty2 = hasQty && p.qty2 !== null;
+  const esc = s => s.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
   row.classList.add('editing');
   row.innerHTML = `
-    <td colspan="2" style="padding:6px 4px">
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <input class="bil-edit-label qs-total-input" value="${label.replace(/"/g,'&quot;')}" placeholder="항목명"
+    <td colspan="3" style="padding:8px 4px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <input class="bei-name qs-total-input" value="${esc(p.baseName)}" placeholder="항목명"
           style="width:100%;padding:6px 8px;font-size:12px;margin:0">
-        <input class="bil-edit-val qs-total-input" value="${val.replace(/"/g,'&quot;')}" placeholder="₩0"
-          style="width:100%;padding:6px 8px;font-size:12px;margin:0;text-align:right">
+        ${hasQty ? `
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:10px;color:var(--muted)">단가 (원)</span>
+            <input class="bei-up qs-total-input" type="number" value="${p.unitPrice}" placeholder="단가"
+              oninput="recalcBillingEdit(this)"
+              style="width:80px;padding:6px 8px;font-size:12px;margin:0">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:10px;color:var(--muted)">수량 (${p.unit1||'개'})</span>
+            <input class="bei-q1 qs-total-input" type="number" value="${p.qty1}" placeholder="수량"
+              oninput="recalcBillingEdit(this)"
+              style="width:72px;padding:6px 8px;font-size:12px;margin:0">
+          </div>
+          ${hasQty2 ? `
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:10px;color:var(--muted)">${p.unit2||'일'} 수</span>
+            <input class="bei-q2 qs-total-input" type="number" value="${p.qty2}" placeholder="일수"
+              oninput="recalcBillingEdit(this)"
+              style="width:60px;padding:6px 8px;font-size:12px;margin:0">
+          </div>` : ''}
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:10px;color:var(--muted)">금액</span>
+            <span class="bei-result" style="font-size:13px;font-weight:700;color:#8b5cf6;padding:6px 0;min-width:80px">
+              ${val}
+            </span>
+          </div>
+        </div>` : `
+        <input class="bei-amt qs-total-input" value="${esc(val)}" placeholder="₩0"
+          style="width:100%;padding:6px 8px;font-size:12px;margin:0;text-align:right">`}
       </div>
     </td>
-    <td colspan="2" style="padding:6px 4px;text-align:center;vertical-align:middle;white-space:nowrap">
-      <button onclick="confirmBillingEdit(this)"
-        style="background:#8b5cf6;border:none;color:#fff;border-radius:5px;padding:5px 8px;font-size:11px;cursor:pointer">✅</button>
-      <button onclick="cancelBillingEdit(this,'${label.replace(/'/g,"\\'")}','${val.replace(/'/g,"\\'")}')"
-        style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:5px 8px;font-size:11px;cursor:pointer;margin-left:3px">✕</button>
+    <td style="padding:8px 4px;text-align:center;vertical-align:middle;white-space:nowrap">
+      <button onclick="confirmBillingEdit(this,'${esc(p.unit1)}','${esc(p.unit2||'')}')"
+        style="background:#8b5cf6;border:none;color:#fff;border-radius:5px;padding:5px 8px;font-size:11px;cursor:pointer;display:block;margin-bottom:4px">✅</button>
+      <button onclick="cancelBillingEdit(this,'${esc(label)}','${esc(val)}')"
+        style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:5px 8px;font-size:11px;cursor:pointer">✕</button>
     </td>`;
 }
 
-function confirmBillingEdit(btn) {
+function recalcBillingEdit(input) {
+  const row = input.closest('tr');
+  const up = parseFloat(row.querySelector('.bei-up')?.value || 0);
+  const q1 = parseFloat(row.querySelector('.bei-q1')?.value || 1);
+  const q2El = row.querySelector('.bei-q2');
+  const q2 = q2El ? parseFloat(q2El.value || 1) : 1;
+  const result = row.querySelector('.bei-result');
+  if (result) result.textContent = '₩' + Math.round(up * q1 * q2).toLocaleString('ko-KR');
+}
+
+function confirmBillingEdit(btn, unit1, unit2) {
   const row = btn.closest('tr');
-  const label = row.querySelector('.bil-edit-label').value.trim();
-  const val   = row.querySelector('.bil-edit-val').value.trim();
+  const name = row.querySelector('.bei-name')?.value.trim() || '';
+  const upEl = row.querySelector('.bei-up');
+  const q1El = row.querySelector('.bei-q1');
+  const q2El = row.querySelector('.bei-q2');
+  const amtEl = row.querySelector('.bei-amt');
+
+  let newLabel, newVal;
+  if (upEl && q1El) {
+    const up = parseInt(upEl.value || 0);
+    const q1 = parseInt(q1El.value || 1);
+    const q2 = q2El ? parseInt(q2El.value || 1) : null;
+    const amt = Math.round(up * q1 * (q2 || 1));
+    newVal = '₩' + amt.toLocaleString('ko-KR');
+    let qtyPart = q1.toLocaleString() + (unit1||'');
+    if (q2 && unit2) qtyPart += ' × ' + q2 + unit2;
+    qtyPart += ' × ' + up.toLocaleString() + '원';
+    newLabel = name + ' (' + qtyPart + ')';
+  } else {
+    newLabel = name;
+    newVal = amtEl ? amtEl.value.trim() : '';
+  }
   row.classList.remove('editing');
-  row.outerHTML = makeBillingRowHtml(label, val);
+  row.outerHTML = makeBillingRowHtml(newLabel, newVal);
   syncBillingToContent();
   autoCalcTotal();
 }
