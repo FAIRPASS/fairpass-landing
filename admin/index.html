@@ -254,6 +254,18 @@
     .qs-total-input:focus { border-color: var(--cyan-light); }
     .sent-badge { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 11px; font-weight: 700; background: rgba(16,185,129,0.18); color: var(--green); white-space: nowrap; }
 
+    /* 구조형 비용 내역 폼 */
+    .bil-sec-block { margin-bottom: 14px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .bil-sec-title { padding: 7px 12px; font-size: 11px; font-weight: 700; color: #a5b4fc; background: #1e1e38; border-bottom: 1px solid var(--border); letter-spacing: 0.03em; }
+    .bil-row-flex { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 12px; flex-wrap: wrap; }
+    .bil-row-name { font-size: 12px; color: var(--text); flex-shrink: 0; }
+    .bil-amt-input { width: 130px; padding: 5px 8px; font-size: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; color: var(--text); text-align: right; }
+    .bil-calc-row { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+    .bil-calc-row input[type="number"] { padding: 5px 6px; font-size: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; color: var(--text); text-align: right; }
+    .bil-calc-right { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); flex-wrap: wrap; justify-content: flex-end; }
+    .bil-calc-result { font-size: 12px; font-weight: 700; color: var(--text); min-width: 80px; text-align: right; }
+    .bil-opt-sub { padding: 4px 0; }
+
     /* ── Seed progress ── */
     .seed-progress { display: none; position: fixed; bottom: 28px; right: 28px; z-index: 300; background: #0e0e1a; border: 1px solid var(--green); border-radius: var(--radius-sm); padding: 16px 22px; min-width: 240px; }
     .seed-progress.show { display: block; }
@@ -1163,152 +1175,224 @@
       </div>
     </details>
 
-    <!-- 어드민 세부 옵션 -->
-    <details id="qs_admin_options" style="margin-bottom:14px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
-      <summary style="padding:10px 14px;font-size:11px;font-weight:700;color:#a78bfa;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;background:rgba(139,92,246,0.08);user-select:none">
-        ⚙️ 세부 옵션 (명찰·줄·발송서비스)
-      </summary>
-      <div style="padding:14px;display:grid;gap:12px">
-
-        <!-- 명찰 타입 -->
-        <div>
-          <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">종이명찰 타입</p>
-          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-            <select id="adm_badge_select" onchange="syncBadgeUnitPrice()" style="flex:1;min-width:180px;padding:7px 8px;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)">
-              <option value="1500" data-label="일반형(중)">일반형(중) — ₩1,500</option>
-              <option value="2000" data-label="일반형(대)">일반형(대) — ₩2,000</option>
-              <option value="1500" data-label="티켓형">티켓형 — ₩1,500</option>
-              <option value="1500" data-label="가슴 명찰형(집게 포함)">가슴 명찰형(집게 포함) — ₩1,500</option>
-              <option value="0"    data-label="사용 안함">사용 안함 — ₩0</option>
-            </select>
-            <div style="display:flex;gap:4px;align-items:center;flex-shrink:0">
-              <input type="number" id="adm_badge_qty" placeholder="수량(장)" min="1"
-                style="width:80px;padding:7px 8px;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)">
-              <span style="font-size:11px;color:var(--muted)">장 ×</span>
-              <input type="number" id="adm_badge_unitprice" placeholder="단가" min="0"
-                style="width:68px;padding:7px 8px;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)">
-              <span style="font-size:11px;color:var(--muted)">원</span>
-              <button onclick="applyBadgeTypeFromSelect()"
-                style="padding:7px 12px;font-size:12px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;cursor:pointer;flex-shrink:0">적용</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 목걸이줄 타입 -->
-        <div>
-          <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">목걸이줄 타입</p>
-          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-            <select id="adm_lanyard_select" onchange="syncLanyardUnitPrice()" style="flex:1;min-width:220px;padding:7px 8px;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)">
-              <option value="1300" data-label="AI(P)" data-desc="A 굵은 줄 1.6cm, 종이 고리 1개" selected>AI(P) — ₩1,300</option>
-              <option value="600"  data-label="B1(P)" data-desc="B 굵은 줄 0.4cm, 종이 고리 1개">B1(P) — ₩600</option>
-              <option value="1000" data-label="A1"    data-desc="A 굵은 줄 1.6cm, 고리 1개">A1 — ₩1,000</option>
-              <option value="1100" data-label="A2"    data-desc="A 굵은 줄 1.6cm, 고리 2개">A2 — ₩1,100</option>
-              <option value="500"  data-label="B1"    data-desc="B 굵은 줄 0.4cm, 고리 1개">B1 — ₩500</option>
-              <option value="600"  data-label="B2"    data-desc="B 굵은 줄 0.4cm, 고리 2개">B2 — ₩600</option>
-              <option value="0"    data-label="사용 안함" data-desc="">사용 안함 — ₩0</option>
-            </select>
-            <div id="adm_lanyard_desc" style="font-size:10px;color:var(--muted);margin-top:4px;width:100%">A 굵은 줄 1.6cm, 종이 고리 1개</div>
-            <div style="display:flex;gap:4px;align-items:center;flex-shrink:0">
-              <input type="number" id="adm_lanyard_qty" placeholder="수량(개)" min="1"
-                style="width:80px;padding:7px 8px;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)">
-              <span style="font-size:11px;color:var(--muted)">개 ×</span>
-              <input type="number" id="adm_lanyard_unitprice" placeholder="단가" min="0"
-                style="width:68px;padding:7px 8px;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)">
-              <span style="font-size:11px;color:var(--muted)">원</span>
-              <button onclick="applyLanyardTypeFromSelect()"
-                style="padding:7px 12px;font-size:12px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;cursor:pointer;flex-shrink:0">적용</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 발송 서비스 (V) -->
-        <div>
-          <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">V. 발송 서비스 (선택)</p>
-          <div style="display:flex;flex-direction:column;gap:6px">
-            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
-              <input type="checkbox" id="adm_alimtalk" onchange="applyMessaging()">
-              <span>알림톡 발송 — ₩20/건 <span style="color:var(--muted);font-size:11px">(참가자 수 기준)</span></span>
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
-              <input type="checkbox" id="adm_sms" onchange="applyMessaging()">
-              <span>문자(LMS) 발송 — ₩100/건 <span style="color:var(--muted);font-size:11px">(참가자 수 기준)</span></span>
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
-              <input type="checkbox" id="adm_email_send" onchange="applyMessaging()">
-              <span>이메일 발송 — ₩50/건 <span style="color:var(--muted);font-size:11px">(참가자 수 기준)</span></span>
-            </label>
-          </div>
-        </div>
-
-        <!-- 행사 등록비 -->
-        <div>
-          <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">행사 등록비</p>
-          <div style="display:flex;gap:6px;align-items:center">
-            <select id="adm_regfee_select" onchange="applyRegFeeOption()" style="flex:1;padding:7px 8px;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)">
-              <option value="무료">무료 (무료 행사)</option>
-              <option value="유료">유료 (참가자 등록비 결제)</option>
-            </select>
-          </div>
-          <div id="adm_regfee_note" style="display:none;margin-top:6px;padding:6px 10px;border-radius:6px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);font-size:11px;color:#a78bfa">
-            📌 비용 내역에 안내 항목이 추가됩니다: "등록비 유료 결제 서비스(행사 종료 후, 총 결제금액의 5% 수수료 제외 후 정산)"
-          </div>
-        </div>
-
-        <!-- 현장 상주 매니저 (VIII, 선택) -->
-        <div>
-          <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">VIII. 현장 상주 매니저 (선택)</p>
-          <div style="display:flex;flex-direction:column;gap:6px">
-            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
-              <input type="checkbox" id="adm_manager" onchange="applyManagerOption()">
-              <span>현장 상주 매니저 — ₩300,000/인/일 <span style="color:var(--muted);font-size:11px">(+지역별 출장비 별도)</span></span>
-            </label>
-            <div id="adm_manager_qty_wrap" style="display:none;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface)">
-              <label style="font-size:12px;display:flex;align-items:center;gap:8px">
-                인원 수:
-                <input type="number" id="adm_manager_qty" value="1" min="1" max="10"
-                  style="width:64px;padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:rgba(255,255,255,0.08);color:var(--text);font-size:13px"
-                  oninput="applyManagerOption()">
-                명
-              </label>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </details>
-
-    <!-- 비용 내역 편집 테이블 -->
+    <!-- ── 비용 내역 (구조형 폼) ── -->
     <div id="qs_billing_section" style="margin-bottom:16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <p style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:#8b5cf6;text-transform:uppercase;margin:0">비용 내역 <span style="font-size:10px;font-weight:400;color:var(--muted);text-transform:none">(✏️ 클릭하여 수정)</span></p>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-ghost btn-sm" onclick="addBillingRow()" style="font-size:11px">+ 항목</button>
-          <button class="btn btn-ghost btn-sm" onclick="autoCalcTotal()" style="font-size:11px" title="비용 항목 합계를 자동 계산하여 총 금액에 입력">🧮 합계</button>
-          <button class="btn btn-ghost btn-sm" onclick="saveBillingEdits()" style="font-size:11px">💾 저장</button>
-        </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <p style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:#8b5cf6;text-transform:uppercase;margin:0">비용 내역</p>
+        <button class="btn btn-ghost btn-sm" onclick="saveBillingEdits()" style="font-size:11px">💾 저장</button>
       </div>
-      <table id="qs_billing_table" style="width:100%;border-collapse:collapse"></table>
-      <!-- 소계/기술료/VAT -->
-      <div id="qs_billing_totals" style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px;display:none">
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px"><span>소계</span><span id="qs_subtotal">-</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px"><span>기술료 (10%)</span><span id="qs_techfee">-</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px"><span>부가가치세 (10%)</span><span id="qs_vat">-</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800;color:var(--text);border-top:1px solid var(--border);padding-top:8px"><span>총 견적금액</span><span id="qs_grand" style="color:#8b5cf6">-</span></div>
-      </div>
-    </div>
 
-    <!-- 할인 -->
-    <div style="margin-bottom:12px">
-      <span class="qs-label">할인 <span style="color:var(--muted);font-weight:400;text-transform:none">(없으면 비워두세요 — 이메일에 포함됩니다)</span></span>
-      <div style="display:flex;gap:8px;align-items:center">
-        <div style="display:flex;border-radius:6px;overflow:hidden;border:1px solid var(--border);flex-shrink:0">
-          <button type="button" id="qs_dt_krw" onclick="setDiscountType('krw')"
-            style="padding:8px 14px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:#8b5cf6;color:#fff;transition:all .15s">₩</button>
-          <button type="button" id="qs_dt_pct" onclick="setDiscountType('pct')"
-            style="padding:8px 14px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:var(--surface);color:var(--muted);transition:all .15s">%</button>
+      <!-- ── 1. 페어패스 솔루션 사용료 ── -->
+      <div class="bil-sec-block">
+        <div class="bil-sec-title">1. 페어패스 솔루션 사용료</div>
+        <div class="bil-row-flex">
+          <span class="bil-row-name">FAIRPASS 솔루션 사용료</span>
+          <input type="text" id="bf_solution_amt" class="bil-amt-input" placeholder="₩0" oninput="calcBillingTotals()">
         </div>
-        <input type="text" id="qs_discount" class="qs-total-input" placeholder="예: ₩200,000" style="flex:1;margin:0"
-          oninput="formatDiscountInput()">
+        <!-- 유료 등록비 안내 (regFee=유료 시 표시) -->
+        <div id="bf_regfee_note_row" style="display:none;padding:5px 8px;font-size:11px;color:#a78bfa;background:rgba(139,92,246,0.07);border-radius:6px;margin-top:4px">
+          📌 등록비 유료 결제 서비스(행사 종료 후, 총 결제금액의 5% 수수료 제외 후 정산)
+        </div>
+      </div>
+
+      <!-- 행사 등록비 토글 -->
+      <div style="margin:-4px 0 10px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)">
+        <span>행사 등록비:</span>
+        <select id="bf_regfee_sel" onchange="toggleRegFeeNote()" style="padding:4px 8px;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--text)">
+          <option value="무료">무료</option>
+          <option value="유료">유료 (5% 수수료 정산)</option>
+        </select>
+      </div>
+
+      <!-- ── 2. 종이명찰 발급비 (명찰 패키지 시만 표시) ── -->
+      <div class="bil-sec-block" id="bf_sec2" style="display:none">
+        <div class="bil-sec-title">2. 종이명찰 발급비</div>
+        <!-- 명찰 행 -->
+        <div class="bil-row-flex bil-calc-row">
+          <div style="display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap">
+            <span class="bil-row-name" style="min-width:60px">종이명찰</span>
+            <select id="bf_badge_type" onchange="onBadgeTypeChange()" style="padding:5px 7px;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--text)">
+              <option value="1500" data-lbl="일반형(중)">일반형(중) — ₩1,500</option>
+              <option value="2000" data-lbl="일반형(대)">일반형(대) — ₩2,000</option>
+              <option value="1500" data-lbl="티켓형">티켓형 — ₩1,500</option>
+              <option value="1500" data-lbl="가슴 명찰형(집게 포함)">가슴 명찰형(집게 포함) — ₩1,500</option>
+              <option value="0"    data-lbl="사용 안함">사용 안함 — ₩0</option>
+            </select>
+          </div>
+          <div class="bil-calc-right">
+            <input type="number" id="bf_badge_qty" min="0" placeholder="수량" oninput="calcBillingTotals()" style="width:70px"> 장
+            × <input type="number" id="bf_badge_price" min="0" oninput="calcBillingTotals()" style="width:70px"> 원
+            = <span id="bf_badge_amt" class="bil-calc-result">₩0</span>
+          </div>
+        </div>
+        <!-- 목걸이줄 행 -->
+        <div class="bil-row-flex bil-calc-row" style="margin-top:6px">
+          <div style="display:flex;flex-direction:column;gap:3px;flex:1">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <span class="bil-row-name" style="min-width:60px">목걸이줄</span>
+              <select id="bf_lanyard_type" onchange="onLanyardTypeChange()" style="padding:5px 7px;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--text)">
+                <option value="1300" data-lbl="AI(P)" data-desc="A 굵은 줄 1.6cm, 종이 고리 1개">AI(P) — ₩1,300</option>
+                <option value="600"  data-lbl="B1(P)" data-desc="B 굵은 줄 0.4cm, 종이 고리 1개">B1(P) — ₩600</option>
+                <option value="1000" data-lbl="A1"    data-desc="A 굵은 줄 1.6cm, 고리 1개">A1 — ₩1,000</option>
+                <option value="1100" data-lbl="A2"    data-desc="A 굵은 줄 1.6cm, 고리 2개">A2 — ₩1,100</option>
+                <option value="500"  data-lbl="B1"    data-desc="B 굵은 줄 0.4cm, 고리 1개">B1 — ₩500</option>
+                <option value="600"  data-lbl="B2"    data-desc="B 굵은 줄 0.4cm, 고리 2개">B2 — ₩600</option>
+                <option value="0"    data-lbl="사용 안함" data-desc="">사용 안함 — ₩0</option>
+              </select>
+            </div>
+            <div id="bf_lanyard_desc" style="font-size:10px;color:var(--muted);padding-left:66px">A 굵은 줄 1.6cm, 종이 고리 1개</div>
+          </div>
+          <div class="bil-calc-right">
+            <input type="number" id="bf_lanyard_qty" min="0" placeholder="수량" oninput="calcBillingTotals()" style="width:70px"> 개
+            × <input type="number" id="bf_lanyard_price" min="0" oninput="calcBillingTotals()" style="width:70px"> 원
+            = <span id="bf_lanyard_amt" class="bil-calc-result">₩0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 3. 키오스크 현장 운영 (키오스크 패키지 시만 표시) ── -->
+      <div class="bil-sec-block" id="bf_sec3" style="display:none">
+        <div class="bil-sec-title">3. 키오스크 현장 운영</div>
+        <!-- 무인발권키오스크 -->
+        <div class="bil-row-flex bil-calc-row">
+          <span class="bil-row-name">무인발권키오스크</span>
+          <div class="bil-calc-right">
+            <input type="number" id="bf_kiosk_qty" min="1" oninput="calcBillingTotals()" style="width:55px"> 대
+            × <input type="number" id="bf_kiosk_days" min="0.5" step="0.5" oninput="calcBillingTotals()" style="width:55px"> 일
+            × <input type="number" id="bf_kiosk_price" min="0" oninput="calcBillingTotals()" style="width:80px"> 원
+            = <span id="bf_kiosk_amt" class="bil-calc-result">₩0</span>
+          </div>
+        </div>
+        <!-- 유인발급 장비 (체크박스 활성화) -->
+        <div style="margin-top:8px;border-top:1px dashed var(--border);padding-top:8px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;color:var(--muted)">
+            <input type="checkbox" id="bf_mkiosk_check" onchange="toggleMKiosk()">
+            <span>유인발급 장비 (노트북 + 프린터기)</span>
+          </label>
+          <div id="bf_mkiosk_inputs" style="display:none;margin-top:6px" class="bil-calc-row bil-opt-sub">
+            <input type="number" id="bf_mkiosk_days" min="0.5" step="0.5" oninput="calcBillingTotals()" style="width:55px"> 일
+            × <input type="number" id="bf_mkiosk_sets" min="1" value="1" oninput="calcBillingTotals()" style="width:55px"> 세트
+            × <input type="number" id="bf_mkiosk_price" min="0" value="250000" oninput="calcBillingTotals()" style="width:80px"> 원
+            = <span id="bf_mkiosk_amt" class="bil-calc-result">₩0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 4. 운영 대행비 ── -->
+      <div class="bil-sec-block" id="bf_sec4">
+        <div class="bil-sec-title">4. 운영 대행비</div>
+        <!-- 왕복 운송비 -->
+        <div class="bil-row-flex">
+          <span id="bf_shipping_name" class="bil-row-name">왕복 운송비</span>
+          <input type="text" id="bf_shipping_amt" class="bil-amt-input" placeholder="₩0" oninput="calcBillingTotals()">
+        </div>
+        <!-- 설치/철거 매니저 인건비 -->
+        <div class="bil-row-flex bil-calc-row" style="margin-top:6px">
+          <span class="bil-row-name">설치/철거 매니저 인건비</span>
+          <div class="bil-calc-right">
+            <input type="number" id="bf_install_price" min="0" value="300000" oninput="calcBillingTotals()" style="width:80px"> 원
+            × <input type="number" id="bf_install_qty" min="1" value="2" oninput="calcBillingTotals()" style="width:50px"> 회
+            = <span id="bf_install_amt" class="bil-calc-result">₩0</span>
+          </div>
+        </div>
+        <!-- 현장 상주 매니저 인건비 (체크박스) -->
+        <div style="margin-top:8px;border-top:1px dashed var(--border);padding-top:8px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;color:var(--muted)">
+            <input type="checkbox" id="bf_manager_check" onchange="toggleManagerRow()">
+            <span>현장 상주 매니저 인건비</span>
+          </label>
+          <div id="bf_manager_inputs" style="display:none;margin-top:6px" class="bil-calc-row bil-opt-sub">
+            300,000원 × <input type="number" id="bf_manager_days" min="0.5" step="0.5" oninput="calcBillingTotals()" style="width:60px"> 일
+            = <span id="bf_manager_amt" class="bil-calc-result">₩0</span>
+          </div>
+        </div>
+        <!-- 현장 상주 매니저 출장비 (체크박스) -->
+        <div style="margin-top:6px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;color:var(--muted)">
+            <input type="checkbox" id="bf_biztrip_check" onchange="toggleBiztripRow()">
+            <span id="bf_biztrip_name">현장 상주 매니저 출장비</span>
+          </label>
+          <div id="bf_biztrip_inputs" style="display:none;margin-top:6px" class="bil-calc-row bil-opt-sub">
+            <input type="number" id="bf_biztrip_price" min="0" oninput="calcBillingTotals()" style="width:80px"> 원
+            × <input type="number" id="bf_biztrip_days" min="0.5" step="0.5" oninput="calcBillingTotals()" style="width:60px"> 일
+            = <span id="bf_biztrip_amt" class="bil-calc-result">₩0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 5. 부가 서비스 ── -->
+      <div class="bil-sec-block" id="bf_sec5">
+        <div class="bil-sec-title">5. 부가 서비스</div>
+
+        <!-- 출입/고객관리 솔루션 -->
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;color:var(--muted)">
+          <input type="checkbox" id="bf_access_check" onchange="toggleAccess()">
+          <span>출입/고객관리 솔루션</span>
+        </label>
+        <div id="bf_access_items" style="display:none;margin-top:6px;padding:8px 10px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid var(--border)">
+          <div class="bil-calc-row bil-opt-sub" style="margin-bottom:6px">
+            <span style="font-size:11px;color:var(--muted);min-width:180px">솔루션(장소별)</span>
+            <input type="number" id="bf_access_days" min="0.5" step="0.5" oninput="calcBillingTotals()" style="width:55px"> 일
+            × <input type="number" id="bf_access_count" min="1" value="1" oninput="calcBillingTotals()" style="width:55px"> 식
+            × 50,000원 = <span id="bf_access_amt" class="bil-calc-result">₩0</span>
+          </div>
+          <div class="bil-calc-row bil-opt-sub">
+            <span style="font-size:11px;color:var(--muted);min-width:180px">출입관리용 노트북&QR장비 대여료</span>
+            <input type="number" id="bf_qr_days" min="0.5" step="0.5" oninput="calcBillingTotals()" style="width:55px"> 일
+            × <input type="number" id="bf_qr_count" min="1" value="1" oninput="calcBillingTotals()" style="width:55px"> 식
+            × 150,000원 = <span id="bf_qr_amt" class="bil-calc-result">₩0</span>
+          </div>
+          <p style="margin:6px 0 0;font-size:10px;color:var(--muted);line-height:1.5">*페어패스 QR SCAN앱(iOS, 안드로이드) 다운로드 사용시 장비 렌탈비 미 발생 / 노트북 직접 준비시 큐알장비 50,000원</p>
+        </div>
+
+        <!-- 발송 서비스 -->
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;color:var(--muted);margin-top:8px">
+          <input type="checkbox" id="bf_send_check" onchange="toggleSendService()">
+          <span>발송 서비스</span>
+        </label>
+        <div id="bf_send_items" style="display:none;margin-top:6px;padding:8px 10px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid var(--border)">
+          <div class="bil-calc-row bil-opt-sub" style="margin-bottom:4px">
+            <span style="font-size:11px;color:var(--muted);min-width:140px">알림톡 발송 (₩20/건)</span>
+            <input type="number" id="bf_alimtalk_qty" min="0" oninput="calcBillingTotals()" style="width:80px"> 건
+            = <span id="bf_alimtalk_amt" class="bil-calc-result">₩0</span>
+          </div>
+          <div class="bil-calc-row bil-opt-sub" style="margin-bottom:4px">
+            <span style="font-size:11px;color:var(--muted);min-width:140px">문자(LMS) 발송 (₩100/건)</span>
+            <input type="number" id="bf_sms_qty" min="0" oninput="calcBillingTotals()" style="width:80px"> 건
+            = <span id="bf_sms_amt" class="bil-calc-result">₩0</span>
+          </div>
+          <div class="bil-calc-row bil-opt-sub" style="margin-bottom:4px">
+            <span style="font-size:11px;color:var(--muted);min-width:140px">이메일 발송 (₩50/건)</span>
+            <input type="number" id="bf_email_qty" min="0" oninput="calcBillingTotals()" style="width:80px"> 건
+            = <span id="bf_email_amt" class="bil-calc-result">₩0</span>
+          </div>
+          <div class="bil-calc-row bil-opt-sub">
+            <span style="font-size:11px;color:var(--muted);min-width:140px">뉴스레터(노코드) (₩50/건)</span>
+            <input type="number" id="bf_newsletter_qty" min="0" oninput="calcBillingTotals()" style="width:80px"> 건
+            = <span id="bf_newsletter_amt" class="bil-calc-result">₩0</span>
+          </div>
+          <p style="margin:4px 0 0;font-size:10px;color:var(--muted)">* 발송 서비스 모든 건수는 참가자 수 기준으로 설정됩니다</p>
+        </div>
+      </div>
+
+      <!-- ── 합계/기술료/할인/VAT/총계 ── -->
+      <div id="qs_billing_totals" style="margin-top:14px;padding:12px 14px;border-radius:8px;border:1px solid var(--border);background:rgba(139,92,246,0.04)">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px"><span>소계</span><span id="qs_subtotal">-</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px"><span>기술료 (전체 산출액의 10%) 1식</span><span id="qs_techfee">-</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;border-top:1px solid var(--border);padding-top:8px"><span>합계 (공급가액)</span><span id="qs_supply">-</span></div>
+        <!-- 할인 (공급가액 이후) -->
+        <div style="margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:12px;color:var(--muted);min-width:120px">할인</span>
+            <div style="display:flex;border-radius:6px;overflow:hidden;border:1px solid var(--border);flex-shrink:0">
+              <button type="button" id="qs_dt_krw" onclick="setDiscountType('krw')" style="padding:5px 10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:#8b5cf6;color:#fff;transition:all .15s">₩</button>
+              <button type="button" id="qs_dt_pct" onclick="setDiscountType('pct')" style="padding:5px 10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:var(--surface);color:var(--muted);transition:all .15s">%</button>
+            </div>
+            <input type="text" id="qs_discount" placeholder="0" style="flex:1;padding:6px 10px;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)" oninput="formatDiscountInput()">
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px"><span>부가가치세 (10%)</span><span id="qs_vat">-</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:800;color:var(--text);border-top:1px solid var(--border);padding-top:10px"><span>총계 (최종)</span><span id="qs_grand" style="color:#8b5cf6">-</span></div>
       </div>
     </div>
 
@@ -2984,11 +3068,7 @@ function openQuoteSendModal(idx) {
   setDiscountType('krw');
   document.getElementById('qs_notes').value = '';
 
-  // 비용 내역 편집 테이블 렌더
-  const p = parseQuoteContent(editableContent);
-  renderBillingTable(p.비용상세 || '');
-
-  // 어드민 옵션 초기화
+  // 구조형 비용 내역 폼 초기화 (resetAdminOptions가 initBillingForm 호출)
   resetAdminOptions(editableContent);
 
   const btn = document.getElementById('qs_sendBtn');
@@ -3007,224 +3087,29 @@ document.getElementById('quoteSendModalBg').addEventListener('click', e => {
   if (e.target === document.getElementById('quoteSendModalBg')) closeQuoteSendModal();
 });
 
-// ── 비용 내역 편집 테이블 ──
-var _BILLING_SECTIONS = [
-  { key: 'solution',  pattern: /솔루션|유료 결제/,            title: '1. 페어패스 솔루션 사용료' },
-  { key: 'badge',     pattern: /명찰|목걸이/,                 title: '2. 종이 명찰 발급비' },
-  { key: 'kiosk',     pattern: /키오스크/,                    title: '3. 키오스크 현장 운영' },
-  { key: 'extra',     pattern: /알림톡|문자|이메일 발송/,     title: '4. 부가서비스' },
-  { key: 'ops',       pattern: /운송비|매니저|설치|철거|출장/, title: '5. 운영 대행비' },
-];
-function _getSectionTitle(label) {
-  for (var s of _BILLING_SECTIONS) if (s.pattern.test(label)) return s.title;
-  return null;
+// ── 새 구조형 비용 내역 폼 ──
+var _bfState = { attendees: 300, days: 1, region: 'seoul', regionLabel: '서울', pkgBadge: false, pkgKiosk: false };
+var _qsAttendees = 0; // 호환성 유지
+
+// 지역별 운송비 및 출장비 단가
+var _REGION_PRICING = {
+  seoul:   { shipping:       0, biztrip:       0, label: '서울' },
+  near:    { shipping:  80000, biztrip:  150000, label: '서울 근교' },
+  local:   { shipping: 150000, biztrip:  150000, label: '지방' },
+  jeju:    { shipping: 250000, biztrip:  200000, label: '제주도' },
+  default: { shipping: 150000, biztrip:  150000, label: '지역' },
+};
+
+function _fmtKRW(n) { return '₩' + Math.round(n).toLocaleString('ko-KR'); }
+function _numVal(id, def) {
+  var el = document.getElementById(id);
+  return el ? (parseFloat(el.value) || def || 0) : (def || 0);
 }
-
-function makeBillingRowHtml(label, val) {
-  const p = parseBillingLabel(label);
-  let qtyText = '';
-  if (p.qty1 !== null) {
-    qtyText = p.qty1.toLocaleString() + (p.unit1||'');
-    if (p.qty2 !== null) qtyText += ' × ' + p.qty2 + (p.unit2||'');
-    qtyText += ' × ₩' + (p.unitPrice||0).toLocaleString();
-  }
-  const displayName = p.qty1 !== null ? p.baseName : label;
-  const esc = s => (s||'').replace(/"/g,'&quot;');
-  return `<tr class="bil-row" data-label="${esc(label)}" data-val="${esc(val)}">
-    <td style="padding:5px 4px 5px 0;font-size:12px;color:var(--text);width:44%">${displayName.replace(/</g,'&lt;')}</td>
-    <td style="padding:5px 4px;font-size:11px;color:var(--muted);text-align:center">${qtyText}</td>
-    <td style="padding:5px 4px;font-size:12px;color:var(--text);text-align:right;white-space:nowrap;font-weight:600">${val.replace(/</g,'&lt;')}</td>
-    <td style="padding:5px 0 5px 4px;width:22px;text-align:center">
-      <button onclick="startBillingEdit(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 3px" title="수정">✏️</button>
-    </td>
-    <td style="padding:5px 0 5px 2px;width:22px;text-align:center">
-      <button onclick="removeBillingRow(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 3px" title="삭제">×</button>
-    </td>
-  </tr>`;
-}
-
-function makeSectionHeaderHtml(title) {
-  return `<tr class="bil-sec-hdr"><td colspan="5" style="padding:6px 10px;font-size:11px;font-weight:700;color:#a5b4fc;background:#1e1e38;border-top:1px solid #2a2a4a">${title}</td></tr>`;
-}
-
-function renderBillingTable(billingSection) {
-  const tbody = document.getElementById('qs_billing_table');
-  if (!tbody) return;
-  const lines = (billingSection || '').split('\n').filter(l => l.trim());
-  const items = lines.map(l => {
-    const parts = l.replace(/^- /, '').split(': ');
-    return { label: parts[0]||'', val: parts.slice(1).join(': ')||'' };
-  });
-  // 섹션별로 그룹핑해서 헤더 삽입
-  let html = '';
-  let lastSection = null;
-  items.forEach(item => {
-    const sec = _getSectionTitle(item.label);
-    if (sec && sec !== lastSection) {
-      html += makeSectionHeaderHtml(sec);
-      lastSection = sec;
-    } else if (!sec && lastSection !== '__etc__') {
-      // 미분류 항목은 헤더 없이 그냥 추가
-    }
-    html += makeBillingRowHtml(item.label, item.val);
-  });
-  tbody.innerHTML = html;
-  syncBillingToContent();
-  autoCalcTotal();
-}
-
-// 라벨에서 수량·단가 파싱: "(1,000장 × 1,500원)" / "(4대 × 3일 × 100,000원)"
-function parseBillingLabel(label) {
-  // 3항: N단위1 × M단위2 × P원
-  var m3 = label.match(/\(([0-9,]+)(\S+?)\s*×\s*([0-9,]+)(\S+?)\s*×\s*([0-9,]+)원\)/);
-  if (m3) return {
-    baseName: label.replace(/\s*\(.*\)/, '').trim(),
-    qty1: parseInt(m3[1].replace(/,/g,'')), unit1: m3[2],
-    qty2: parseInt(m3[3].replace(/,/g,'')), unit2: m3[4],
-    unitPrice: parseInt(m3[5].replace(/,/g,''))
-  };
-  // 2항: N단위 × P원
-  var m2 = label.match(/\(([0-9,]+)(\S+?)\s*×\s*([0-9,]+)원\)/);
-  if (m2) return {
-    baseName: label.replace(/\s*\(.*\)/, '').trim(),
-    qty1: parseInt(m2[1].replace(/,/g,'')), unit1: m2[2],
-    qty2: null, unit2: '',
-    unitPrice: parseInt(m2[3].replace(/,/g,''))
-  };
-  // 파싱 불가 → 단가/수량 없이 금액만 편집
-  return { baseName: label, qty1: null, unit1: '', qty2: null, unit2: '', unitPrice: null };
-}
-
-function startBillingEdit(btn) {
-  const row = btn.closest('tr');
-  if (row.classList.contains('editing')) return;
-  const label = row.dataset.label || '';
-  const val   = row.dataset.val   || '';
-  const p     = parseBillingLabel(label);
-  const hasQty  = p.qty1 !== null;
-  const hasQty2 = hasQty && p.qty2 !== null;
-  const esc = s => (s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  const iStyle = 'padding:6px 8px;font-size:12px;margin:0;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)';
-
-  row.classList.add('editing');
-  row.innerHTML = `
-    <td colspan="4" style="padding:8px 4px">
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <input class="bei-name qs-total-input" value="${esc(p.baseName)}" placeholder="항목명"
-          style="width:100%;${iStyle}">
-        <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
-          ${hasQty ? `
-          <div style="display:flex;flex-direction:column;gap:2px">
-            <span style="font-size:10px;color:var(--muted)">단가 (원)</span>
-            <input class="bei-up qs-total-input" type="number" value="${p.unitPrice}" placeholder="단가"
-              oninput="recalcBillingEdit(this)" style="width:80px;${iStyle}">
-          </div>
-          <div style="display:flex;flex-direction:column;gap:2px">
-            <span style="font-size:10px;color:var(--muted)">수량 (${p.unit1||'개'})</span>
-            <input class="bei-q1 qs-total-input" type="number" value="${p.qty1}" placeholder="수량"
-              oninput="recalcBillingEdit(this)" style="width:72px;${iStyle}">
-          </div>
-          ${hasQty2 ? `
-          <div style="display:flex;flex-direction:column;gap:2px">
-            <span style="font-size:10px;color:var(--muted)">${p.unit2||'일'}수</span>
-            <input class="bei-q2 qs-total-input" type="number" value="${p.qty2}" placeholder="일수"
-              oninput="recalcBillingEdit(this)" style="width:60px;${iStyle}">
-          </div>` : ''}
-          <div style="display:flex;flex-direction:column;gap:2px">
-            <span style="font-size:10px;color:var(--muted)">금액</span>
-            <span class="bei-result" style="font-size:13px;font-weight:700;color:#8b5cf6;padding:6px 4px">${val}</span>
-          </div>` : `
-          <input class="bei-amt qs-total-input" value="${esc(val)}" placeholder="₩0"
-            style="flex:1;${iStyle};text-align:right">`}
-        </div>
-      </div>
-    </td>
-    <td style="padding:8px 4px;text-align:center;vertical-align:middle;white-space:nowrap;width:28px">
-      <button onclick="confirmBillingEdit(this,'${esc(p.unit1)}','${esc(p.unit2||'')}')"
-        style="background:#8b5cf6;border:none;color:#fff;border-radius:5px;padding:5px 7px;font-size:11px;cursor:pointer;display:block;margin-bottom:4px">✅</button>
-      <button onclick="cancelBillingEdit(this,'${esc(label)}','${esc(val)}')"
-        style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:5px 7px;font-size:11px;cursor:pointer">✕</button>
-    </td>`;
-}
-
-function recalcBillingEdit(input) {
-  const row = input.closest('tr');
-  const up = parseFloat(row.querySelector('.bei-up')?.value || 0);
-  const q1 = parseFloat(row.querySelector('.bei-q1')?.value || 1);
-  const q2El = row.querySelector('.bei-q2');
-  const q2 = q2El ? parseFloat(q2El.value || 1) : 1;
-  const result = row.querySelector('.bei-result');
-  if (result) result.textContent = '₩' + Math.round(up * q1 * q2).toLocaleString('ko-KR');
-}
-
-function confirmBillingEdit(btn, unit1, unit2) {
-  const row = btn.closest('tr');
-  const name = row.querySelector('.bei-name')?.value.trim() || '';
-  const upEl = row.querySelector('.bei-up');
-  const q1El = row.querySelector('.bei-q1');
-  const q2El = row.querySelector('.bei-q2');
-  const amtEl = row.querySelector('.bei-amt');
-
-  let newLabel, newVal;
-  if (upEl && q1El) {
-    const up = parseInt(upEl.value || 0);
-    const q1 = parseInt(q1El.value || 1);
-    const q2 = q2El ? parseInt(q2El.value || 1) : null;
-    const amt = Math.round(up * q1 * (q2 || 1));
-    newVal = '₩' + amt.toLocaleString('ko-KR');
-    let qtyPart = q1.toLocaleString() + (unit1||'');
-    if (q2 && unit2) qtyPart += ' × ' + q2 + unit2;
-    qtyPart += ' × ' + up.toLocaleString() + '원';
-    newLabel = name + ' (' + qtyPart + ')';
-  } else {
-    newLabel = name;
-    newVal = amtEl ? amtEl.value.trim() : '';
-  }
-  row.classList.remove('editing');
-  row.outerHTML = makeBillingRowHtml(newLabel, newVal);
-  syncBillingToContent();
-  autoCalcTotal();
-}
-
-function cancelBillingEdit(btn, label, val) {
-  const row = btn.closest('tr');
-  row.classList.remove('editing');
-  row.outerHTML = makeBillingRowHtml(label, val);
-}
-
-function addBillingRow() {
-  const tbody = document.getElementById('qs_billing_table');
-  if (!tbody) return;
-  tbody.insertAdjacentHTML('beforeend', makeBillingRowHtml('', ''));
-}
-
-function removeBillingRow(btn) {
-  btn.closest('tr').remove();
-  syncBillingToContent();
-}
-
-function buildContentFromBillingTable() {
-  const content = document.getElementById('qs_content').value;
-  const newLines = [];
-  document.querySelectorAll('#qs_billing_table .bil-row').forEach(row => {
-    const label = (row.dataset.label || '').trim();
-    const val   = (row.dataset.val   || '').trim();
-    if (label) newLines.push('- ' + label + ': ' + val);
-  });
-  const newBilling = newLines.join('\n');
-  return content.replace(
-    /(\[비용 상세\])([\s\S]*?)(\[총계\])/,
-    '[비용 상세]\n' + newBilling + '\n\n[총계]'
-  );
-}
-
-function syncBillingToContent() {
-  const el = document.getElementById('qs_content');
-  if (el) el.value = buildContentFromBillingTable();
-}
-
-// ── 어드민 세부 옵션: 단가·수량 파싱 헬퍼 ──
-var _qsAttendees = 0; // 현재 모달에서 파악한 참가자 수
+function _setVal2(id, v) { var el = document.getElementById(id); if (el) el.value = v; }
+function _setText(id, t) { var el = document.getElementById(id); if (el) el.textContent = t; }
+function _show(id) { var el = document.getElementById(id); if (el) el.style.display = ''; }
+function _hide(id) { var el = document.getElementById(id); if (el) el.style.display = 'none'; }
+function _checked(id) { var el = document.getElementById(id); return el ? el.checked : false; }
 
 function parseAttendees(content) {
   var m = (content || '').match(/(\d[\d,]+)명/);
@@ -3235,271 +3120,501 @@ function formatKRWAdmin(n) {
   return '₩' + Math.round(n).toLocaleString('ko-KR');
 }
 
-// 빌링 테이블에서 키워드로 행 찾아 금액 업데이트
-function updateBillingRowByKeyword(keyword, newLabel, newVal) {
-  var rows = document.querySelectorAll('#qs_billing_table .bil-row');
-  for (var i = 0; i < rows.length; i++) {
-    if ((rows[i].dataset.label || '').includes(keyword)) {
-      rows[i].outerHTML = makeBillingRowHtml(newLabel, newVal);
-      syncBillingToContent();
-      return true;
-    }
-  }
-  return false;
+// 명찰 타입 변경 시 단가 자동 동기화
+function onBadgeTypeChange() {
+  var sel = document.getElementById('bf_badge_type');
+  if (sel) _setVal2('bf_badge_price', sel.value);
+  calcBillingTotals();
 }
 
-// 빌링 테이블에서 키워드로 행 제거
-function removeBillingRowByKeyword(keyword) {
-  var rows = document.querySelectorAll('#qs_billing_table .bil-row');
-  for (var i = 0; i < rows.length; i++) {
-    if ((rows[i].dataset.label || '').includes(keyword)) {
-      rows[i].remove();
-      syncBillingToContent();
-      return;
-    }
-  }
-}
-
-// 명찰 드롭다운 선택 → 단가 자동 동기화
-function syncBadgeUnitPrice() {
-  var sel = document.getElementById('adm_badge_select');
-  var upEl = document.getElementById('adm_badge_unitprice');
-  if (sel && upEl) upEl.value = sel.value;
-}
-
-// 명찰 적용 → 빌링 행 업데이트
-function applyBadgeTypeFromSelect() {
-  var sel = document.getElementById('adm_badge_select');
-  var qtyEl = document.getElementById('adm_badge_qty');
-  var upEl = document.getElementById('adm_badge_unitprice');
+// 목걸이줄 타입 변경 시 단가 + 설명 업데이트
+function onLanyardTypeChange() {
+  var sel = document.getElementById('bf_lanyard_type');
   if (!sel) return;
   var opt = sel.options[sel.selectedIndex];
-  var typeName = opt.dataset.label || opt.text.split(' —')[0].trim();
-  var unitPrice = parseInt(upEl && upEl.value ? upEl.value : sel.value, 10);
-  var qty = qtyEl && qtyEl.value ? parseInt(qtyEl.value, 10) : _qsAttendees;
-  if (!qty) { showToast('수량을 입력하거나 참가자 수가 있어야 합니다', true); return; }
-  var label = '종이명찰 ' + typeName + ' (' + qty.toLocaleString() + '장 × ' + unitPrice.toLocaleString() + '원)';
-  var val = formatKRWAdmin(qty * unitPrice);
-  if (!updateBillingRowByKeyword('종이명찰', label, val)) {
-    addBillingRowWithValues(label, val);
-  }
+  _setVal2('bf_lanyard_price', sel.value);
+  var descEl = document.getElementById('bf_lanyard_desc');
+  if (descEl) descEl.textContent = opt.dataset.desc || '';
+  calcBillingTotals();
 }
 
-// 목걸이줄 드롭다운 선택 → 단가 자동 동기화 + 설명 업데이트
-function syncLanyardUnitPrice() {
-  var sel = document.getElementById('adm_lanyard_select');
-  var upEl = document.getElementById('adm_lanyard_unitprice');
-  if (sel && upEl) upEl.value = sel.value;
-  var descEl = document.getElementById('adm_lanyard_desc');
-  if (descEl && sel) {
-    var opt = sel.options[sel.selectedIndex];
-    descEl.textContent = opt.dataset.desc || '';
-  }
+// 유인발급 장비 체크박스 토글
+function toggleMKiosk() {
+  var el = document.getElementById('bf_mkiosk_inputs');
+  if (el) el.style.display = _checked('bf_mkiosk_check') ? '' : 'none';
+  calcBillingTotals();
 }
 
-// 행사 등록비 선택 → 솔루션 사용료 하단 안내 행 추가/제거
-function applyRegFeeOption() {
-  var sel = document.getElementById('adm_regfee_select');
-  var noteEl = document.getElementById('adm_regfee_note');
-  var val = sel ? sel.value : '무료';
-  if (noteEl) noteEl.style.display = val === '유료' ? 'block' : 'none';
-  var REG_NOTE_LABEL = '등록비 유료 결제 서비스(행사 종료 후, 총 결제금액의 5% 수수료 제외 후 정산)';
-  if (val === '유료') {
-    var rows = document.querySelectorAll('#qs_billing_table .bil-row');
-    var already = false;
-    for (var i = 0; i < rows.length; i++) {
-      if ((rows[i].dataset.label || '').includes('유료 결제 서비스')) { already = true; break; }
+// 현장 상주 매니저 토글
+function toggleManagerRow() {
+  var el = document.getElementById('bf_manager_inputs');
+  if (el) el.style.display = _checked('bf_manager_check') ? '' : 'none';
+  calcBillingTotals();
+}
+
+// 출장비 토글
+function toggleBiztripRow() {
+  var el = document.getElementById('bf_biztrip_inputs');
+  if (el) el.style.display = _checked('bf_biztrip_check') ? '' : 'none';
+  calcBillingTotals();
+}
+
+// 출입/고객관리 솔루션 토글
+function toggleAccess() {
+  var el = document.getElementById('bf_access_items');
+  if (el) el.style.display = _checked('bf_access_check') ? '' : 'none';
+  calcBillingTotals();
+}
+
+// 발송 서비스 토글
+function toggleSendService() {
+  var el = document.getElementById('bf_send_items');
+  if (el) el.style.display = _checked('bf_send_check') ? '' : 'none';
+  calcBillingTotals();
+}
+
+// 행사 등록비 토글
+function toggleRegFeeNote() {
+  var sel = document.getElementById('bf_regfee_sel');
+  var noteEl = document.getElementById('bf_regfee_note_row');
+  if (!sel || !noteEl) return;
+  noteEl.style.display = sel.value === '유료' ? '' : 'none';
+}
+
+// 전체 합계 계산 및 UI 업데이트
+function calcBillingTotals() {
+  // S1: 솔루션
+  var s1El = document.getElementById('bf_solution_amt');
+  var s1 = s1El ? (parseInt((s1El.value || '0').replace(/[^0-9]/g, ''), 10) || 0) : 0;
+
+  // S2: 명찰 + 줄
+  var s2 = 0;
+  if (_bfState.pkgBadge) {
+    var bAmt = _numVal('bf_badge_qty', 0) * _numVal('bf_badge_price', 0);
+    _setText('bf_badge_amt', _fmtKRW(bAmt));
+    var lAmt = _numVal('bf_lanyard_qty', 0) * _numVal('bf_lanyard_price', 0);
+    _setText('bf_lanyard_amt', _fmtKRW(lAmt));
+    s2 = bAmt + lAmt;
+  }
+
+  // S3: 키오스크
+  var s3 = 0;
+  if (_bfState.pkgKiosk) {
+    var kAmt = _numVal('bf_kiosk_qty', 0) * _numVal('bf_kiosk_days', 0) * _numVal('bf_kiosk_price', 0);
+    _setText('bf_kiosk_amt', _fmtKRW(kAmt));
+    s3 += kAmt;
+    if (_checked('bf_mkiosk_check')) {
+      var mkAmt = _numVal('bf_mkiosk_days', 0) * _numVal('bf_mkiosk_sets', 1) * _numVal('bf_mkiosk_price', 0);
+      _setText('bf_mkiosk_amt', _fmtKRW(mkAmt));
+      s3 += mkAmt;
     }
-    if (!already) {
-      insertBillingRowAfterKeyword('솔루션 사용료', REG_NOTE_LABEL, '');
+  }
+
+  // S4: 운영 대행비
+  var shipEl = document.getElementById('bf_shipping_amt');
+  var shipAmt = shipEl ? (parseInt((shipEl.value || '0').replace(/[^0-9]/g, ''), 10) || 0) : 0;
+  var instAmt = _numVal('bf_install_price', 0) * _numVal('bf_install_qty', 0);
+  _setText('bf_install_amt', _fmtKRW(instAmt));
+  var mgrAmt = 0, btAmt = 0;
+  if (_checked('bf_manager_check')) {
+    mgrAmt = 300000 * _numVal('bf_manager_days', 0);
+    _setText('bf_manager_amt', _fmtKRW(mgrAmt));
+  }
+  if (_checked('bf_biztrip_check')) {
+    btAmt = _numVal('bf_biztrip_price', 0) * _numVal('bf_biztrip_days', 0);
+    _setText('bf_biztrip_amt', _fmtKRW(btAmt));
+  }
+  var s4 = shipAmt + instAmt + mgrAmt + btAmt;
+
+  // S5: 부가서비스
+  var s5 = 0;
+  if (_checked('bf_access_check')) {
+    var accAmt = _numVal('bf_access_days', 0) * _numVal('bf_access_count', 0) * 50000;
+    _setText('bf_access_amt', _fmtKRW(accAmt));
+    var qrAmt = _numVal('bf_qr_days', 0) * _numVal('bf_qr_count', 0) * 150000;
+    _setText('bf_qr_amt', _fmtKRW(qrAmt));
+    s5 += accAmt + qrAmt;
+  }
+  if (_checked('bf_send_check')) {
+    var alAmt = _numVal('bf_alimtalk_qty', 0) * 20;
+    _setText('bf_alimtalk_amt', _fmtKRW(alAmt));
+    var smAmt = _numVal('bf_sms_qty', 0) * 100;
+    _setText('bf_sms_amt', _fmtKRW(smAmt));
+    var emAmt = _numVal('bf_email_qty', 0) * 50;
+    _setText('bf_email_amt', _fmtKRW(emAmt));
+    var nlAmt = _numVal('bf_newsletter_qty', 0) * 50;
+    _setText('bf_newsletter_amt', _fmtKRW(nlAmt));
+    s5 += alAmt + smAmt + emAmt + nlAmt;
+  }
+
+  var subtotal = s1 + s2 + s3 + s4 + s5;
+  var techFee = Math.round(subtotal * 0.1);
+  var supply = Math.floor((subtotal + techFee) / 1000) * 1000;
+
+  // 할인 계산
+  var discEl = document.getElementById('qs_discount');
+  var discRaw = (discEl ? discEl.value : '').replace(/[^0-9.]/g, '');
+  var discNum = parseFloat(discRaw) || 0;
+  var dtKrw = document.getElementById('qs_dt_krw');
+  var dtPct = document.getElementById('qs_dt_pct');
+  var isPct = dtPct && dtPct.style.background === '#8b5cf6';
+  var discountAmt = isPct ? Math.round(supply * discNum / 100) : discNum;
+  var afterDiscount = Math.max(0, supply - discountAmt);
+  var vat = Math.round(afterDiscount * 0.1);
+  var grand = afterDiscount + vat;
+
+  _setText('qs_subtotal', _fmtKRW(subtotal));
+  _setText('qs_techfee', _fmtKRW(techFee));
+  _setText('qs_supply', _fmtKRW(supply));
+  _setText('qs_vat', _fmtKRW(vat));
+  _setText('qs_grand', _fmtKRW(grand));
+
+  // 총 금액 입력란 자동 업데이트
+  var totalEl = document.getElementById('qs_total');
+  if (totalEl && grand > 0) totalEl.value = _fmtKRW(grand);
+
+  return { subtotal: subtotal, techFee: techFee, supply: supply, discountAmt: discountAmt, afterDiscount: afterDiscount, vat: vat, grand: grand };
+}
+
+// autoCalcTotal 호환성 래퍼
+function autoCalcTotal() { calcBillingTotals(); }
+
+// 비용 내역 텍스트 직렬화
+function serializeBillingForm() {
+  var lines = [];
+  // S1
+  var s1El = document.getElementById('bf_solution_amt');
+  var s1Val = s1El ? s1El.value.trim() : '';
+  lines.push('- FAIRPASS 솔루션 사용료: ' + (s1Val || '₩0'));
+  var rfSel = document.getElementById('bf_regfee_sel');
+  if (rfSel && rfSel.value === '유료') {
+    lines.push('- 등록비 유료 결제 서비스(행사 종료 후, 총 결제금액의 5% 수수료 제외 후 정산): ');
+  }
+  // S2
+  if (_bfState.pkgBadge) {
+    var bSel = document.getElementById('bf_badge_type');
+    var bLbl = bSel ? (bSel.options[bSel.selectedIndex].dataset.lbl || '') : '';
+    var bQty = _numVal('bf_badge_qty', 0);
+    var bPrc = _numVal('bf_badge_price', 0);
+    if (bQty > 0 && bLbl !== '사용 안함') {
+      lines.push('- 종이명찰 ' + bLbl + ' (' + bQty.toLocaleString() + '장 × ' + bPrc.toLocaleString() + '원): ' + _fmtKRW(bQty * bPrc));
     }
-  } else {
-    removeBillingRowByKeyword('유료 결제 서비스');
+    var lSel = document.getElementById('bf_lanyard_type');
+    var lLbl = lSel ? (lSel.options[lSel.selectedIndex].dataset.lbl || '') : '';
+    var lQty = _numVal('bf_lanyard_qty', 0);
+    var lPrc = _numVal('bf_lanyard_price', 0);
+    if (lQty > 0 && lLbl !== '사용 안함') {
+      lines.push('- 목걸이줄 ' + lLbl + ' (' + lQty.toLocaleString() + '개 × ' + lPrc.toLocaleString() + '원): ' + _fmtKRW(lQty * lPrc));
+    }
   }
-  autoCalcTotal();
+  // S3
+  if (_bfState.pkgKiosk) {
+    var kQty = _numVal('bf_kiosk_qty', 0);
+    var kDays = _numVal('bf_kiosk_days', 0);
+    var kPrc = _numVal('bf_kiosk_price', 0);
+    if (kQty > 0) {
+      lines.push('- 무인발권키오스크 (' + kQty + '대 × ' + kDays + '일 × ' + kPrc.toLocaleString() + '원): ' + _fmtKRW(kQty * kDays * kPrc));
+    }
+    if (_checked('bf_mkiosk_check')) {
+      var mkD = _numVal('bf_mkiosk_days', 0), mkS = _numVal('bf_mkiosk_sets', 1), mkP = _numVal('bf_mkiosk_price', 0);
+      lines.push('- 유인발급 장비(노트북+프린터기) (' + mkD + '일 × ' + mkS + '세트 × ' + mkP.toLocaleString() + '원): ' + _fmtKRW(mkD * mkS * mkP));
+    }
+  }
+  // S4
+  var shEl = document.getElementById('bf_shipping_amt');
+  var shVal = shEl ? shEl.value.trim() : '';
+  var shName = document.getElementById('bf_shipping_name');
+  var shLabel = shName ? shName.textContent.trim() : '왕복 운송비';
+  if (shVal) lines.push('- ' + shLabel + ': ' + shVal);
+  var instP = _numVal('bf_install_price', 0), instQ = _numVal('bf_install_qty', 0);
+  if (instP > 0) {
+    lines.push('- 설치/철거 매니저 인건비 (' + instQ + '회 × ' + instP.toLocaleString() + '원): ' + _fmtKRW(instP * instQ));
+  }
+  if (_checked('bf_manager_check')) {
+    var mDays = _numVal('bf_manager_days', 0);
+    lines.push('- 현장 상주 매니저 인건비 (' + mDays + '일 × 300,000원): ' + _fmtKRW(mDays * 300000));
+  }
+  if (_checked('bf_biztrip_check')) {
+    var btP = _numVal('bf_biztrip_price', 0), btD = _numVal('bf_biztrip_days', 0);
+    var btName = document.getElementById('bf_biztrip_name');
+    var btLabel = btName ? btName.textContent.trim() : '현장 상주 매니저 출장비';
+    lines.push('- ' + btLabel + ' (' + btD + '일 × ' + btP.toLocaleString() + '원): ' + _fmtKRW(btP * btD));
+  }
+  // S5
+  if (_checked('bf_access_check')) {
+    var acD = _numVal('bf_access_days', 0), acC = _numVal('bf_access_count', 0);
+    lines.push('- 솔루션(장소별) (' + acD + '일 × ' + acC + '식 × 50,000원): ' + _fmtKRW(acD * acC * 50000));
+    var qrD = _numVal('bf_qr_days', 0), qrC = _numVal('bf_qr_count', 0);
+    lines.push('- 출입관리용 노트북 및 QR장비 대여료 (' + qrD + '일 × ' + qrC + '식 × 150,000원): ' + _fmtKRW(qrD * qrC * 150000));
+  }
+  if (_checked('bf_send_check')) {
+    var alQ = _numVal('bf_alimtalk_qty', 0);
+    if (alQ > 0) lines.push('- 알림톡 발송 (' + alQ.toLocaleString() + '건 × 20원): ' + _fmtKRW(alQ * 20));
+    var smQ = _numVal('bf_sms_qty', 0);
+    if (smQ > 0) lines.push('- 문자(LMS) 발송 (' + smQ.toLocaleString() + '건 × 100원): ' + _fmtKRW(smQ * 100));
+    var emQ = _numVal('bf_email_qty', 0);
+    if (emQ > 0) lines.push('- 이메일 발송 (' + emQ.toLocaleString() + '건 × 50원): ' + _fmtKRW(emQ * 50));
+    var nlQ = _numVal('bf_newsletter_qty', 0);
+    if (nlQ > 0) lines.push('- 뉴스레터(노코드) 발송 (' + nlQ.toLocaleString() + '건 × 50원): ' + _fmtKRW(nlQ * 50));
+  }
+  return lines.join('\n');
 }
 
-// 목걸이줄 적용 → 빌링 행 업데이트
-function applyLanyardTypeFromSelect() {
-  var sel = document.getElementById('adm_lanyard_select');
-  var qtyEl = document.getElementById('adm_lanyard_qty');
-  var upEl = document.getElementById('adm_lanyard_unitprice');
-  if (!sel) return;
-  var opt = sel.options[sel.selectedIndex];
-  var typeName = opt.dataset.label || opt.text.split(' —')[0].trim();
-  var unitPrice = parseInt(upEl && upEl.value ? upEl.value : sel.value, 10);
-  var qty = qtyEl && qtyEl.value ? parseInt(qtyEl.value, 10) : _qsAttendees;
-  if (!qty) { showToast('수량을 입력하거나 참가자 수가 있어야 합니다', true); return; }
-  var label = '목걸이줄 ' + typeName + ' (' + qty.toLocaleString() + '개 × ' + unitPrice.toLocaleString() + '원)';
-  var val = formatKRWAdmin(qty * unitPrice);
-  if (!updateBillingRowByKeyword('목걸이줄', label, val)) {
-    addBillingRowWithValues(label, val);
-  }
+// buildContentFromBillingTable 호환성 래퍼
+function buildContentFromBillingTable() {
+  var content = document.getElementById('qs_content').value;
+  var newBilling = serializeBillingForm();
+  return content.replace(
+    /(\[비용 상세\])([\s\S]*?)(\[총계\]|\[수정 이력\]|$)/,
+    function(match, p1, p2, p3) {
+      return '[비용 상세]\n' + newBilling + '\n\n' + p3;
+    }
+  );
 }
 
-// 빌링 행 생성 헬퍼 (공통)
-function createBillingRowEl(label, val) {
-  var tr = document.createElement('tr');
-  tr.className = 'bil-row';
-  tr.dataset.label = label;
-  tr.dataset.val   = val;
-  tr.innerHTML = `
-    <td class="bil-name" style="padding:5px 4px 5px 0;font-size:12px;color:var(--text);width:62%">${label.replace(/</g,'&lt;')}</td>
-    <td class="bil-amt"  style="padding:5px 4px;font-size:12px;color:var(--text);text-align:right;white-space:nowrap">${val.replace(/</g,'&lt;')}</td>
-    <td style="padding:5px 0 5px 4px;width:22px;text-align:center">
-      <button onclick="startBillingEdit(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 3px" title="수정">✏️</button>
-    </td>
-    <td style="padding:5px 0 5px 2px;width:22px;text-align:center">
-      <button onclick="removeBillingRow(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 3px" title="삭제">×</button>
-    </td>`;
-  return tr;
+// syncBillingToContent 호환성 래퍼
+function syncBillingToContent() {
+  var el = document.getElementById('qs_content');
+  if (el) el.value = buildContentFromBillingTable();
 }
 
-// 특정 키워드 포함 행 다음에 삽입 (없으면 맨 끝에 추가)
-function insertBillingRowAfterKeyword(afterKeyword, label, val) {
-  var rows = Array.from(document.querySelectorAll('#qs_billing_table .bil-row'));
-  var afterIdx = -1;
-  for (var i = rows.length - 1; i >= 0; i--) {
-    if ((rows[i].dataset.label || '').includes(afterKeyword)) { afterIdx = i; break; }
-  }
-  var tr = createBillingRowEl(label, val);
-  var tbody = document.getElementById('qs_billing_table');
-  if (afterIdx >= 0 && afterIdx < rows.length - 1) {
-    tbody.insertBefore(tr, rows[afterIdx + 1]);
-  } else {
-    tbody.appendChild(tr);
-  }
-  syncBillingToContent();
-}
+// 구조형 폼 초기화 (모달 열 때 호출)
+function initBillingForm(content) {
+  var p = parseQuoteContent(content);
 
-// 발송 서비스 토글 → 키오스크 다음 위치에 삽입/제거
-function applyMessaging() {
-  var att = _qsAttendees || 0;
-  var items = [
-    { id: 'adm_alimtalk',   keyword: '알림톡', label: '알림톡 발송 (' + att.toLocaleString() + '건 × 20원)', price: att * 20 },
-    { id: 'adm_sms',        keyword: '문자(LMS)', label: '문자(LMS) 발송 (' + att.toLocaleString() + '건 × 100원)', price: att * 100 },
-    { id: 'adm_email_send', keyword: '이메일 발송', label: '이메일 발송 (' + att.toLocaleString() + '건 × 50원)', price: att * 50 },
-  ];
-  items.forEach(function(item) {
-    var checked = document.getElementById(item.id) && document.getElementById(item.id).checked;
-    if (checked) {
-      if (!updateBillingRowByKeyword(item.keyword, item.label, formatKRWAdmin(item.price))) {
-        // 키오스크 다음, 없으면 운송비 앞, 없으면 끝
-        var inserted = false;
-        var anchors = ['키오스크', '무인발권'];
-        for (var a = 0; a < anchors.length; a++) {
-          var rows = Array.from(document.querySelectorAll('#qs_billing_table .bil-row'));
-          for (var i = 0; i < rows.length; i++) {
-            if ((rows[i].dataset.label || '').includes(anchors[a])) {
-              var tr = createBillingRowEl(item.label, formatKRWAdmin(item.price));
-              var tbody = document.getElementById('qs_billing_table');
-              if (i < rows.length - 1) {
-                tbody.insertBefore(tr, rows[i + 1]);
-              } else {
-                tbody.appendChild(tr);
-              }
-              syncBillingToContent();
-              inserted = true;
-              break;
-            }
-          }
-          if (inserted) break;
-        }
-        if (!inserted) addBillingRowWithValues(item.label, formatKRWAdmin(item.price));
+  // 컨텍스트 파악
+  var attMatch = (p['참가자/일수'] || '').match(/(\d+)명/);
+  _bfState.attendees = attMatch ? parseInt(attMatch[1], 10) : 300;
+  var daysStr = (p['행사 기간'] || p['참가자/일수'] || '').match(/(\d+)일/);
+  _bfState.days = daysStr ? parseInt(daysStr[1], 10) : 1;
+  var regionKey = p['행사 지역'] || 'seoul';
+  _bfState.region = regionKey;
+  var rp = _REGION_PRICING[regionKey] || _REGION_PRICING.default;
+  _bfState.regionLabel = p['행사 지역'] || '서울';
+
+  // 패키지 파악
+  var pkg = p['패키지'] || '';
+  _bfState.pkgBadge = /명찰/.test(pkg);
+  _bfState.pkgKiosk = /키오스크/.test(pkg);
+
+  // 섹션 표시/숨김
+  var sec2 = document.getElementById('bf_sec2');
+  var sec3 = document.getElementById('bf_sec3');
+  if (sec2) sec2.style.display = _bfState.pkgBadge ? '' : 'none';
+  if (sec3) sec3.style.display = _bfState.pkgKiosk ? '' : 'none';
+
+  // 기존 비용 내역 파싱하여 폼에 채우기
+  var billingM = content.match(/\[비용 상세\]([\s\S]*?)(\[총계\]|\[수정 이력\]|$)/);
+  var billing = billingM ? billingM[1] : '';
+  var items = {};
+  billing.split('\n').forEach(function(line) {
+    var m = line.match(/^- (.+?): (.*)$/);
+    if (m) items[m[1].trim()] = m[2].trim();
+  });
+
+  // S1: 솔루션
+  var solKey = Object.keys(items).find(function(k) { return /솔루션 사용료/.test(k); });
+  _setVal2('bf_solution_amt', solKey ? items[solKey] : '');
+
+  // regFee
+  var isRegFee = Object.keys(items).some(function(k) { return /유료 결제 서비스/.test(k); });
+  var rfSel = document.getElementById('bf_regfee_sel');
+  if (rfSel) rfSel.value = isRegFee ? '유료' : '무료';
+  toggleRegFeeNote();
+
+  // S2: 명찰 (패키지 있으면)
+  if (_bfState.pkgBadge) {
+    var badgeKey = Object.keys(items).find(function(k) { return /종이명찰/.test(k); });
+    if (badgeKey) {
+      var bm = badgeKey.match(/\(([0-9,]+)장\s*×\s*([0-9,]+)원\)/);
+      if (bm) {
+        _setVal2('bf_badge_qty', bm[1].replace(/,/g, ''));
+        _setVal2('bf_badge_price', bm[2].replace(/,/g, ''));
+      } else {
+        _setVal2('bf_badge_qty', _bfState.attendees);
+        _setVal2('bf_badge_price', 1500);
       }
     } else {
-      removeBillingRowByKeyword(item.keyword);
+      _setVal2('bf_badge_qty', _bfState.attendees);
+      _setVal2('bf_badge_price', 1500);
     }
-  });
-}
-
-// 현장 상주 매니저 토글 → 설치/철거 다음 위치에 삽입/제거
-function applyManagerOption() {
-  var checked = document.getElementById('adm_manager') && document.getElementById('adm_manager').checked;
-  var qtyWrap = document.getElementById('adm_manager_qty_wrap');
-  if (qtyWrap) qtyWrap.style.display = checked ? 'block' : 'none';
-  if (!checked) {
-    removeBillingRowByKeyword('현장 상주 매니저');
-    return;
-  }
-  var qty = parseInt((document.getElementById('adm_manager_qty') || {}).value || '1', 10) || 1;
-  // 운영일수 파악
-  var content = (document.getElementById('qs_content') || {}).value || '';
-  var daysMatch = content.match(/(\d+)일\b/);
-  var days = daysMatch ? parseInt(daysMatch[1], 10) : 1;
-  var cost = qty * days * 300000;
-  var label = '현장 상주 매니저 인건비 (' + qty + '인 × ' + days + '일 × 300,000원)';
-  var val = formatKRWAdmin(cost);
-  if (!updateBillingRowByKeyword('현장 상주 매니저', label, val)) {
-    insertBillingRowAfterKeyword('설치/철거', label, val);
-  }
-}
-
-// 🧮 비용 항목 합산 → 소계/기술료/VAT/총계 자동 계산
-function autoCalcTotal() {
-  var rows = document.querySelectorAll('#qs_billing_table .bil-row');
-  var sum = 0;
-  rows.forEach(function(row) {
-    var n = Number((row.dataset.val || '').replace(/[^0-9]/g, ''));
-    if (!isNaN(n)) sum += n;
-  });
-  // 소계/기술료/VAT 표시
-  var totalsEl = document.getElementById('qs_billing_totals');
-  if (totalsEl) {
-    if (sum > 0) {
-      var tech  = Math.round(sum * 0.1);
-      var vat   = Math.round((sum + tech) * 0.1);
-      var grand = sum + tech + vat;
-      totalsEl.style.display = 'block';
-      var fmt = function(n) { return '₩' + n.toLocaleString('ko-KR'); };
-      document.getElementById('qs_subtotal').textContent = fmt(sum);
-      document.getElementById('qs_techfee').textContent  = fmt(tech);
-      document.getElementById('qs_vat').textContent      = fmt(vat);
-      document.getElementById('qs_grand').textContent    = fmt(grand);
-      // 총 금액 입력란도 자동 업데이트
-      document.getElementById('qs_total').value = fmt(grand);
-      _qsOriginalTotal = fmt(grand);
+    var lanyardKey = Object.keys(items).find(function(k) { return /목걸이줄/.test(k); });
+    if (lanyardKey) {
+      var lm = lanyardKey.match(/\(([0-9,]+)개\s*×\s*([0-9,]+)원\)/);
+      if (lm) {
+        _setVal2('bf_lanyard_qty', lm[1].replace(/,/g, ''));
+        _setVal2('bf_lanyard_price', lm[2].replace(/,/g, ''));
+      } else {
+        _setVal2('bf_lanyard_qty', _bfState.attendees);
+        _setVal2('bf_lanyard_price', 1300);
+      }
     } else {
-      totalsEl.style.display = 'none';
+      _setVal2('bf_lanyard_qty', _bfState.attendees);
+      _setVal2('bf_lanyard_price', 1300);
     }
   }
+
+  // S3: 키오스크
+  if (_bfState.pkgKiosk) {
+    var kioskKey = Object.keys(items).find(function(k) { return /무인발권키오스크/.test(k); });
+    if (kioskKey) {
+      var km = kioskKey.match(/\((\d+)대\s*×\s*([0-9.]+)일\s*×\s*([0-9,]+)원\)/);
+      if (km) {
+        _setVal2('bf_kiosk_qty', km[1]);
+        _setVal2('bf_kiosk_days', km[2]);
+        _setVal2('bf_kiosk_price', km[3].replace(/,/g, ''));
+      } else {
+        _setVal2('bf_kiosk_qty', 1);
+        _setVal2('bf_kiosk_days', _bfState.days);
+        _setVal2('bf_kiosk_price', 100000);
+      }
+    } else {
+      _setVal2('bf_kiosk_qty', 1);
+      _setVal2('bf_kiosk_days', _bfState.days);
+      _setVal2('bf_kiosk_price', 100000);
+    }
+    var mkKey = Object.keys(items).find(function(k) { return /유인발급 장비/.test(k); });
+    var mkCheck = document.getElementById('bf_mkiosk_check');
+    if (mkKey && mkCheck) {
+      mkCheck.checked = true;
+      var mm = mkKey.match(/\(([0-9.]+)일\s*×\s*(\d+)세트\s*×\s*([0-9,]+)원\)/);
+      if (mm) {
+        _setVal2('bf_mkiosk_days', mm[1]);
+        _setVal2('bf_mkiosk_sets', mm[2]);
+        _setVal2('bf_mkiosk_price', mm[3].replace(/,/g, ''));
+      } else {
+        _setVal2('bf_mkiosk_days', _bfState.days);
+        _setVal2('bf_mkiosk_sets', 1);
+        _setVal2('bf_mkiosk_price', 250000);
+      }
+      toggleMKiosk();
+    }
+  }
+
+  // S4: 운영 대행비
+  var shipKey = Object.keys(items).find(function(k) { return /운송비/.test(k); });
+  if (shipKey) {
+    _setVal2('bf_shipping_amt', items[shipKey]);
+    var shName = document.getElementById('bf_shipping_name');
+    if (shName) shName.textContent = shipKey;
+  } else {
+    var defShip = rp.shipping > 0 ? _fmtKRW(rp.shipping) : '₩0';
+    _setVal2('bf_shipping_amt', defShip);
+    var shName2 = document.getElementById('bf_shipping_name');
+    if (shName2) shName2.textContent = '왕복 운송비 (' + rp.label + ')';
+    var bfBiztripName = document.getElementById('bf_biztrip_name');
+    if (bfBiztripName) bfBiztripName.textContent = '현장 상주 매니저 출장비 (' + rp.label + ')';
+    _setVal2('bf_biztrip_price', rp.biztrip);
+  }
+
+  // 설치/철거
+  var installKey = Object.keys(items).find(function(k) { return /설치.철거 매니저/.test(k); });
+  if (installKey) {
+    var im = installKey.match(/\((\d+)회\s*×\s*([0-9,]+)원\)/);
+    if (im) {
+      _setVal2('bf_install_qty', im[1]);
+      _setVal2('bf_install_price', im[2].replace(/,/g, ''));
+    } else {
+      _setVal2('bf_install_qty', 2);
+      _setVal2('bf_install_price', 300000);
+    }
+  } else {
+    _setVal2('bf_install_qty', 2);
+    _setVal2('bf_install_price', 300000);
+  }
+
+  // 매니저 인건비
+  var mgrKey = Object.keys(items).find(function(k) { return /현장 상주 매니저 인건비/.test(k); });
+  var mgrCheck = document.getElementById('bf_manager_check');
+  if (mgrKey && mgrCheck) {
+    mgrCheck.checked = true;
+    var mgm = mgrKey.match(/\(([0-9.]+)일\s*×\s*300,000원\)/);
+    _setVal2('bf_manager_days', mgm ? mgm[1] : _bfState.days);
+    toggleManagerRow();
+  } else {
+    _setVal2('bf_manager_days', _bfState.days);
+  }
+
+  // 출장비
+  var btKey = Object.keys(items).find(function(k) { return /출장비/.test(k); });
+  var btCheck = document.getElementById('bf_biztrip_check');
+  if (btKey && btCheck) {
+    btCheck.checked = true;
+    var btm = btKey.match(/\(([0-9.]+)일\s*×\s*([0-9,]+)원\)/);
+    if (btm) {
+      _setVal2('bf_biztrip_days', btm[1]);
+      _setVal2('bf_biztrip_price', btm[2].replace(/,/g, ''));
+    } else {
+      _setVal2('bf_biztrip_days', _bfState.days);
+      _setVal2('bf_biztrip_price', rp.biztrip);
+    }
+    toggleBiztripRow();
+  } else {
+    _setVal2('bf_biztrip_days', _bfState.days);
+    _setVal2('bf_biztrip_price', rp.biztrip);
+  }
+
+  // S5: 부가서비스 - 출입/고객관리
+  var accessKey = Object.keys(items).find(function(k) { return /솔루션\(장소별\)/.test(k); });
+  var accessCheck = document.getElementById('bf_access_check');
+  if (accessKey && accessCheck) {
+    accessCheck.checked = true;
+    var acm = accessKey.match(/\(([0-9.]+)일\s*×\s*(\d+)식/);
+    if (acm) { _setVal2('bf_access_days', acm[1]); _setVal2('bf_access_count', acm[2]); }
+    else { _setVal2('bf_access_days', _bfState.days); _setVal2('bf_access_count', 1); }
+    var qrKey = Object.keys(items).find(function(k) { return /QR장비 대여료/.test(k); });
+    if (qrKey) {
+      var qrm = qrKey.match(/\(([0-9.]+)일\s*×\s*(\d+)식/);
+      if (qrm) { _setVal2('bf_qr_days', qrm[1]); _setVal2('bf_qr_count', qrm[2]); }
+      else { _setVal2('bf_qr_days', _bfState.days); _setVal2('bf_qr_count', 1); }
+    } else {
+      _setVal2('bf_qr_days', _bfState.days);
+      _setVal2('bf_qr_count', 1);
+    }
+    toggleAccess();
+  } else {
+    _setVal2('bf_access_days', _bfState.days);
+    _setVal2('bf_access_count', 1);
+    _setVal2('bf_qr_days', _bfState.days);
+    _setVal2('bf_qr_count', 1);
+  }
+
+  // 발송 서비스
+  var alKey = Object.keys(items).find(function(k) { return /알림톡 발송/.test(k); });
+  var smKey = Object.keys(items).find(function(k) { return /문자.LMS. 발송/.test(k); });
+  var emKey = Object.keys(items).find(function(k) { return /이메일 발송/.test(k); });
+  var nlKey = Object.keys(items).find(function(k) { return /뉴스레터/.test(k); });
+  var sendCheck = document.getElementById('bf_send_check');
+  if ((alKey || smKey || emKey || nlKey) && sendCheck) {
+    sendCheck.checked = true;
+    var parseQty = function(key) {
+      if (!key) return 0;
+      var m = key.match(/\(([0-9,]+)건/);
+      return m ? parseInt(m[1].replace(/,/g,''), 10) : _bfState.attendees;
+    };
+    _setVal2('bf_alimtalk_qty', alKey ? parseQty(alKey) : _bfState.attendees);
+    _setVal2('bf_sms_qty', smKey ? parseQty(smKey) : 0);
+    _setVal2('bf_email_qty', emKey ? parseQty(emKey) : 0);
+    _setVal2('bf_newsletter_qty', nlKey ? parseQty(nlKey) : 0);
+    toggleSendService();
+  } else {
+    _setVal2('bf_alimtalk_qty', _bfState.attendees);
+    _setVal2('bf_sms_qty', 0);
+    _setVal2('bf_email_qty', 0);
+    _setVal2('bf_newsletter_qty', 0);
+  }
+
+  calcBillingTotals();
 }
 
-// 특정 값으로 빌링 행 추가 (끝에 추가)
-function addBillingRowWithValues(label, val) {
-  var tbody = document.getElementById('qs_billing_table');
-  if (!tbody) return;
-  tbody.appendChild(createBillingRowEl(label, val));
-  syncBillingToContent();
-}
-
-// 모달 열 때 어드민 옵션 초기화
+// resetAdminOptions → initBillingForm 호환
 function resetAdminOptions(content) {
   _qsAttendees = parseAttendees(content);
-  // 명찰 드롭다운 기본값(일반형(중)) + 단가 동기화
-  var badgeSel = document.getElementById('adm_badge_select');
-  if (badgeSel) { badgeSel.selectedIndex = 0; syncBadgeUnitPrice(); }
-  var badgeQty = document.getElementById('adm_badge_qty');
-  if (badgeQty) badgeQty.value = '';
-  // 목걸이줄 드롭다운 기본값(AI(P)) + 단가 동기화
-  var lanyardSel = document.getElementById('adm_lanyard_select');
-  if (lanyardSel) { lanyardSel.selectedIndex = 0; syncLanyardUnitPrice(); }
-  var lanyardQty = document.getElementById('adm_lanyard_qty');
-  if (lanyardQty) lanyardQty.value = '';
-  // 행사 등록비 초기화
-  var regfeeSel = document.getElementById('adm_regfee_select');
-  if (regfeeSel) regfeeSel.selectedIndex = 0;
-  var regfeeNote = document.getElementById('adm_regfee_note');
-  if (regfeeNote) regfeeNote.style.display = 'none';
-  // 체크박스 초기화
-  ['adm_alimtalk','adm_sms','adm_email_send','adm_manager'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.checked = false;
-  });
-  var qtyWrap = document.getElementById('adm_manager_qty_wrap');
-  if (qtyWrap) qtyWrap.style.display = 'none';
-  var qtyEl = document.getElementById('adm_manager_qty');
-  if (qtyEl) qtyEl.value = '1';
+  initBillingForm(content);
+  // 할인 초기화
+  var discEl = document.getElementById('qs_discount');
+  if (discEl) discEl.value = '';
+  setDiscountType('krw');
 }
 
 // ── 수정 이력 ──
