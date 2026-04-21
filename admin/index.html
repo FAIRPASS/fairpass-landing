@@ -1163,6 +1163,21 @@
       <div class="qs-info-item"><span>전화번호</span><a id="qs_phone" href="#">-</a></div>
     </div>
 
+    <!-- 행사 정보 -->
+    <div id="qs_event_section" style="margin-bottom:14px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <div style="padding:8px 14px;font-size:10px;font-weight:800;letter-spacing:0.1em;color:#8b5cf6;text-transform:uppercase;background:rgba(139,92,246,0.06);border-bottom:1px solid var(--border)">행사 정보</div>
+      <div style="padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="qs-info-item" style="grid-column:1/-1"><span>행사명</span><strong id="qs_ev_name">-</strong></div>
+        <div class="qs-info-item"><span>행사 지역</span><strong id="qs_ev_region">-</strong></div>
+        <div class="qs-info-item"><span>행사 장소</span><strong id="qs_ev_venue">-</strong></div>
+        <div class="qs-info-item" style="grid-column:1/-1"><span>행사 기간</span><strong id="qs_ev_period">-</strong></div>
+        <div class="qs-info-item"><span>설치 예정일</span><strong id="qs_ev_install">-</strong></div>
+        <div class="qs-info-item"><span>철거 예정일</span><strong id="qs_ev_remove">-</strong></div>
+        <div class="qs-info-item"><span>패키지</span><strong id="qs_ev_pkg">-</strong></div>
+        <div class="qs-info-item"><span>등록비</span><strong id="qs_ev_regfee">-</strong></div>
+      </div>
+    </div>
+
     <!-- 원본 견적 보기 -->
     <details id="qs_original_panel" style="margin-bottom:14px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
       <summary style="padding:10px 14px;font-size:11px;font-weight:700;color:#94a3b8;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;background:rgba(255,255,255,0.03);user-select:none">
@@ -1285,8 +1300,8 @@
         </div>
       </div>
 
-      <!-- ── 4. 운영 대행비 ── -->
-      <div class="bil-sec-block" id="bf_sec4">
+      <!-- ── 4. 운영 대행비 (플랫폼+키오스크+명찰 풀패키지 시만 표시) ── -->
+      <div class="bil-sec-block" id="bf_sec4" style="display:none">
         <div class="bil-sec-title">4. 운영 대행비</div>
         <!-- 왕복 운송비 -->
         <div class="bil-row-flex">
@@ -2916,7 +2931,7 @@ window.openQuotePdf = function(index) {
       <div class="card-header">
         <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
           <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between">
-            <img src="https://fairpass.world/images/FAIRPASS%28w%2BBlue%29.png" alt="FAIRPASS" height="32" style="display:block;height:32px;width:auto;" onerror="this.style.display='none'">
+            <img src="https://fairpass.world/images/FAIRPASS%28w%2BBlue%29.png" alt="FAIRPASS" height="32" style="display:block;height:32px;width:auto;align-self:flex-start;" onerror="this.style.display='none'">
             <div style="margin-top:20px">
               <div class="brand-sub">맞춤 견적서 · Quotation</div>
               <div class="badge-row">
@@ -3111,6 +3126,19 @@ function openQuoteSendModal(idx) {
   const phoneEl = document.getElementById('qs_phone');
   phoneEl.textContent = item.phone || '-';
   phoneEl.href = item.phone ? `tel:${item.phone}` : '#';
+
+  // 행사 정보 채우기
+  const ep = parseQuoteContent(item.content_edited || item.content || '');
+  const _setEv = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || '-'; };
+  _setEv('qs_ev_name',    ep.행사명);
+  _setEv('qs_ev_region',  ep.행사지역);
+  _setEv('qs_ev_venue',   ep.행사장소);
+  _setEv('qs_ev_period',  ep.행사기간);
+  _setEv('qs_ev_install', ep.설치일시);
+  _setEv('qs_ev_remove',  ep.철거일시);
+  _setEv('qs_ev_pkg',     ep.패키지);
+  _setEv('qs_ev_regfee',  ep.행사등록비);
+
   // 원본 패널: content가 있고 content_edited와 다를 때만 표시
   const originalContent = item.content || '';
   const originalEl = document.getElementById('qs_original_content');
@@ -3542,8 +3570,10 @@ function initBillingForm(content) {
   // 섹션 표시/숨김
   var sec2 = document.getElementById('bf_sec2');
   var sec3 = document.getElementById('bf_sec3');
+  var sec4 = document.getElementById('bf_sec4');
   if (sec2) sec2.style.display = _bfState.pkgBadge ? '' : 'none';
   if (sec3) sec3.style.display = _bfState.pkgKiosk ? '' : 'none';
+  if (sec4) sec4.style.display = (_bfState.pkgBadge && _bfState.pkgKiosk) ? '' : 'none';
 
   // 기존 비용 내역 파싱하여 폼에 채우기
   var billingM = content.match(/\[비용 상세\]([\s\S]*?)(\[총계\]|\[수정 이력\]|$)/);
