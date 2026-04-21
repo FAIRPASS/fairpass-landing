@@ -1188,14 +1188,15 @@
           <p style="font-size:11px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em">목걸이줄 타입</p>
           <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
             <select id="adm_lanyard_select" onchange="syncLanyardUnitPrice()" style="flex:1;min-width:220px;padding:7px 8px;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)">
-              <option value="1300" data-label="AI(P)" selected>AI(P) — ₩1,300 (A 굵은 줄 1.6cm, 종이 고리 1개)</option>
-              <option value="600"  data-label="B1(P)">B1(P) — ₩600 (B 굵은 줄 0.4cm, 종이 고리 1개)</option>
-              <option value="1000" data-label="A1">A1 — ₩1,000 (A 굵은 줄 1.6cm, 고리 1개)</option>
-              <option value="1100" data-label="A2">A2 — ₩1,100 (A 굵은 줄 1.6cm, 고리 2개)</option>
-              <option value="500"  data-label="B1">B1 — ₩500 (B 굵은 줄 0.4cm, 고리 1개)</option>
-              <option value="600"  data-label="B2">B2 — ₩600 (B 굵은 줄 0.4cm, 고리 2개)</option>
-              <option value="0"    data-label="사용 안함">사용 안함 — ₩0</option>
+              <option value="1300" data-label="AI(P)" data-desc="A 굵은 줄 1.6cm, 종이 고리 1개" selected>AI(P) — ₩1,300</option>
+              <option value="600"  data-label="B1(P)" data-desc="B 굵은 줄 0.4cm, 종이 고리 1개">B1(P) — ₩600</option>
+              <option value="1000" data-label="A1"    data-desc="A 굵은 줄 1.6cm, 고리 1개">A1 — ₩1,000</option>
+              <option value="1100" data-label="A2"    data-desc="A 굵은 줄 1.6cm, 고리 2개">A2 — ₩1,100</option>
+              <option value="500"  data-label="B1"    data-desc="B 굵은 줄 0.4cm, 고리 1개">B1 — ₩500</option>
+              <option value="600"  data-label="B2"    data-desc="B 굵은 줄 0.4cm, 고리 2개">B2 — ₩600</option>
+              <option value="0"    data-label="사용 안함" data-desc="">사용 안함 — ₩0</option>
             </select>
+            <div id="adm_lanyard_desc" style="font-size:10px;color:var(--muted);margin-top:4px;width:100%">A 굵은 줄 1.6cm, 종이 고리 1개</div>
             <div style="display:flex;gap:4px;align-items:center;flex-shrink:0">
               <input type="number" id="adm_lanyard_qty" placeholder="수량(개)" min="1"
                 style="width:80px;padding:7px 8px;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)">
@@ -1262,6 +1263,13 @@
         </div>
       </div>
       <table id="qs_billing_table" style="width:100%;border-collapse:collapse"></table>
+      <!-- 소계/기술료/VAT -->
+      <div id="qs_billing_totals" style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px;display:none">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px"><span>소계</span><span id="qs_subtotal">-</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px"><span>기술료 (10%)</span><span id="qs_techfee">-</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px"><span>부가가치세 (10%)</span><span id="qs_vat">-</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800;color:var(--text);border-top:1px solid var(--border);padding-top:8px"><span>총 견적금액</span><span id="qs_grand" style="color:#8b5cf6">-</span></div>
+      </div>
     </div>
 
     <!-- 할인 -->
@@ -2967,12 +2975,32 @@ document.getElementById('quoteSendModalBg').addEventListener('click', e => {
 });
 
 // ── 비용 내역 편집 테이블 ──
+var _BILLING_SECTIONS = [
+  { key: 'solution',  pattern: /솔루션|유료 결제/,            title: '1. 페어패스 솔루션 사용료' },
+  { key: 'badge',     pattern: /명찰|목걸이/,                 title: '2. 종이 명찰 발급비' },
+  { key: 'kiosk',     pattern: /키오스크/,                    title: '3. 키오스크 현장 운영' },
+  { key: 'extra',     pattern: /알림톡|문자|이메일 발송/,     title: '4. 부가서비스' },
+  { key: 'ops',       pattern: /운송비|매니저|설치|철거|출장/, title: '5. 운영 대행비' },
+];
+function _getSectionTitle(label) {
+  for (var s of _BILLING_SECTIONS) if (s.pattern.test(label)) return s.title;
+  return null;
+}
+
 function makeBillingRowHtml(label, val) {
-  const safeLabel = label.replace(/"/g, '&quot;');
-  const safeVal   = val.replace(/"/g, '&quot;');
-  return `<tr class="bil-row" data-label="${safeLabel}" data-val="${safeVal}">
-    <td class="bil-name" style="padding:5px 4px 5px 0;font-size:12px;color:var(--text);width:62%">${label.replace(/</g,'&lt;')}</td>
-    <td class="bil-amt"  style="padding:5px 4px;font-size:12px;color:var(--text);text-align:right;white-space:nowrap">${val.replace(/</g,'&lt;')}</td>
+  const p = parseBillingLabel(label);
+  let qtyText = '';
+  if (p.qty1 !== null) {
+    qtyText = p.qty1.toLocaleString() + (p.unit1||'');
+    if (p.qty2 !== null) qtyText += ' × ' + p.qty2 + (p.unit2||'');
+    qtyText += ' × ₩' + (p.unitPrice||0).toLocaleString();
+  }
+  const displayName = p.qty1 !== null ? p.baseName : label;
+  const esc = s => (s||'').replace(/"/g,'&quot;');
+  return `<tr class="bil-row" data-label="${esc(label)}" data-val="${esc(val)}">
+    <td style="padding:5px 4px 5px 0;font-size:12px;color:var(--text);width:44%">${displayName.replace(/</g,'&lt;')}</td>
+    <td style="padding:5px 4px;font-size:11px;color:var(--muted);text-align:center">${qtyText}</td>
+    <td style="padding:5px 4px;font-size:12px;color:var(--text);text-align:right;white-space:nowrap;font-weight:600">${val.replace(/</g,'&lt;')}</td>
     <td style="padding:5px 0 5px 4px;width:22px;text-align:center">
       <button onclick="startBillingEdit(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 3px" title="수정">✏️</button>
     </td>
@@ -2982,17 +3010,34 @@ function makeBillingRowHtml(label, val) {
   </tr>`;
 }
 
+function makeSectionHeaderHtml(title) {
+  return `<tr class="bil-sec-hdr"><td colspan="5" style="padding:6px 10px;font-size:11px;font-weight:700;color:#a5b4fc;background:#1e1e38;border-top:1px solid #2a2a4a">${title}</td></tr>`;
+}
+
 function renderBillingTable(billingSection) {
   const tbody = document.getElementById('qs_billing_table');
   if (!tbody) return;
   const lines = (billingSection || '').split('\n').filter(l => l.trim());
-  tbody.innerHTML = lines.map(l => {
+  const items = lines.map(l => {
     const parts = l.replace(/^- /, '').split(': ');
-    const label = parts[0] || '';
-    const val   = parts.slice(1).join(': ') || '';
-    return makeBillingRowHtml(label, val);
-  }).join('');
+    return { label: parts[0]||'', val: parts.slice(1).join(': ')||'' };
+  });
+  // 섹션별로 그룹핑해서 헤더 삽입
+  let html = '';
+  let lastSection = null;
+  items.forEach(item => {
+    const sec = _getSectionTitle(item.label);
+    if (sec && sec !== lastSection) {
+      html += makeSectionHeaderHtml(sec);
+      lastSection = sec;
+    } else if (!sec && lastSection !== '__etc__') {
+      // 미분류 항목은 헤더 없이 그냥 추가
+    }
+    html += makeBillingRowHtml(item.label, item.val);
+  });
+  tbody.innerHTML = html;
   syncBillingToContent();
+  autoCalcTotal();
 }
 
 // 라벨에서 수량·단가 파싱: "(1,000장 × 1,500원)" / "(4대 × 3일 × 100,000원)"
@@ -3023,53 +3068,49 @@ function startBillingEdit(btn) {
   const label = row.dataset.label || '';
   const val   = row.dataset.val   || '';
   const p     = parseBillingLabel(label);
-  const hasQty = p.qty1 !== null;
+  const hasQty  = p.qty1 !== null;
   const hasQty2 = hasQty && p.qty2 !== null;
-  const esc = s => s.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const esc = s => (s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const iStyle = 'padding:6px 8px;font-size:12px;margin:0;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text)';
 
   row.classList.add('editing');
   row.innerHTML = `
-    <td colspan="3" style="padding:8px 4px">
+    <td colspan="4" style="padding:8px 4px">
       <div style="display:flex;flex-direction:column;gap:8px">
         <input class="bei-name qs-total-input" value="${esc(p.baseName)}" placeholder="항목명"
-          style="width:100%;padding:6px 8px;font-size:12px;margin:0">
-        ${hasQty ? `
-        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          style="width:100%;${iStyle}">
+        <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
+          ${hasQty ? `
           <div style="display:flex;flex-direction:column;gap:2px">
             <span style="font-size:10px;color:var(--muted)">단가 (원)</span>
             <input class="bei-up qs-total-input" type="number" value="${p.unitPrice}" placeholder="단가"
-              oninput="recalcBillingEdit(this)"
-              style="width:80px;padding:6px 8px;font-size:12px;margin:0">
+              oninput="recalcBillingEdit(this)" style="width:80px;${iStyle}">
           </div>
           <div style="display:flex;flex-direction:column;gap:2px">
             <span style="font-size:10px;color:var(--muted)">수량 (${p.unit1||'개'})</span>
             <input class="bei-q1 qs-total-input" type="number" value="${p.qty1}" placeholder="수량"
-              oninput="recalcBillingEdit(this)"
-              style="width:72px;padding:6px 8px;font-size:12px;margin:0">
+              oninput="recalcBillingEdit(this)" style="width:72px;${iStyle}">
           </div>
           ${hasQty2 ? `
           <div style="display:flex;flex-direction:column;gap:2px">
-            <span style="font-size:10px;color:var(--muted)">${p.unit2||'일'} 수</span>
+            <span style="font-size:10px;color:var(--muted)">${p.unit2||'일'}수</span>
             <input class="bei-q2 qs-total-input" type="number" value="${p.qty2}" placeholder="일수"
-              oninput="recalcBillingEdit(this)"
-              style="width:60px;padding:6px 8px;font-size:12px;margin:0">
+              oninput="recalcBillingEdit(this)" style="width:60px;${iStyle}">
           </div>` : ''}
           <div style="display:flex;flex-direction:column;gap:2px">
             <span style="font-size:10px;color:var(--muted)">금액</span>
-            <span class="bei-result" style="font-size:13px;font-weight:700;color:#8b5cf6;padding:6px 0;min-width:80px">
-              ${val}
-            </span>
-          </div>
-        </div>` : `
-        <input class="bei-amt qs-total-input" value="${esc(val)}" placeholder="₩0"
-          style="width:100%;padding:6px 8px;font-size:12px;margin:0;text-align:right">`}
+            <span class="bei-result" style="font-size:13px;font-weight:700;color:#8b5cf6;padding:6px 4px">${val}</span>
+          </div>` : `
+          <input class="bei-amt qs-total-input" value="${esc(val)}" placeholder="₩0"
+            style="flex:1;${iStyle};text-align:right">`}
+        </div>
       </div>
     </td>
-    <td style="padding:8px 4px;text-align:center;vertical-align:middle;white-space:nowrap">
+    <td style="padding:8px 4px;text-align:center;vertical-align:middle;white-space:nowrap;width:28px">
       <button onclick="confirmBillingEdit(this,'${esc(p.unit1)}','${esc(p.unit2||'')}')"
-        style="background:#8b5cf6;border:none;color:#fff;border-radius:5px;padding:5px 8px;font-size:11px;cursor:pointer;display:block;margin-bottom:4px">✅</button>
+        style="background:#8b5cf6;border:none;color:#fff;border-radius:5px;padding:5px 7px;font-size:11px;cursor:pointer;display:block;margin-bottom:4px">✅</button>
       <button onclick="cancelBillingEdit(this,'${esc(label)}','${esc(val)}')"
-        style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:5px 8px;font-size:11px;cursor:pointer">✕</button>
+        style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:5px 7px;font-size:11px;cursor:pointer">✕</button>
     </td>`;
 }
 
@@ -3211,11 +3252,16 @@ function applyBadgeTypeFromSelect() {
   }
 }
 
-// 목걸이줄 드롭다운 선택 → 단가 자동 동기화
+// 목걸이줄 드롭다운 선택 → 단가 자동 동기화 + 설명 업데이트
 function syncLanyardUnitPrice() {
   var sel = document.getElementById('adm_lanyard_select');
   var upEl = document.getElementById('adm_lanyard_unitprice');
   if (sel && upEl) upEl.value = sel.value;
+  var descEl = document.getElementById('adm_lanyard_desc');
+  if (descEl && sel) {
+    var opt = sel.options[sel.selectedIndex];
+    descEl.textContent = opt.dataset.desc || '';
+  }
 }
 
 // 목걸이줄 적용 → 빌링 행 업데이트
@@ -3334,19 +3380,33 @@ function applyManagerOption() {
   }
 }
 
-// 🧮 비용 항목 합산 → 총 금액 자동 계산
+// 🧮 비용 항목 합산 → 소계/기술료/VAT/총계 자동 계산
 function autoCalcTotal() {
   var rows = document.querySelectorAll('#qs_billing_table .bil-row');
   var sum = 0;
   rows.forEach(function(row) {
-    var val = row.dataset.val || '';
-    var n = Number(val.replace(/[^0-9]/g, ''));
+    var n = Number((row.dataset.val || '').replace(/[^0-9]/g, ''));
     if (!isNaN(n)) sum += n;
   });
-  if (sum > 0) {
-    document.getElementById('qs_total').value = '₩' + sum.toLocaleString('ko-KR');
-    _qsOriginalTotal = '₩' + sum.toLocaleString('ko-KR');
-    showToast('총 금액 자동 계산: ₩' + sum.toLocaleString('ko-KR'));
+  // 소계/기술료/VAT 표시
+  var totalsEl = document.getElementById('qs_billing_totals');
+  if (totalsEl) {
+    if (sum > 0) {
+      var tech  = Math.round(sum * 0.1);
+      var vat   = Math.round((sum + tech) * 0.1);
+      var grand = sum + tech + vat;
+      totalsEl.style.display = 'block';
+      var fmt = function(n) { return '₩' + n.toLocaleString('ko-KR'); };
+      document.getElementById('qs_subtotal').textContent = fmt(sum);
+      document.getElementById('qs_techfee').textContent  = fmt(tech);
+      document.getElementById('qs_vat').textContent      = fmt(vat);
+      document.getElementById('qs_grand').textContent    = fmt(grand);
+      // 총 금액 입력란도 자동 업데이트
+      document.getElementById('qs_total').value = fmt(grand);
+      _qsOriginalTotal = fmt(grand);
+    } else {
+      totalsEl.style.display = 'none';
+    }
   }
 }
 
