@@ -1897,6 +1897,7 @@ function parseQuoteContent(content) {
     종이명찰: get('종이명찰'),
     키오스크: get('키오스크'),
     매니저: get('매니저'),
+    행사등록비: get('행사 등록비'),
     총계: totalMatch ? totalMatch[1].trim() : '',
     비용상세: billingSection,
   };
@@ -2955,6 +2956,7 @@ window.openQuotePdf = function(index) {
           ${p.패키지 ? `<div class="info-cell"><div class="info-label">패키지</div><div class="info-val">${p.패키지}</div></div>` : ''}
           ${p.참가자수 ? `<div class="info-cell"><div class="info-label">참가자 수</div><div class="info-val">${p.참가자수}</div></div>` : ''}
           ${p.운영일수 ? `<div class="info-cell"><div class="info-label">운영 일수</div><div class="info-val">${p.운영일수}</div></div>` : ''}
+          ${p.행사등록비 ? `<div class="info-cell"><div class="info-label">등록비</div><div class="info-val">${p.행사등록비}</div></div>` : ''}
           ${p.키오스크 ? `<div class="info-cell"><div class="info-label">키오스크</div><div class="info-val">${p.키오스크}</div></div>` : ''}
           ${p.매니저 ? `<div class="info-cell"><div class="info-label">매니저</div><div class="info-val">${p.매니저}</div></div>` : ''}
         </div>

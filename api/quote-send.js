@@ -99,7 +99,6 @@ export default async function handler(req, res) {
   // 기술료/합계/할인/VAT 계산 행
   const techFee = Math.round(billingSubtotal * 0.1);
   const supply = Math.floor((billingSubtotal + techFee) / 1000) * 1000;
-  const hasDiscount = quoteDiscount && quoteDiscount.trim() && quoteDiscount.trim() !== "0";
   const discountNum = hasDiscount ? parseInt((quoteDiscount || "0").replace(/[^0-9]/g, ""), 10) || 0 : 0;
   const afterDiscount = Math.max(0, supply - discountNum);
   const vat = Math.round(afterDiscount * 0.1);
