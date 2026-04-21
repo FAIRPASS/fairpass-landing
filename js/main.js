@@ -207,14 +207,14 @@
     // #6 운송비 & #7 매니저 출장비 (지역별) — 편도 × 2 = 왕복
     regions: {
       seoul:     { shipping:  200000, bizTrip:      0 },
-      incheon:   { shipping:  300000, bizTrip:      0 },
+      incheon:   { shipping:  300000, bizTrip: 150000 },
       busan:     { shipping:  800000, bizTrip: 150000 },
       daegu:     { shipping:  700000, bizTrip: 150000 },
       gwangju:   { shipping:  700000, bizTrip: 150000 },
       daejeon:   { shipping:  400000, bizTrip: 150000 },
       ulsan:     { shipping:  800000, bizTrip: 150000 },
       sejong:    { shipping:  400000, bizTrip: 150000 },
-      gyeonggi:  { shipping:  300000, bizTrip:      0 },
+      gyeonggi:  { shipping:  300000, bizTrip: 150000 },
       gangwon:   { shipping:  400000, bizTrip: 150000 },
       chungbuk:  { shipping:  400000, bizTrip: 150000 },
       chungnam:  { shipping:  500000, bizTrip: 150000 },
