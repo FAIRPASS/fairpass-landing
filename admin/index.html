@@ -3453,25 +3453,27 @@ function serializeBillingForm() {
       lines.push('- 유인발급 장비(노트북+프린터기) (' + mkD + '일 × ' + mkS + '세트 × ' + mkP.toLocaleString() + '원): ' + _fmtKRW(mkD * mkS * mkP));
     }
   }
-  // S4
-  var shEl = document.getElementById('bf_shipping_amt');
-  var shVal = shEl ? shEl.value.trim() : '';
-  var shName = document.getElementById('bf_shipping_name');
-  var shLabel = shName ? shName.textContent.trim() : '왕복 운송비';
-  if (shVal) lines.push('- ' + shLabel + ': ' + shVal);
-  var instP = _numVal('bf_install_price', 0), instQ = _numVal('bf_install_qty', 0);
-  if (instP > 0) {
-    lines.push('- 설치/철거 매니저 인건비 (' + instQ + '회 × ' + instP.toLocaleString() + '원): ' + _fmtKRW(instP * instQ));
-  }
-  if (_checked('bf_manager_check')) {
-    var mDays = _numVal('bf_manager_days', 0);
-    lines.push('- 현장 상주 매니저 인건비 (' + mDays + '일 × 300,000원): ' + _fmtKRW(mDays * 300000));
-  }
-  if (_checked('bf_biztrip_check')) {
-    var btP = _numVal('bf_biztrip_price', 0), btD = _numVal('bf_biztrip_days', 0);
-    var btName = document.getElementById('bf_biztrip_name');
-    var btLabel = btName ? btName.textContent.trim() : '현장 상주 매니저 출장비';
-    lines.push('- ' + btLabel + ' (' + btD + '일 × ' + btP.toLocaleString() + '원): ' + _fmtKRW(btP * btD));
+  // S4 — 풀패키지(명찰+키오스크)일 때만 직렬화 (숨겨진 기본값이 몰래 저장되는 버그 방지)
+  if (_bfState.pkgBadge && _bfState.pkgKiosk) {
+    var shEl = document.getElementById('bf_shipping_amt');
+    var shVal = shEl ? shEl.value.trim() : '';
+    var shName = document.getElementById('bf_shipping_name');
+    var shLabel = shName ? shName.textContent.trim() : '왕복 운송비';
+    if (shVal && shVal !== '₩0') lines.push('- ' + shLabel + ': ' + shVal);
+    var instP = _numVal('bf_install_price', 0), instQ = _numVal('bf_install_qty', 0);
+    if (instP > 0) {
+      lines.push('- 설치/철거 매니저 인건비 (' + instQ + '회 × ' + instP.toLocaleString() + '원): ' + _fmtKRW(instP * instQ));
+    }
+    if (_checked('bf_manager_check')) {
+      var mDays = _numVal('bf_manager_days', 0);
+      lines.push('- 현장 상주 매니저 인건비 (' + mDays + '일 × 300,000원): ' + _fmtKRW(mDays * 300000));
+    }
+    if (_checked('bf_biztrip_check')) {
+      var btP = _numVal('bf_biztrip_price', 0), btD = _numVal('bf_biztrip_days', 0);
+      var btName = document.getElementById('bf_biztrip_name');
+      var btLabel = btName ? btName.textContent.trim() : '현장 상주 매니저 출장비';
+      lines.push('- ' + btLabel + ' (' + btD + '일 × ' + btP.toLocaleString() + '원): ' + _fmtKRW(btP * btD));
+    }
   }
   // S5
   if (_checked('bf_access_check')) {
