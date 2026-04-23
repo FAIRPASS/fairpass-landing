@@ -1062,6 +1062,153 @@ async function handleFetchArticleText(req, res) {
 }
 
 // ── Main handler ──────────────────────────────────────────
+// ── AI 다듬기 (문법 교정·문체 개선·번역) ──────────────────────────────
+async function handlePolish(req, res) {
+  const { body, title = '', mode = 'ko' } = req.body;
+  if (!body) return res.status(400).json({ error: 'body required' });
+
+  let system, user;
+
+  if (mode === 'ko') {
+    system = `당신은 FAIRPASS B2B 이벤트 플랫폼의 전담 에디터입니다.
+역할: 작성자가 쓴 한국어 저널 초안을 교정·다듬어 최종 발행 수준으로 완성합니다.
+
+## FAIRPASS 저널 스타일
+- 전문적이되 딱딱하지 않음. 실무자(행사 담당자, PCO, 기관 운영자)가 공감하는 톤
+- 구어체·이모티콘·감탄사(와! 정말! 대박) 제거
+- 문장은 간결하게. 한 문장에 의미 두 개가 들어가면 분리
+- 수동태보다 능동태 선호
+- 소제목(##, ###)은 핵심 키워드 포함, 질문형 또는 명사형
+- 마크다운 구조(##, **, >, -, ---) 그대로 유지하되 필요 시 개선
+- 사실·수치·브랜드명·링크 절대 변경 금지
+
+## 교정 범위
+- 맞춤법·띄어쓰기 교정
+- 문장 호흡 조정 (너무 길거나 짧은 문장)
+- 반복 표현·불필요한 중복 제거
+- 저널 톤에 맞지 않는 구어체·비격식 표현 수정
+- 단락 흐름이 어색한 경우 순서 조정 (내용 변경 없이)
+
+## 금지
+- 원문에 없는 내용 추가
+- 수치·사실 변경
+- 소제목·단락 구조 전면 재구성`;
+
+    user = `다음 한국어 저널 초안을 교정하고 다듬어주세요.${title ? `\n제목: ${title}` : ''}
+
+===원문===
+${body}
+===끝===
+
+반드시 아래 형식으로만 답하세요. 다른 설명 불필요:
+
+===POLISHED===
+(교정된 본문 전체)
+===CHANGES===
+(주요 변경 사항 3~7개, 한 줄씩 bullet로)`;
+
+  } else if (mode === 'en') {
+    system = `You are the dedicated editor for FAIRPASS, a B2B event management platform.
+Role: Polish and proofread English journal drafts to publication-ready standard.
+
+## FAIRPASS Journal Style
+- Professional but approachable. Written for corporate event managers, PCO agencies, and institutional organizers
+- Remove filler words, slang, exclamations
+- Prefer active voice. Split run-on sentences
+- Subheadings (##, ###) should be keyword-rich, concise
+- Preserve all markdown structure (##, **, >, -, ---)
+- Never change facts, figures, brand names, or links
+
+## Proofreading Scope
+- Grammar and spelling corrections
+- Sentence rhythm (too long / too short)
+- Remove redundant or repetitive phrases
+- Replace informal tone with professional B2B register
+- Improve paragraph flow without changing content
+
+## Prohibited
+- Adding content not in the original
+- Changing facts or figures
+- Restructuring headings entirely`;
+
+    user = `Please proofread and polish the following English journal draft.${title ? `\nTitle: ${title}` : ''}
+
+===DRAFT===
+${body}
+===END===
+
+Reply ONLY in this format, no extra commentary:
+
+===POLISHED===
+(full polished body)
+===CHANGES===
+(3–7 key changes made, one bullet per line)`;
+
+  } else if (mode === 'ko_to_en') {
+    system = `You are a content writer for FAIRPASS, a B2B event management platform.
+Task: Rewrite a Korean journal post in natural, professional English for international B2B readers (Singapore, Southeast Asia, global MICE industry).
+This is NOT a literal translation — adapt tone, idioms, and examples for an English-speaking B2B audience.
+Preserve all facts, figures, and brand names. Maintain markdown structure.`;
+
+    user = `Rewrite the following Korean text in professional B2B English.${title ? `\nTitle hint: ${title}` : ''}
+
+===KOREAN===
+${body}
+===END===
+
+Reply ONLY in this format:
+
+===POLISHED===
+(full English body)
+===CHANGES===
+(3–5 key adaptation notes, one bullet per line)`;
+
+  } else if (mode === 'en_to_ko') {
+    system = `당신은 FAIRPASS B2B 이벤트 플랫폼의 전담 번역 에디터입니다.
+역할: 영문 저널 본문을 한국 독자(기업·기관 행사 담당자, PCO)에 맞게 자연스러운 한국어로 재작성합니다.
+직역 금지. 한국 독자에게 자연스러운 문체로 재작성.
+사실·수치·브랜드명 보존. 마크다운 구조 유지.`;
+
+    user = `다음 영문 본문을 한국 B2B 독자를 위한 자연스러운 한국어로 재작성해주세요.${title ? `\n제목 참고: ${title}` : ''}
+
+===ENGLISH===
+${body}
+===END===
+
+반드시 아래 형식으로만 답하세요:
+
+===POLISHED===
+(전체 한국어 본문)
+===CHANGES===
+(주요 번역·조정 사항 3~5개, 한 줄씩 bullet로)`;
+
+  } else {
+    return res.status(400).json({ error: 'Invalid mode. Use: ko | en | ko_to_en | en_to_ko' });
+  }
+
+  try {
+    const r = await claudeCall({ system, user, maxTokens: 4096 });
+    if (!r.ok) return res.status(500).json({ error: 'Claude API error', detail: await r.text() });
+    const result = await r.json();
+    const text = result.content[0].text;
+
+    const polishedMatch = text.match(/===POLISHED===\s*\n([\s\S]*?)(?:\n===CHANGES===|$)/);
+    const changesMatch = text.match(/===CHANGES===\s*\n([\s\S]*)/);
+
+    if (!polishedMatch) {
+      return res.status(500).json({ error: 'Polish failed', detail: 'Response format invalid: ' + text.slice(0, 300) });
+    }
+
+    return res.status(200).json({
+      success: true,
+      polished: polishedMatch[1].trim(),
+      changes: changesMatch ? changesMatch[1].trim() : '',
+    });
+  } catch (e) {
+    return res.status(500).json({ error: 'Polish failed', detail: e.message });
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://fairpass.world');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -1087,6 +1234,7 @@ export default async function handler(req, res) {
   if (action === 'fetchArticleText') return handleFetchArticleText(req, res);
   if (action === 'translateEnToKo') return handleTranslateEnToKo(req, res);
   if (action === 'translateClipping') return handleTranslateClipping(req, res);
+  if (action === 'polish') return handlePolish(req, res);
 
-  return res.status(400).json({ error: 'Invalid action. Use: sns | translate | import | slug | pressImport | externalImport | fetchArticleText | translateEnToKo' });
+  return res.status(400).json({ error: 'Invalid action. Use: sns | translate | import | slug | pressImport | externalImport | fetchArticleText | translateEnToKo | polish' });
 }
