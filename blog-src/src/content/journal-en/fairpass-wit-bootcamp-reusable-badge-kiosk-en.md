@@ -10,46 +10,45 @@ draft: true
 status: draft
 ---
 
-![1761624472755.jpg](https://ztqxwbagbqenrcvjrkrh.supabase.co/storage/v1/object/public/journal/1776312287277_1761624472755.jpg)
+**FAIRPASS** was featured at the WiT Bootcamp as one of four South Korean travel tech startups solving real and persistent operational problems across the travel and events industry.
 
+For **FAIRPASS**, the challenge is one that event professionals know all too well: disposable name badges that are produced for a single event, used briefly, and then thrown away.
 
+## The Problem: The “Two-Hour Plastic Badge”
 
-**FAIRPASS** was featured at the WiT Bootcamp alongside four South Korean travel tech startups solving real, persistent pain points across the events and travel industry. For **FAIRPASS**, the problem is one that every event professional knows well: millions of single-use name badges printed, worn once, and discarded.
+At WiT, **FAIRPASS** was introduced as a startup tackling what the article described as the “two-hour plastic badge” problem — millions of disposable event badges that are printed, worn once, and discarded.
 
-## The Problem: A Badge Waste Crisis in the MICE Industry
+This is not only a sustainability issue, but also a workflow issue embedded in how many events still operate today.
 
-The global MICE industry produces enormous volumes of disposable plastic and **paper badge**s every year — printed for conferences, trade shows, and corporate events, used for a matter of hours, then sent to landfill. As sustainability pressures mount on event organizers worldwide, this largely invisible waste stream is coming under increasing scrutiny.
+## The FAIRPASS Solution: Recyclable Badges + Self-Service Kiosks
 
-## The FAIRPASS Solution: Reusable Badges + Unmanned Kiosks
+According to the WiT article, **FAIRPASS** replaces one-off plastic and paper badges with **recyclable badges** paired with **self-service kiosks**.
 
-**FAIRPASS** replaces single-use plastic and **paper badge**s with 100% reusable badge hardware, paired with self-service **unmanned kiosk**s at venue entrances. Attendees check in via **QR check-in**, receive a reusable badge on the spot, and return it on exit — eliminating per-event badge production entirely.
+This model is designed to reduce material waste while also improving onsite operations. By shifting check-in to a kiosk-centered process, organizers can reduce the need for traditional registration counters and lower onsite labor requirements.
 
-The **kiosk**-centered model also addresses a chronic operational challenge: staffing registration counters. By automating check-in through the **kiosk**, organizers can significantly reduce onsite labor requirements.
-
-
-![1761624472606.jpg](https://ztqxwbagbqenrcvjrkrh.supabase.co/storage/v1/object/public/journal/1776312370847_1761624472606.jpg)
-
-
-
-> *"People think sustainability is expensive. The **kiosk** model pays for itself by cutting counters and staff."*
+> *"People think sustainability is expensive. The kiosk model pays for itself by cutting counters and staff."*
 > — Yoon Ji Choi, CSO, **FAIRPASS**
 
-## Sustainability as a Cost-Saving Lever
+## Why It Matters: Sustainability Must Also Work Operationally
 
-A common misconception in the events industry is that sustainable operations carry a cost premium. **FAIRPASS** directly challenges this assumption. The reusable **paper badge** elimination model is positioned not as a CSR expense, but as an operational efficiency — one that delivers measurable ROI through reduced material procurement, lower printing costs, and streamlined staffing at **kiosk** check-in points.
+One of the most important points highlighted in the article is that sustainability in events should not be treated only as a branding or CSR decision.
 
-This framing is particularly relevant as corporate event buyers increasingly require sustainability metrics from venue and event partners, and as governments across Asia-Pacific introduce green procurement standards for publicly funded MICE events.
+For **FAIRPASS**, recyclable badge materials and self-service are presented as a practical operating model — one that can reduce waste and improve cost efficiency at the same time.
 
-## Go-to-Market: Prove, Then Scale
+## Go-to-Market: Prove ROI First, Then Scale
 
-**FAIRPASS** follows a deliberate market-entry strategy: deploy the **unmanned kiosk** and reusable badge system at its own events first to generate concrete ROI data, then use those proof points to approach external organizers and investors. International expansion is underway, with Singapore identified as the primary localization target and operating partnerships being actively sought in the market.
+WiT noted that **FAIRPASS** is taking a deliberate go-to-market approach: first deploying the model at its own events to prove ROI, then using those results to expand to external organizers and new markets.
 
-## Industry Context: Event Tech at an Inflection Point
+Singapore was identified as the primary localization target, with operating partners being sought as part of the company’s next stage of growth.
 
-The WiT Bootcamp showcase reflects a broader shift in Korea's event and travel tech ecosystem. Startups are moving beyond domestic proof-of-concept into active regional scaling, with Southeast Asia — particularly Singapore — serving as the primary gateway. For **FAIRPASS**, the convergence of sustainability mandates, labor cost pressures, and growing adoption of **QR check-in** infrastructure across Asian venues creates a compelling expansion environment.
+## A Signal from the Market
 
-The primary headwind remains change aversion within the events industry itself: convincing both organizers accustomed to traditional badge workflows and investors evaluating "green" tech that sustainability and profitability are not in tension.
+The WiT Bootcamp showcase suggested a broader shift in Korean travel and event tech: startups are moving beyond concept-stage storytelling and focusing instead on systems that solve costly, real-world problems.
+
+For **FAIRPASS**, that means rethinking event registration not only as a front-desk process, but as an opportunity to reduce waste, simplify operations, and build a more scalable event infrastructure.
 
 ---
 
-> 📰 **출처:** [WiT – Web in Travel](https://www.webintravel.com/next-wave-koreas-travel-tech-enters-its-builder-era/) · 배포: 2025-10-31 · 작성: WiT
+> 📰 **Source:** *WiT – Web in Travel*, “Next wave: Korea’s travel tech enters its builder era” (Published October 31, 2025)
+
+> ※ Editor’s Note: In this edited summary, the term ‘reusable’ has been adjusted to ‘recyclable’ to better reflect FAIRPASS’s current product description.
