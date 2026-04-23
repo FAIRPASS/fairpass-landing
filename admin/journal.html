@@ -651,15 +651,7 @@
         <!-- Editor toolbar row -->
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
           <button class="btn btn-ghost btn-sm" onclick="openPreview()">👁️ 미리보기</button>
-          <div class="polish-bar" id="polishBar">
-            <button class="btn btn-ghost btn-sm" onclick="togglePolishDropdown()" style="border-color:rgba(139,92,246,0.4);color:var(--purple-light);">✨ AI 다듬기 ▾</button>
-            <div class="polish-dropdown" id="polishDropdown">
-              <div class="polish-dropdown-item" onclick="runPolish('ko')">🇰🇷 국문 교정·다듬기<span class="badge">KO→KO</span></div>
-              <div class="polish-dropdown-item" onclick="runPolish('en')">🇺🇸 EN Grammar &amp; Polish<span class="badge">EN→EN</span></div>
-              <div class="polish-dropdown-item" onclick="runPolish('ko_to_en')">🇰🇷→🇺🇸 국문을 영문으로<span class="badge">번역</span></div>
-              <div class="polish-dropdown-item" onclick="runPolish('en_to_ko')">🇺🇸→🇰🇷 영문을 국문으로<span class="badge">번역</span></div>
-            </div>
-          </div>
+          <button class="btn btn-ghost btn-sm" onclick="runPolish()" style="border-color:rgba(139,92,246,0.4);color:var(--purple-light);">✨ AI 다듬기</button>
           <span class="polish-loading" id="polishLoading">다듬는 중... (20~40초)</span>
           <div class="autosave-bar">
             <div class="autosave-dot" id="autosaveDot"></div>
@@ -3423,33 +3415,12 @@ ${ko.body || ''}`;
   }
 
   // ── AI 다듬기 ──
-  function togglePolishDropdown() {
-    const dd = document.getElementById('polishDropdown');
-    dd.classList.toggle('open');
-  }
-
-  // 드롭다운 외부 클릭 시 닫기
-  document.addEventListener('click', (e) => {
-    const bar = document.getElementById('polishBar');
-    if (bar && !bar.contains(e.target)) {
-      document.getElementById('polishDropdown').classList.remove('open');
-    }
-  });
-
-  const POLISH_MODE_LABELS = {
-    ko: '🇰🇷 국문 교정·다듬기',
-    en: '🇺🇸 EN Grammar & Polish',
-    ko_to_en: '🇰🇷→🇺🇸 국문→영문',
-    en_to_ko: '🇺🇸→🇰🇷 영문→국문',
-  };
-
-  async function runPolish(mode) {
-    document.getElementById('polishDropdown').classList.remove('open');
-
-    const body = mde.value().trim();
+  async function runPolish() {
+    const body = easyMDE.value().trim();
     if (!body) { alert('에디터에 내용을 먼저 입력해주세요.'); return; }
 
-    const title = document.getElementById('postTitle')?.value || '';
+    const mode = currentLang; // 'ko' 또는 'en' 자동 감지
+    const title = document.getElementById('fTitle')?.value || '';
     const loading = document.getElementById('polishLoading');
     const panel = document.getElementById('polishPanel');
     const resultArea = document.getElementById('polishResultArea');
@@ -3464,13 +3435,13 @@ ${ko.body || ''}`;
       const res = await fetch('/api/journal-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'polish', password: adminPw, body, title, mode }),
+        body: JSON.stringify({ action: 'polish', password: pw, body, title, mode }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.detail || data.error || '알 수 없는 오류');
 
       resultArea.value = data.polished;
-      document.getElementById('polishPanelTitle').textContent = '✨ ' + POLISH_MODE_LABELS[mode] + ' 결과';
+      document.getElementById('polishPanelTitle').textContent = mode === 'ko' ? '✨ 국문 AI 다듬기 결과' : '✨ EN AI Polish Result';
       if (data.changes) {
         changesEl.textContent = '📝 변경 사항:\n' + data.changes;
         changesEl.style.display = 'block';
@@ -3488,7 +3459,7 @@ ${ko.body || ''}`;
     const result = document.getElementById('polishResultArea').value;
     if (!result) return;
     if (!confirm('현재 에디터 내용을 AI 다듬기 결과로 교체합니다. 계속할까요?')) return;
-    mde.value(result);
+    easyMDE.value(result);
     closePolishPanel();
   }
 
